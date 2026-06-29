@@ -107,13 +107,13 @@ main {
 .split-section,
 .contact-section {
   display: grid;
-  gap: 24px;
+  gap: 28px;
 }
 
 .hero {
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.58fr);
   align-items: start;
-  padding: 14px 0 54px;
+  padding: 42px 0 64px;
 }
 
 .hero-copy {
@@ -223,18 +223,18 @@ p {
 .content-section,
 .split-section,
 .contact-section {
-  margin: 0 0 68px;
+  margin: 0 0 82px;
 }
 
 .section-heading {
   max-width: 760px;
-  margin-bottom: 22px;
+  margin-bottom: 26px;
 }
 
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .feature-card {
@@ -332,7 +332,7 @@ footer {
 
   .hero {
     min-height: auto;
-    padding: 22px 0 44px;
+    padding: 34px 0 52px;
   }
 
   h1 {
