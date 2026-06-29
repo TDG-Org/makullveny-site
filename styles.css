@@ -112,9 +112,9 @@ main {
 
 .hero {
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.58fr);
-  align-items: end;
-  min-height: 78vh;
-  padding: 64px 0 56px;
+  align-items: center;
+  min-height: 62vh;
+  padding: 30px 0 48px;
 }
 
 .hero-copy {
@@ -258,6 +258,17 @@ p {
   padding: 28px;
 }
 
+.more-note {
+  max-width: 860px;
+  margin: 18px auto 0;
+  border: 1px solid rgba(239, 208, 157, 0.18);
+  border-radius: 999px;
+  padding: 13px 18px;
+  color: var(--text);
+  text-align: center;
+  background: rgba(255, 239, 205, 0.06);
+}
+
 .icon-dot {
   display: block;
   width: 36px;
@@ -344,7 +355,7 @@ footer {
 
   .hero {
     min-height: auto;
-    padding-top: 42px;
+    padding-top: 30px;
   }
 
   h1 {
@@ -372,6 +383,10 @@ footer {
   .privacy-list,
   .contact-section {
     padding: 20px;
+  }
+
+  .more-note {
+    border-radius: 16px;
   }
 
   .button {
