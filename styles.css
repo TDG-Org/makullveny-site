@@ -112,8 +112,10 @@ main {
 
 .hero {
   grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.58fr);
-  align-items: start;
-  padding: 96px 0 124px;
+  align-items: center;
+  min-height: calc(100vh - 74px);
+  min-height: calc(100svh - 74px);
+  padding: 72px 0 96px;
 }
 
 .hero-copy {
@@ -223,23 +225,23 @@ p {
 .content-section,
 .split-section,
 .contact-section {
-  margin: 0 0 132px;
+  margin: 0 0 164px;
 }
 
 .section-heading {
   max-width: 760px;
-  margin-bottom: 36px;
+  margin-bottom: 42px;
 }
 
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 24px;
+  gap: 28px;
 }
 
 .feature-card {
   min-height: 218px;
-  padding: 30px;
+  padding: 34px;
 }
 
 .icon-dot {
@@ -271,11 +273,11 @@ p {
 
 .panel,
 .contact-section {
-  padding: 34px;
+  padding: 40px;
 }
 
 .image-panel {
-  min-height: 360px;
+  min-height: 400px;
   background:
     linear-gradient(180deg, rgba(26, 16, 10, 0.1), rgba(26, 16, 10, 0.34)),
     url("./assets/snow-cabin-background.png") center / cover;
@@ -283,8 +285,8 @@ p {
 
 .privacy-list {
   display: grid;
-  gap: 16px;
-  padding: 32px;
+  gap: 20px;
+  padding: 38px;
 }
 
 .privacy-list p,
@@ -301,7 +303,7 @@ footer {
   justify-content: space-between;
   gap: 24px;
   border-top: 1px solid var(--line);
-  padding: 30px 0 42px;
+  padding: 38px 0 54px;
   color: var(--muted);
   font: 700 0.78rem/1 Arial, sans-serif;
   text-transform: uppercase;
@@ -332,7 +334,7 @@ footer {
 
   .hero {
     min-height: auto;
-    padding: 64px 0 88px;
+    padding: 72px 0 96px;
   }
 
   h1 {
@@ -359,7 +361,7 @@ footer {
   .panel,
   .privacy-list,
   .contact-section {
-    padding: 24px;
+    padding: 28px;
   }
 
   .button {
