@@ -105,7 +105,6 @@ main {
 
 .section-grid,
 .split-section,
-.support-section,
 .contact-section {
   display: grid;
   gap: 28px;
@@ -139,9 +138,9 @@ p {
 
 h1 {
   margin-bottom: 22px;
-  font-size: clamp(2.7rem, 7vw, 5.65rem);
-  line-height: 0.92;
-  letter-spacing: -0.025em;
+  font-size: clamp(2.8rem, 5.8vw, 5rem);
+  line-height: 0.96;
+  letter-spacing: -0.018em;
 }
 
 h2 {
@@ -196,21 +195,14 @@ p {
   background: linear-gradient(180deg, #9a6332, #5e361b);
 }
 
-.button.secondary,
-.button.disabled {
+.button.secondary {
   background: rgba(255, 239, 205, 0.08);
-}
-
-.button.disabled {
-  cursor: not-allowed;
-  opacity: 0.74;
 }
 
 .hero-card,
 .feature-card,
 .panel,
-.support-card,
-.verse-card,
+.mission-card,
 .privacy-list,
 .contact-section {
   border: 1px solid var(--line);
@@ -230,22 +222,22 @@ p {
   margin-bottom: 18px;
 }
 
-.verse-card {
-  width: min(720px, 100%);
-  margin: -36px auto 88px;
-  padding: 18px 22px;
+.mission-card {
+  width: min(860px, 100%);
+  margin: 0 auto 88px;
+  padding: 16px 22px;
   text-align: center;
+  background: linear-gradient(90deg, rgba(41, 25, 17, 0.44), rgba(41, 25, 17, 0.78), rgba(41, 25, 17, 0.44));
 }
 
-.verse-card p {
+.mission-card p {
   margin: 0;
   color: var(--text);
-  font-size: 1.08rem;
+  font-size: 1.02rem;
 }
 
 .content-section,
 .split-section,
-.support-section,
 .contact-section {
   margin: 0 0 90px;
 }
@@ -284,14 +276,12 @@ p {
 }
 
 .split-section,
-.support-section,
 .contact-section {
   grid-template-columns: minmax(0, 1fr) minmax(280px, 0.78fr);
   align-items: stretch;
 }
 
 .panel,
-.support-card,
 .contact-section {
   padding: 30px;
 }
@@ -310,28 +300,8 @@ p {
 }
 
 .privacy-list p,
-.support-copy p,
-.support-card p,
 .contact-section p {
   margin-bottom: 0;
-}
-
-.support-section {
-  align-items: center;
-  border: 1px solid rgba(255, 224, 165, 0.18);
-  border-radius: 26px;
-  padding: 30px;
-  background: linear-gradient(135deg, rgba(81, 49, 27, 0.74), rgba(20, 12, 8, 0.72));
-  box-shadow: 0 30px 90px var(--shadow);
-}
-
-.support-card {
-  background: var(--panel-strong);
-}
-
-.fine-print {
-  margin-top: 16px;
-  font-size: 0.92rem;
 }
 
 .contact-section {
@@ -367,7 +337,6 @@ footer {
 
   .hero,
   .split-section,
-  .support-section,
   .contact-section,
   .feature-grid {
     grid-template-columns: 1fr;
@@ -400,8 +369,6 @@ footer {
   .hero-card,
   .feature-card,
   .panel,
-  .support-card,
-  .support-section,
   .privacy-list,
   .contact-section {
     padding: 20px;
