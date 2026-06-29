@@ -107,7 +107,7 @@ main {
 .split-section,
 .contact-section {
   display: grid;
-  gap: 36px;
+  gap: 48px;
 }
 
 .hero {
@@ -115,7 +115,7 @@ main {
   align-items: center;
   min-height: calc(100vh - 74px);
   min-height: calc(100svh - 74px);
-  padding: 72px 0 96px;
+  padding: 92px 0 118px;
 }
 
 .hero-copy {
@@ -225,23 +225,23 @@ p {
 .content-section,
 .split-section,
 .contact-section {
-  margin: 0 0 164px;
+  margin: 0 0 204px;
 }
 
 .section-heading {
   max-width: 760px;
-  margin-bottom: 42px;
+  margin-bottom: 54px;
 }
 
 .feature-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 28px;
+  gap: 36px;
 }
 
 .feature-card {
   min-height: 218px;
-  padding: 34px;
+  padding: 42px;
 }
 
 .icon-dot {
@@ -273,7 +273,7 @@ p {
 
 .panel,
 .contact-section {
-  padding: 40px;
+  padding: 50px;
 }
 
 .image-panel {
@@ -285,8 +285,8 @@ p {
 
 .privacy-list {
   display: grid;
-  gap: 20px;
-  padding: 38px;
+  gap: 26px;
+  padding: 48px;
 }
 
 .privacy-list p,
@@ -301,9 +301,9 @@ p {
 footer {
   display: flex;
   justify-content: space-between;
-  gap: 24px;
+  gap: 32px;
   border-top: 1px solid var(--line);
-  padding: 38px 0 54px;
+  padding: 48px 0 68px;
   color: var(--muted);
   font: 700 0.78rem/1 Arial, sans-serif;
   text-transform: uppercase;
@@ -334,7 +334,7 @@ footer {
 
   .hero {
     min-height: auto;
-    padding: 72px 0 96px;
+    padding: 82px 0 106px;
   }
 
   h1 {
@@ -361,7 +361,7 @@ footer {
   .panel,
   .privacy-list,
   .contact-section {
-    padding: 28px;
+    padding: 32px;
   }
 
   .button {
