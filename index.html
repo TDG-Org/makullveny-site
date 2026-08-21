@@ -16,6 +16,7 @@
           <span>Makullveny</span>
         </a>
         <nav>
+          <a href="#download">Download</a>
           <a href="#about">About</a>
           <a href="#privacy">Privacy</a>
           <a href="#contact">Contact</a>
@@ -28,19 +29,42 @@
             <p class="eyebrow">A calm study room for your computer</p>
             <h1>Makullveny: study with calm focus.</h1>
             <p class="lead">
-              Makullveny is a local-first desktop study assistant in active development. It opens with a simple dashboard, then gives students focused spaces for notes, tools, ambience, study music, and calmer class organization.
+              Makullveny is a local-first desktop study assistant, still early and still changing. It opens with a simple dashboard, then gives students focused spaces for notes, tools, ambience, study music, and calmer class organization.
             </p>
             <div class="hero-actions">
-              <a class="button primary" href="#about">Learn more</a>
+              <a class="button primary" href="#download">Get Makullveny</a>
+              <a class="button secondary" href="#about">Learn more</a>
             </div>
           </div>
-          <aside class="hero-card" aria-label="Current Makullveny status">
+          <aside class="hero-card" aria-label="Where Makullveny stands today">
             <img src="./assets/cabin-logo.svg" alt="" class="mark">
-            <h2>Private work-in-progress beta</h2>
+            <h2>Early build, private source</h2>
             <p>
-              The desktop app source is private while the project is being polished. This page gives a clear public overview without exposing the full codebase, user data, or deeper roadmap.
+              Public builds are published as a plain desktop download on GitHub. The source code stays private while the project is being polished, so this page is the public overview rather than the codebase.
             </p>
+            <p><a class="download-more-link" href="#download">Jump to downloads</a></p>
           </aside>
+        </section>
+
+        <section id="download" class="content-section download-section">
+          <div class="section-heading">
+            <p class="eyebrow">Download</p>
+            <h2>Get Makullveny for your computer.</h2>
+            <p>
+              Makullveny is early software and it changes often. This page reads the latest public release straight from GitHub when it loads, so what you see below is what is actually published right now.
+            </p>
+          </div>
+          <div class="download-card" id="download-panel" aria-live="polite" aria-busy="false">
+            <p class="download-lede">
+              Makullveny is a desktop app. Every public build is published on the Makullveny releases page on GitHub.
+            </p>
+            <p class="download-note">
+              This page normally lists the build for your system. Without JavaScript it cannot check, so the releases page below is the place to look: it lists every published build, or shows nothing when none has been released yet.
+            </p>
+            <div class="download-actions">
+              <a class="button secondary" href="https://github.com/TDG-Org/makullveny-releases/releases" target="_blank" rel="noreferrer">Open the releases page</a>
+            </div>
+          </div>
         </section>
 
         <section id="about" class="content-section">
@@ -115,5 +139,6 @@
         <span>Makullveny public project page</span>
       </footer>
     </div>
+    <script src="./download.js" defer></script>
   </body>
 </html>
