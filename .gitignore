@@ -1,0 +1,7 @@
+# ── agent / assistant files ──────────────────────────────────────────────
+# This repo is public. Assistant instructions and per-machine tooling state
+# live locally only, the same way they do in MARANATHA, TDG-Site and Say2Quill.
+CLAUDE.md
+CLAUDE.local.md
+[Cc]laude*.md
+.claude/
