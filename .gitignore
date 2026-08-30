@@ -5,3 +5,17 @@ CLAUDE.md
 CLAUDE.local.md
 [Cc]laude*.md
 .claude/
+.devfleet/
+AGENTS.md
+.codex/
+.cursor/
+.github/copilot-instructions.md
+
+# ── machine-local, not part of the site ──────────────────────────────────
+# There is no package.json here and there must never be one (see CLAUDE.md),
+# so a lockfile can only be the residue of a stray `npm install` or of running
+# tools/make-icons.mjs. Ignored rather than committed, because committing it
+# would be the first half of exactly the version carrier this repo refuses to
+# grow.
+package-lock.json
+node_modules/

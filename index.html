@@ -4,8 +4,29 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Makullveny is a calm, local-first desktop study assistant for students, built around a dashboard, a cozy notes workspace, and focused study tools.">
-    <title>Makullveny | Student Study Assistant</title>
-    <link rel="icon" href="./assets/cabin-icon.png" type="image/png">
+    <!-- The NAME, not a headline. A bookmark is saved as the <title>, and iOS
+         falls back to it for a Home Screen tile, so "Makullveny | Student Study
+         Assistant" put a sentence where the app's name belongs. The descriptor
+         is still above, in the meta description, which is where a search result
+         reads it from anyway. -->
+    <title>Makullveny</title>
+    <meta name="apple-mobile-web-app-title" content="Makullveny">
+    <meta name="application-name" content="Makullveny">
+    <!-- ── the icon ──────────────────────────────────────────────────────────
+         cabin-icon.png is a ROUND crop with transparent corners. It is right in
+         the header above, sitting on the page's own background, and wrong for
+         every install surface: iOS composites apple-touch-icon on BLACK before
+         applying its own squircle mask, so those corners come back as black
+         wedges. There was no apple-touch-icon link at all either, which means
+         an iPhone was making its Home Screen tile out of a SCREENSHOT of this
+         page. assets/icons/ is the square, opaque family; tools/make-icons.mjs
+         draws it from the same cabin the header shows. -->
+    <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
+    <meta name="theme-color" content="#18251f">
+    <link rel="manifest" href="./site.webmanifest">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
