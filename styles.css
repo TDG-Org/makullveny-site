@@ -395,6 +395,7 @@ p {
 footer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 32px;
   border-top: 1px solid var(--line);
   padding: 48px 0 68px;
@@ -402,6 +403,27 @@ footer {
   font: 700 0.78rem/1 Arial, sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.12em;
+}
+
+/* The TDG mark, where the letters "TDG" used to be. It is the fleet's one
+   mark — the same 384x212 bytes every TDG app draws, cropped to its own alpha
+   (TDG-Site's AGENTS.md rule 18b holds the master and the hash).
+
+   A MASK filled with currentColor rather than an <img>, so the mark keeps
+   exactly the ink the letters had — var(--muted), inherited from the footer —
+   instead of arriving as a silver gradient this page never chose. That also
+   means it needs no filter and no second rule if the palette ever moves.
+
+   aspect-ratio, because a masked span has no intrinsic size of its own; the
+   width reads at the weight the three uppercase letters had beside it. */
+.tdg-mark {
+  display: block;
+  flex: none;
+  width: 46px;
+  aspect-ratio: 384 / 212;
+  background-color: currentColor;
+  -webkit-mask: url("./assets/tdg-logo-mark.png") center / contain no-repeat;
+  mask: url("./assets/tdg-logo-mark.png") center / contain no-repeat;
 }
 
 @media (max-width: 840px) {
