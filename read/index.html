@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      THE READ-ONLY VIEWER for a Makullveny published snapshot.
+
+      ─────────────────────────────────────────────────────────────────────────
+      WHAT THIS PAGE MAY NEVER CONTAIN, and why each one
+      ─────────────────────────────────────────────────────────────────────────
+      * NO user content. Not one snapshot, not one title, not one page of
+        anybody's writing is in this repository. Everything the reader sees is
+        fetched at runtime and lives only in their tab.
+      * NO service-role key and no private environment value. The only
+        credential this page could ever hold is a publishable anon key, which is
+        designed to be public — and even that is not committed here; see the
+        CONFIG block below.
+      * NO object key that reveals identity. The only identifier this page
+        handles is the opaque share token, which the reader already has because
+        it is in the URL they were given.
+      * NO authenticated database client with broad access. There is no Supabase
+        JS client on this page at all. It makes ONE fetch, to ONE function, with
+        ONE token.
+
+      ─────────────────────────────────────────────────────────────────────────
+      THE TOKEN IS IN THE FRAGMENT, AND THAT IS LOAD-BEARING
+      ─────────────────────────────────────────────────────────────────────────
+      A URL fragment is never sent to a web server. So the token this page reads
+      never reaches GitHub Pages' access log, and it never travels in a Referer
+      header when the reader clicks a link inside the published writing. Moving
+      it to a query string would silently undo both properties.
+
+      ─────────────────────────────────────────────────────────────────────────
+      THE SANITIZER IS DELIBERATELY A SECOND, INDEPENDENT ONE
+      ─────────────────────────────────────────────────────────────────────────
+      The app sanitizes on publish. This page sanitizes again on render, because
+      a snapshot in transit is not a snapshot this page produced — and the two
+      live in different repositories with different trust boundaries, so sharing
+      code between them is not possible and would not be desirable.
+
+      It is written as an ALLOWLIST WALK over an inert DOMParser document, not as
+      a regex over a string and not as innerHTML: every node is rebuilt by hand,
+      so anything unrecognised cannot survive by being spelled unusually. It only
+      has to be a SUBSET of what the app already allows, which it is.
+
+      NO BUILD STEP. This repo has none and the README says it must never gain
+      one. Plain HTML, plain CSS, plain ES5-compatible JS.
+    -->
+    <title>Makullveny — a shared reading</title>
+    <meta name="referrer" content="no-referrer">
+    <!--
+      A restrictive CSP, stated in the document because there is no server to set
+      a header. `script-src 'self'` means the injected snapshot can never run
+      anything even if every other defence failed; `img-src 'none'` means a
+      published page cannot make the reader fetch a tracking pixel; `frame-src
+      'none'` and `object-src 'none'` close the embedding routes. `connect-src`
+      is widened to the API origin by the CONFIG block only when one is set.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'none'; font-src 'none'; connect-src https:; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./read.css">
+  </head>
+  <body>
+    <!--
+      OPEN GRAPH IS WRITTEN BY read.js, NEVER HERE.
+
+      A card in the markup would have to be filled from the snapshot, and an
+      anonymous share must produce a card that names no person. Building it in JS
+      from the fetched snapshot means there is exactly one place that decides,
+      and it is the same place that knows whether the share is anonymous.
+
+      A crawler that does not run JS therefore sees the generic title above and
+      nothing about the writer, which is the correct failure direction.
+    -->
+    <header class="reader-top">
+      <a class="reader-brand" href="../" aria-label="Makullveny">
+        <span aria-hidden="true">&#127794;</span>
+        <span>Makullveny</span>
+      </a>
+      <button id="readerPrint" class="reader-print" type="button" hidden>Print</button>
+    </header>
+
+    <main id="readerMain" class="reader-main">
+      <p id="readerState" class="reader-state" role="status" aria-live="polite">Opening&#8230;</p>
+      <article id="readerArticle" class="reader-article" hidden>
+        <h1 id="readerTitle" class="reader-title"></h1>
+        <p id="readerByline" class="reader-byline" hidden></p>
+        <p id="readerDescription" class="reader-description" hidden></p>
+        <div id="readerPages" class="reader-pages"></div>
+        <section id="readerCredits" class="reader-credits" hidden>
+          <h2 class="reader-credits-title">Credits</h2>
+          <ul id="readerCreditsList" class="reader-credits-list"></ul>
+        </section>
+      </article>
+    </main>
+
+    <footer class="reader-foot">
+      <p>
+        Shared from <a href="../">Makullveny</a>, a local-first study app.
+        This is a read-only copy the writer chose to publish.
+      </p>
+    </footer>
+
+    <script src="./read.js"></script>
+  </body>
+</html>

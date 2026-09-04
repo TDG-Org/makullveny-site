@@ -19,3 +19,8 @@ AGENTS.md
 # grow.
 package-lock.json
 node_modules/
+
+# Deploy-time viewer config. Neither value is a secret, but neither belongs in
+# git: filling them in would tie this public repo to one project and make
+# rotating a key a code change. A deploy writes it.
+read/config.js
