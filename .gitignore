@@ -20,7 +20,10 @@ AGENTS.md
 package-lock.json
 node_modules/
 
-# Deploy-time viewer config. Neither value is a secret, but neither belongs in
-# git: filling them in would tie this public repo to one project and make
-# rotating a key a code change. A deploy writes it.
-read/config.js
+# read/config.js is DELIBERATELY NOT IGNORED. read/index.html loads it with a
+# <script src>, so a missing file is a 404 in every reader's console on every
+# page load. The committed copy declares nothing -- empty apiUrl, empty key --
+# which is the honest state while the server half does not exist, and a deploy
+# overwrites it with the real per-deployment values. Neither of those is a
+# secret; they are kept out of git so this public repo is not tied to one
+# project and rotating a key is not a code change. See the file's own header.

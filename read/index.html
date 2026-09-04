@@ -103,6 +103,18 @@
       </p>
     </footer>
 
+    <!-- DEPLOY-TIME CONFIG, LOADED BEFORE THE VIEWER.
+         read.js reads window.MAKULLVENY_READER_CONFIG for the API origin and
+         the publishable key. Neither is a secret; both are per-deployment, so
+         they live in their own file rather than in this markup, and a deploy
+         overwrites it.
+
+         The committed copy declares NOTHING, and that is what makes this tag
+         safe to ship: the viewer falls through to "Shared reading is not open
+         yet" instead of 404-ing on a script it needs. A <script src> pointing
+         at a path that is not in the repository would be a console error on
+         every page load, forever, for every reader. -->
+    <script src="./config.js"></script>
     <script src="./read.js"></script>
   </body>
 </html>
