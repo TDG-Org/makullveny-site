@@ -15,9 +15,16 @@
   A DEPLOY OVERWRITES THIS FILE. Fill in both fields:
 
       window.MAKULLVENY_READER_CONFIG = {
-        apiUrl: "https://<project>.supabase.co/rest/v1/rpc/tdg_share_read",
+        apiUrl: "https://<project>.supabase.co/functions/v1/mak-share",
         publishableKey: "<the anon/publishable key>"
       };
+
+  apiUrl is the mak-share Edge Function, not a plain RPC — the function holds
+  the service-role key and calls mak_publication_read() itself; anon has no
+  grant on that RPC directly. As of 2026-09-06 this function and its
+  migrations are written and committed in the private repo but marked "NOT
+  APPLIED" — nothing is live yet, so leaving this file empty is still correct
+  until a deploy fills it in for real.
 
   NEITHER VALUE IS A SECRET — a publishable key is public by definition and the
   URL is in every request — but neither belongs in git either: committing them

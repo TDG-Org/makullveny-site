@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      THE CHECKOUT RETURN PAGE. Stripe redirects here after the student pays (or
+      cancels) in their own system browser, because Makullveny opens Checkout
+      there rather than in an app-owned window -- a real address bar and the
+      student's own saved card/password manager are more trustworthy for a real
+      payment. The cost is that the app cannot watch for Stripe's redirect
+      itself, so Stripe sends the browser HERE and this page hands control back
+      with a makullveny:// link. This is Stripe's own recommended shape for an
+      app-to-web purchase (success_url must be http/https, never a custom
+      scheme).
+
+      THIS PAGE MUST NEVER PROMISE ANYTHING. It knows only which URL Stripe
+      redirected to, and a URL is not a receipt -- anyone can type one. The
+      Stripe webhook is the sole authority for what an account owns, and the
+      app re-asks the server when it comes forward. So the copy says a payment
+      was taken and is being confirmed, never that a purchase is unlocked.
+
+      Ported from the private app's docs/checkout-return/index.html (already
+      audited there) with the inline style/script split into their own files so
+      this page can carry a real CSP with no 'unsafe-inline'.
+    -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <title>Makullveny — back to the app</title>
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./checkout.css">
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">&#10022;</div>
+      <h1 id="title">Taking you back to Makullveny&#8230;</h1>
+      <p class="lead" id="lead">One moment.</p>
+
+      <a class="button" id="open" href="makullveny://checkout/cancel">Open Makullveny</a>
+
+      <hr>
+      <p class="fine" id="fine">
+        If that button does nothing, your browser may be blocking the hand-off &mdash;
+        just switch back to Makullveny yourself. It checks again on its own every
+        time it comes to the front.
+      </p>
+    </main>
+    <script src="./checkout.js"></script>
+  </body>
+</html>

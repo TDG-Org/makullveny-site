@@ -11,6 +11,11 @@ AGENTS.md
 .cursor/
 .github/copilot-instructions.md
 
+# git worktrees created for isolated task branches (e.g. `git worktree add
+# .worktrees/<branch>`) are machine-local checkouts of history already in
+# .git, not site content.
+.worktrees/
+
 # ── machine-local, not part of the site ──────────────────────────────────
 # There is no package.json here and there must never be one (see CLAUDE.md),
 # so a lockfile can only be the residue of a stray `npm install` or of running

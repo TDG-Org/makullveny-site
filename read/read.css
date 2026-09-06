@@ -1,25 +1,14 @@
 /*
-  THE READ-ONLY VIEWER's styling.
+  THE READ-ONLY VIEWER's chrome, state messages, and book-page typography.
+  The book/blueprint scenes themselves (desk, candle, cover, controls) are in
+  scene.css — this file is what would still matter with scene.css stripped
+  out: a readable page in a browser that ignores everything else.
 
-  ───────────────────────────────────────────────────────────────────────────
-  VIEWER-OWNED TOKENS, NOT THE APP'S
-  ───────────────────────────────────────────────────────────────────────────
-  Makullveny has sixteen themes and this page wears none of them. That is
-  deliberate on both counts: the published snapshot carries no theme (it is
-  prose, not a screenshot of somebody's desk), and a public page that tried to
-  reproduce one would have to ship sixteen palettes it cannot test against real
-  content. So the page defines its OWN small token set below, once, and every
-  colour in this file reads from it.
+  VIEWER-OWNED TOKENS, NOT THE APP'S. Makullveny has sixteen themes and this
+  page wears none of them — the snapshot carries no theme, and this follows
+  only the reader's system light/dark preference.
 
-  It follows the reader's system preference for light and dark, because that is
-  the only theme signal a stranger's browser actually gives us.
-
-  ───────────────────────────────────────────────────────────────────────────
-  NO WEB FONTS
-  ───────────────────────────────────────────────────────────────────────────
-  A font from a third party is a request the reader makes to that third party,
-  which is exactly the tracking this page exists to avoid — and the CSP already
-  forbids it (`font-src 'none'`). System stacks only.
+  NO WEB FONTS — system stacks only; the CSP already forbids third-party fonts.
 */
 
 :root {
@@ -93,6 +82,7 @@ body {
   font: inherit;
   font-size: 0.82rem;
   cursor: pointer;
+  min-height: 44px;
 }
 
 .reader-print:hover,
@@ -104,13 +94,14 @@ body {
 .reader-main {
   flex: 1 1 auto;
   width: 100%;
-  max-width: var(--measure);
+  max-width: 64rem;
   margin: 0 auto;
-  padding: 32px 20px 48px;
+  padding: 24px 20px 48px;
 }
 
 .reader-state {
-  margin: 48px 0;
+  margin: 48px auto;
+  max-width: var(--measure);
   color: var(--muted);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 0.95rem;
@@ -118,154 +109,8 @@ body {
 }
 
 .reader-state[hidden] { display: none; }
-
-/* ── the writing ────────────────────────────────────────────────────────── */
-
-.reader-title {
-  margin: 0 0 6px;
-  font-size: 1.9rem;
-  line-height: 1.2;
-}
-
-.reader-byline,
-.reader-description {
-  margin: 0 0 6px;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-
-.reader-pages { margin-top: 28px; }
-
-/*
-  A PAGE BOUNDARY IS A RULE, NOT A BLANK SHEET. The snapshot carries whole book
-  pages, and stacking simulated paper on a phone would be unreadable. Each page
-  is separated by a hairline instead, so the writer's own structure survives
-  without pretending the reader is holding paper.
-*/
-.reader-page + .reader-page {
-  margin-top: 32px;
-  padding-top: 32px;
-  border-top: 1px solid var(--rule);
-}
-
-.reader-page-body > :first-child { margin-top: 0; }
-.reader-page-body > :last-child { margin-bottom: 0; }
-
-.reader-page-body p { margin: 0 0 1em; }
-
-.reader-page-body h1,
-.reader-page-body h2,
-.reader-page-body h3,
-.reader-page-body h4,
-.reader-page-body h5,
-.reader-page-body h6 {
-  margin: 1.6em 0 0.5em;
-  line-height: 1.25;
-}
-
-.reader-page-body h1 { font-size: 1.5rem; }
-.reader-page-body h2 { font-size: 1.28rem; }
-.reader-page-body h3 { font-size: 1.12rem; }
-.reader-page-body h4,
-.reader-page-body h5,
-.reader-page-body h6 { font-size: 1rem; }
-
-.reader-page-body a {
-  color: var(--link);
-  text-underline-offset: 2px;
-}
-
-.reader-page-body blockquote {
-  margin: 1.2em 0;
-  padding-left: 1em;
-  border-left: 3px solid var(--rule);
-  color: var(--muted);
-}
-
-.reader-page-body pre,
-.reader-page-body code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.88em;
-}
-
-.reader-page-body pre {
-  padding: 12px 14px;
-  border-radius: 8px;
-  background: var(--card);
-  /* Long code scrolls INSIDE its own box; the page itself never scrolls
-     sideways. */
-  overflow-x: auto;
-}
-
-/* A table is the one thing that will not fit a phone. It scrolls in its own
-   box, for the same reason. */
-.reader-page-body table {
-  display: block;
-  width: 100%;
-  overflow-x: auto;
-  border-collapse: collapse;
-  font-size: 0.94em;
-}
-
-.reader-page-body th,
-.reader-page-body td {
-  padding: 6px 10px;
-  border: 1px solid var(--rule);
-  text-align: left;
-}
-
-/* The writer's own manual page break. On screen it is a quiet rule; in print it
-   is a real page break, below. */
-.reader-page-body hr.page-break {
-  height: 0;
-  margin: 1.6em 0;
-  border: 0;
-  border-top: 1px dashed var(--rule);
-}
-
-/*
-  A WORKS CITED BLOCK KEEPS ITS HANGING INDENT. The app cannot put text-indent
-  in the markup (its sanitizer does not allow the property, deliberately), so
-  the indent has always been class-driven — and this is the class arriving
-  somewhere that knows what it means.
-*/
-.reader-page-body .works-cited { margin-top: 2em; }
-
-.reader-page-body .works-cited-heading {
-  text-align: center;
-  font-weight: 600;
-}
-
-.reader-page-body .works-cited-entry {
-  margin: 0 0 0.5em;
-  padding-left: 2em;
-  text-indent: -2em;
-}
-
-.reader-page-body .academic-title,
-.reader-page-body .academic-title-line { text-align: center; }
-
-.reader-credits {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid var(--rule);
-}
-
-.reader-credits-title {
-  margin: 0 0 8px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.reader-credits-list {
-  margin: 0;
-  padding-left: 1.2em;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
+.reader-state-refused { color: var(--muted); }
+.reader-state-retry { color: var(--link); }
 
 .reader-foot {
   border-top: 1px solid var(--rule);
@@ -278,23 +123,129 @@ body {
 
 .reader-foot a { color: var(--link); }
 
+/* ── credits (book + blueprint share this markup) ──────────────────────── */
+
+.reader-credits {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.reader-credits-title {
+  margin: 0 0 8px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.reader-credits-list {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.92rem;
+}
+
+/* ── book page typography (the sanitized content itself) ───────────────── */
+
+.book-page-body > :first-child { margin-top: 0; }
+.book-page-body > :last-child { margin-bottom: 0; }
+
+.book-page-body p { margin: 0 0 1em; }
+
+.book-page-body h1,
+.book-page-body h2,
+.book-page-body h3,
+.book-page-body h4,
+.book-page-body h5,
+.book-page-body h6 {
+  margin: 1.4em 0 0.5em;
+  line-height: 1.25;
+}
+
+.book-page-body h1 { font-size: 1.4rem; }
+.book-page-body h2 { font-size: 1.22rem; }
+.book-page-body h3 { font-size: 1.08rem; }
+.book-page-body h4,
+.book-page-body h5,
+.book-page-body h6 { font-size: 1rem; }
+
+.book-page-body a {
+  color: var(--link);
+  text-underline-offset: 2px;
+}
+
+.book-page-body blockquote {
+  margin: 1.1em 0;
+  padding-left: 1em;
+  border-left: 3px solid var(--rule);
+  color: var(--muted);
+}
+
+.book-page-body pre,
+.book-page-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85em;
+}
+
+.book-page-body pre {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--card);
+  overflow-x: auto;
+}
+
+.book-page-body table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.book-page-body th,
+.book-page-body td {
+  padding: 6px 10px;
+  border: 1px solid var(--rule);
+  text-align: left;
+}
+
+.book-page-body hr.page-break {
+  height: 0;
+  margin: 1.4em 0;
+  border: 0;
+  border-top: 1px dashed var(--rule);
+}
+
+.book-page-body .works-cited { margin-top: 1.6em; }
+
+.book-page-body .works-cited-heading {
+  text-align: center;
+  font-weight: 600;
+}
+
+.book-page-body .works-cited-entry {
+  margin: 0 0 0.5em;
+  padding-left: 2em;
+  text-indent: -2em;
+}
+
+.book-page-body .academic-title,
+.book-page-body .academic-title-line { text-align: center; }
+
 /* ── narrow ─────────────────────────────────────────────────────────────── */
 
 @media (max-width: 600px) {
   body { font-size: 17px; }
-  .reader-main { padding: 24px 16px 40px; }
-  .reader-title { font-size: 1.55rem; }
+  .reader-main { padding: 20px 12px 40px; }
 }
 
 /* ── print ──────────────────────────────────────────────────────────────── */
 
 /*
-  PRINTING IS DELIBERATE, NOT ACCIDENTAL. A reader may want this on paper, and
-  the writer published it to be read — so printing is supported, the chrome is
-  dropped, and the ink is forced to black on white so a dark-mode reader does
-  not print a black rectangle.
-
-  The writer's own manual page break becomes a real one here.
+  Printing is deliberate. The scene (desk, candle, cover chrome, controls)
+  drops entirely; book pages print in the writer's own order, one after
+  another, ink forced to black on white so a dark-mode reader does not print
+  a black rectangle. The writer's own manual page break becomes a real one.
 */
 @media print {
   :root {
@@ -308,25 +259,35 @@ body {
 
   .reader-top,
   .reader-foot,
-  .reader-print { display: none !important; }
+  .reader-print,
+  .book-controls,
+  .blueprint-controls,
+  .candle,
+  .book-cover,
+  .reader-preview-badge { display: none !important; }
 
   .reader-main { max-width: none; padding: 0; }
 
-  .reader-page + .reader-page {
-    border-top: 0;
-    padding-top: 0;
-    break-before: page;
-  }
+  .book-desk,
+  .blueprint-desk { background: none !important; box-shadow: none !important; padding: 0; }
+  .book-desk::before,
+  .blueprint-desk::before { display: none; }
 
-  .reader-page-body hr.page-break {
-    border-top: 0;
+  .book-viewport,
+  .blueprint-viewport { overflow: visible; max-height: none; padding: 0; }
+  .book-leaves,
+  .blueprint-sheet-wrap { transform: none !important; }
+  .book-leaves-spread,
+  .book-leaves-single { display: block; }
+
+  .book-page {
+    box-shadow: none;
     break-after: page;
   }
+  .book-page:last-child { break-after: auto; }
 
-  .reader-page-body a { text-decoration: none; }
-
-  /* The URL after a link, because a printed link is otherwise a dead end. */
-  .reader-page-body a[href^="http"]::after {
+  .book-page-body a { text-decoration: none; }
+  .book-page-body a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 0.82em;
     word-break: break-all;

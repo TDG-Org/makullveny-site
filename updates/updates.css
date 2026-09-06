@@ -1,0 +1,111 @@
+/*
+  WHAT'S NEW page styling. Self-contained tokens matching the landing page's
+  palette (see the root index.html's :root block) rather than importing its
+  styles.css, which is being actively reworked elsewhere in this repo — this
+  page must not depend on its current shape.
+*/
+
+:root {
+  --bg: #0c0806;
+  --panel: #17110c;
+  --text: #fff3dc;
+  --muted: #d8c2a0;
+  --accent: #d7a15d;
+  --accent-strong: #ffe0a5;
+  --rule: rgba(255, 243, 220, 0.14);
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); }
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.6;
+}
+
+.updates-shell { max-width: 42rem; margin: 0 auto; padding: 0 20px 64px; }
+
+.updates-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 32px;
+}
+
+.updates-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.updates-back {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.updates-back:hover,
+.updates-back:focus-visible { color: var(--accent-strong); }
+
+.updates-intro h1 { margin: 0 0 8px; font-size: clamp(1.5rem, 4vw, 2rem); }
+.updates-intro p { margin: 0 0 32px; color: var(--muted); max-width: 34rem; }
+
+.update-entry {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.update-entry:last-child { border-bottom: 0; }
+
+.update-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.update-version {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.update-current-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #241a0c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.update-date { color: var(--muted); font-size: 0.85rem; }
+
+.update-highlights {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.update-highlights li { margin: 0 0 6px; }
+.update-highlights li:last-child { margin-bottom: 0; }
+
+.update-links { margin: 10px 0 0; font-size: 0.9rem; }
+.update-links a { color: var(--accent-strong); }
+
+.updates-empty { color: var(--muted); }
+
+@media (max-width: 480px) {
+  .updates-shell { padding: 0 16px 48px; }
+}
