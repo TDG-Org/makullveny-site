@@ -300,6 +300,17 @@
 .book-scene .reader-credits-title,
 .blueprint-scene .reader-credits-title { color: #b9a789; }
 
+/* [hidden] MUST WIN, and without this line it does not.
+   read.js leaves the badge hidden for a real published page and only unhides
+   it for a local preview -- but the UA's `[hidden] { display: none }` is
+   (0,1,0) and so is `.reader-preview-badge`, and this file loads later, so
+   the class won and EVERY genuinely published book displayed
+   "Preview - not published" over content that really was published.
+   Measured on a real share: badge.hidden === true while the element was
+   still 138px wide on screen. Same fix read.css already applies to
+   `.reader-state[hidden]`, which is where this pattern was first needed. */
+.reader-preview-badge[hidden] { display: none; }
+
 .reader-preview-badge {
   display: inline-block;
   margin: 0 0 14px;

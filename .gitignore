@@ -27,8 +27,18 @@ node_modules/
 
 # read/config.js is DELIBERATELY NOT IGNORED. read/index.html loads it with a
 # <script src>, so a missing file is a 404 in every reader's console on every
-# page load. The committed copy declares nothing -- empty apiUrl, empty key --
-# which is the honest state while the server half does not exist, and a deploy
-# overwrites it with the real per-deployment values. Neither of those is a
-# secret; they are kept out of git so this public repo is not tied to one
-# project and rotating a key is not a code change. See the file's own header.
+# page load.
+#
+# 2026-09-07: it now carries a real apiUrl, and this paragraph used to say it
+# would not. The old plan was an empty committed copy that "a deploy overwrites
+# with the real per-deployment values" -- but this site is GitHub Pages served
+# STRAIGHT FROM THE BRANCH, with no .github/workflows and no deploy step of any
+# kind to do that overwriting. An empty committed copy therefore meant sharing
+# was permanently off, not "configured later".
+#
+# What did NOT change is that this repo holds no secret. publishableKey stays
+# EMPTY: mak-share is deployed with verify_jwt off, and a POST carrying no
+# apikey and no Authorization header was measured answering 200, so read.js's
+# `if (CONFIG.publishableKey)` simply sends neither header. The apiUrl is not a
+# secret either -- it is the address in every request the reader's own browser
+# makes, and read.js refuses any origin outside ALLOWED_API_ORIGINS regardless.
