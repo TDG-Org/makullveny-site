@@ -25,8 +25,9 @@
     <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
-    <meta name="theme-color" content="#18251f">
+    <meta name="theme-color" content="#11180f">
     <link rel="manifest" href="./site.webmanifest">
+    <link rel="preload" as="image" href="./assets/makullveny-cabin-hero.png" fetchpriority="high">
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
@@ -46,34 +47,89 @@
       </header>
 
       <main id="top">
-        <section class="hero section-grid">
-          <div class="hero-copy">
-            <p class="eyebrow">A calm study room for your computer</p>
-            <h1>Makullveny: study with calm focus.</h1>
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-scenery" aria-hidden="true">
+            <span class="tree tree-left"></span>
+            <span class="tree tree-right"></span>
+            <span class="hill hill-back"></span>
+            <span class="hill hill-front"></span>
+            <span class="mist mist-far"></span>
+            <span class="mist mist-near"></span>
+          </div>
+          <div class="hero-inner">
+            <div class="hero-copy reveal">
+              <p class="eyebrow">A calmer corner of your computer</p>
+              <h1 id="hero-title">A warm place to<br>find your focus.</h1>
             <p class="lead">
-              Makullveny is a local-first desktop study assistant, still early and still changing. It opens with a simple dashboard, then gives students focused spaces for notes, tools, ambience, study music, and calmer class organization.
+              Makullveny is a local-first desktop study assistant that brings your notes, study tools, and favorite ambience into one cozy, unhurried space.
             </p>
             <div class="hero-actions">
-              <a class="button primary" href="#download">Get Makullveny</a>
+              <a class="button primary" href="#download">Download Makullveny</a>
               <a class="button secondary" href="#about">Learn more</a>
             </div>
+            </div>
+            <aside class="hero-note reveal" aria-label="Makullveny project status">
+              <img src="./assets/cabin-logo.svg" alt="" class="mark">
+              <p class="hero-note-kicker">Made for unhurried work</p>
+              <p>Early build. Private source. A thoughtfully growing home for students who want their computer to feel less chaotic.</p>
+            </aside>
           </div>
-          <aside class="hero-card" aria-label="Where Makullveny stands today">
-            <img src="./assets/cabin-logo.svg" alt="" class="mark">
-            <h2>Early build, private source</h2>
+          <a class="hero-scroll" href="#about">
+            <span class="hero-scroll-line" aria-hidden="true"></span>
+            <span>Step inside</span>
+          </a>
+        </section>
+
+        <section class="intro-band" aria-label="Makullveny introduction">
+          <p class="eyebrow">Take a breath. Begin again.</p>
+          <p>Everything you need to settle in, stay organized, and make meaningful progress—without turning study time into another noisy tab.</p>
+        </section>
+
+        <section id="about" class="content-section feature-section" aria-labelledby="about-title">
+          <div class="section-heading reveal">
+            <p class="eyebrow">A softer study flow</p>
+            <h2 id="about-title">Your study day, gathered in one thoughtful place.</h2>
+            <p>Makullveny keeps the helpful parts of a study desk close by, so you can spend less energy switching contexts and more energy actually learning.</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card reveal">
+              <span class="icon-dot desk" aria-hidden="true"></span>
+              <h3>Your dashboard</h3>
+              <p>Open to a gentle home base that helps you choose your next task without crowding your attention.</p>
+            </article>
+            <article class="feature-card reveal">
+              <span class="icon-dot book" aria-hidden="true"></span>
+              <h3>Library Desk</h3>
+              <p>Build a home for class notes, journals, projects, drawings, images, and the thinking that connects them.</p>
+            </article>
+            <article class="feature-card reveal">
+              <span class="icon-dot sound" aria-hidden="true"></span>
+              <h3>Atmosphere on purpose</h3>
+              <p>Warm themes, ambient sounds, and lofi radio make it easier to return to a rhythm that feels like yours.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="split-section lakeside-section" aria-labelledby="rhythm-title">
+          <div class="panel panel-copy reveal">
+            <p class="eyebrow">Room to think</p>
+            <h2 id="rhythm-title">Less switching. More of that good, quiet momentum.</h2>
             <p>
-              Public builds are published as a plain desktop download on GitHub. The source code stays private while the project is being polished, so this page is the public overview rather than the codebase.
+              Notes, PDFs, calculators, class pages, playlists, and reference tabs can pull your attention in every direction. Makullveny is being built to make the next useful thing feel close at hand.
             </p>
-            <p><a class="download-more-link" href="#download">Jump to downloads</a></p>
-          </aside>
+            <p>
+              It is not here to replace every school tool. It is here to help your study space feel more considered, personal, and ready when you are.
+            </p>
+          </div>
+          <div class="lakeside-art parallax-art" role="img" aria-label="Dusk over a calm mountain lake"></div>
         </section>
 
         <section id="download" class="content-section download-section">
-          <div class="section-heading">
+          <div class="section-heading reveal">
             <p class="eyebrow">Download</p>
-            <h2>Get Makullveny for your computer.</h2>
+            <h2>Download Makullveny.</h2>
             <p>
-              Makullveny is early software and it changes often. This page reads the latest public release straight from GitHub when it loads, so what you see below is what is actually published right now.
+              Makullveny is still early software and it changes often. This page finds the latest public desktop build, so the right download is always close at hand.
             </p>
           </div>
           <div class="download-card" id="download-panel" aria-live="polite" aria-busy="false">
@@ -89,62 +145,19 @@
           </div>
         </section>
 
-        <section id="about" class="content-section">
-          <div class="section-heading">
-            <p class="eyebrow">What it is</p>
-            <h2>A student productivity app with a dashboard at the front and a beautiful notes desk inside.</h2>
-          </div>
-          <div class="feature-grid">
-            <article class="feature-card">
-              <span class="icon-dot"></span>
-              <h3>Dashboard</h3>
-              <p>Start from a calm home screen that points students toward the right workspace, tool, or study flow without making the app feel crowded.</p>
-            </article>
-            <article class="feature-card">
-              <span class="icon-dot warm"></span>
-              <h3>Library Desk</h3>
-              <p>Create books, bookshelves, and pages for classes, study journals, and projects. Notes can include typed text, drawings, imported images, and page customization.</p>
-            </article>
-            <article class="feature-card">
-              <span class="icon-dot green"></span>
-              <h3>Calm Study Atmosphere</h3>
-              <p>Ambient sounds, a lofi radio, warm themes, and a cozy cabin workspace help make long study sessions feel less harsh and more intentional.</p>
-            </article>
-            <article class="feature-card">
-              <span class="icon-dot blue"></span>
-              <h3>More Study Tools</h3>
-              <p>Flashcards, quick references, class setup helpers, and practical student utilities are being shaped carefully while the app remains private.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="split-section">
-          <div class="panel">
-            <p class="eyebrow">Why it exists</p>
-            <h2>Less context switching. More useful study time.</h2>
-            <p>
-              Students often bounce between notes, PDFs, calculators, converters, music, class pages, and search tabs. Makullveny is being built to bring more of that study flow into one calm place.
-            </p>
-            <p>
-              The goal is not to replace every school tool. The goal is to make the student feel more organized, less scattered, and better prepared while working.
-            </p>
-          </div>
-          <div class="panel image-panel" role="img" aria-label="Cozy desk background preview"></div>
-        </section>
-
         <section id="privacy" class="content-section">
-          <div class="section-heading">
+          <div class="section-heading reveal">
             <p class="eyebrow">Privacy</p>
-            <h2>Local-first by default.</h2>
+            <h2>Your work stays yours.</h2>
           </div>
-          <div class="privacy-list">
+          <div class="privacy-list reveal">
             <p><strong>Notes stay local.</strong> Books, pages, drawings, and study content are stored on the user's computer unless the user chooses to export or move data.</p>
             <p><strong>Private work stays private.</strong> The public page is only a project overview. It does not include the private app source code or a user's study data.</p>
             <p><strong>Accounts are future optional work.</strong> The app is being designed so core study features can remain useful without forcing cloud sign-in.</p>
           </div>
         </section>
 
-        <section id="contact" class="contact-section">
+        <section id="contact" class="contact-section reveal">
           <div>
             <p class="eyebrow">Contact</p>
             <h2>Project by TDG</h2>

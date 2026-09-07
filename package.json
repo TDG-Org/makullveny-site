@@ -1,0 +1,9 @@
+{
+  "name": "makullveny-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local preview server for the Makullveny landing page.",
+  "scripts": {
+    "start": "node tools/serve.mjs"
+  }
+}

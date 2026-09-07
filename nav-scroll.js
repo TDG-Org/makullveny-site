@@ -62,3 +62,67 @@
     }
   });
 })();
+
+// A little depth goes a long way here: these movements are deliberately tiny,
+// and all motion is disabled for visitors who prefer reduced motion.
+(function () {
+  "use strict";
+
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  var hero = document.querySelector(".hero");
+  var lake = document.querySelector(".parallax-art");
+  var ticking = false;
+
+  function updateParallax() {
+    ticking = false;
+
+    if (hero) {
+      var heroProgress = Math.max(0, Math.min(1, -hero.getBoundingClientRect().top / hero.offsetHeight));
+      hero.style.setProperty("--tree-left-shift", (heroProgress * -18) + "px");
+      hero.style.setProperty("--tree-right-shift", (heroProgress * 22) + "px");
+      hero.style.setProperty("--hill-shift", (heroProgress * -10) + "px");
+      hero.style.setProperty("--hero-glow-shift", (heroProgress * 16) + "px");
+      hero.style.setProperty("--hero-ground-shift", (heroProgress * 22) + "px");
+      hero.style.setProperty("--mist-far-shift", (heroProgress * 28) + "px");
+      hero.style.setProperty("--mist-near-shift", (heroProgress * -42) + "px");
+    }
+
+    if (lake) {
+      var rect = lake.getBoundingClientRect();
+      var distance = (window.innerHeight * 0.5 - (rect.top + rect.height * 0.5)) * 0.035;
+      lake.style.setProperty("--art-shift", Math.max(-14, Math.min(14, distance)) + "px");
+      lake.style.setProperty("--water-shift", Math.max(-9, Math.min(9, distance * -0.5)) + "px");
+    }
+  }
+
+  function requestUpdate() {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(updateParallax);
+    }
+  }
+
+  window.addEventListener("scroll", requestUpdate, { passive: true });
+  window.addEventListener("resize", requestUpdate);
+  requestUpdate();
+
+  var reveals = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window)) {
+    reveals.forEach(function (element) { element.classList.add("is-visible"); });
+    return;
+  }
+
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  reveals.forEach(function (element) { observer.observe(element); });
+})();
