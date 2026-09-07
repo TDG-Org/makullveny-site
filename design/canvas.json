@@ -1,0 +1,68 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "title": "Front page",
+      "x": 0,
+      "y": 0,
+      "w": 1440,
+      "h": 20800
+    },
+    {
+      "file": "ThemesPage.dc.html",
+      "title": "Theme bundles page",
+      "x": 1620,
+      "y": 0,
+      "w": 1440,
+      "h": 4100
+    },
+    {
+      "file": "NewsPage.dc.html",
+      "title": "News page",
+      "x": 3240,
+      "y": 0,
+      "w": 1440,
+      "h": 3900
+    }
+  ],
+  "annotations": [
+    {
+      "id": "shots",
+      "x": -600,
+      "y": 0,
+      "w": 480,
+      "text": "EVERY SCREENSHOT IS NEW, AND EVERY ONE HAS WORK IN IT\n\nThe app's own probe harness now seeds the screen before the shutter, so nothing on this page shows an empty state that a real student would never sit in front of.\n\n· THE DASHBOARD is captured in a 1520-tall window instead of 920, because the third widget row -- Quick shelf and Selah -- lives below the fold at 920 and CSS zoom breaks the compositor. It shows all seven widgets.\n\n· SELAH slides 3 and 4 were the dashboard. They were the dashboard because the capture fired during the world's own enter animation. Both are real now: the same stage-3 library, the same purse, one at golden hour and one at night.\n\n· THE STUDY HALL BOARD is full. adoptStudyHallBoard() is a global in renderer.js and it renders through the app's own controller, so those are real cards with real colours, class chips and due dates -- not injected markup.\n\n· THE LIBRARY DESK carries a cranberry cover on pine paper with a page of titration notes, so it cannot be mistaken for the hero's book.\n\n· TEN COLOURED CARDS in the card box, each a different colour, at the top of the box rather than mid-scroll."
+    },
+    {
+      "id": "themes",
+      "x": -600,
+      "y": 940,
+      "w": 480,
+      "text": "THE SAME FAKE WORK, IN ALL NINE THEMES\n\nEvery theme panel's four frames were recaptured with the seeded data: the dashboard with the Ready desk, courses, due list and calendar, plus the library desk holding the titration notes and a card box of ten cards.\n\nThe third tile used to be Flashcards, and Flashcards has no seam I can fill honestly -- it said \"No flashcards yet\" nine times over. It is the card box now, and the caption says so.\n\nWHAT I COULD NOT FILL: the Study Hall Courses and Calendar tabs. Both need a real syllabus or a connected calendar, and the app reads that document from a place a probe cannot write. Rather than fake two tabs badly, the Study Hall block leads with the board and shows Overview beside it."
+    },
+    {
+      "id": "motion",
+      "x": -600,
+      "y": 1880,
+      "w": 480,
+      "text": "MOTION, AND THE BAR\n\nTHE BAR WAS NOT STICKY, and the reason was a line I wrote two rounds ago: html/body had overflow-x:hidden, which makes <body> a scroll container -- and a sticky child then sticks to a port that never moves. `clip` cuts the same painted overhang the boughs and parallax plates need, and creates no scroll container. It is sticky on all three pages now.\n\nTHE BAR HAS NO EDGE ANY MORE. At the very top of the page there is nothing behind the links at all -- the hero's own lamplight runs straight up through it. The moment the page moves, a brown ground fades in UNDER the links and dies out before the bottom of the bar, blur and all, so there is no line anywhere: it just gets darker toward the top. Same bar, same links, same ground on all three pages.\n\nTHE REVEALS WERE FIRING ON LOAD. They were plain animations with a delay, so all ninety-six of them finished while the reader was still looking at the hero. They wait for an observer now: 7 play at load, the other 88 arrive as you reach them, sliding in from the left, the right or below. Without script every one is simply visible, which is the right fallback.\n\nEVERY JUMP GLIDES. scroll-behavior:smooth, and scroll-margin-top:96px so a section lands below the bar instead of under it. Measured: a nav click eases 0 -> 64 -> 381 -> 1635 -> 3053 -> 4579 -> 4933 and settles with the heading 96px clear."
+    },
+    {
+      "id": "round13",
+      "x": -600,
+      "y": 2900,
+      "w": 480,
+      "text": "THE REST OF YOUR LIST\n\nTHE HERO SAYS WHAT YOU ARE LOOKING AT. Five captions, one per slide, cross-fading on exactly the same o1..o5 the pictures read -- so neither can lead or lag the other. All five are stacked and only opacity moves, so nothing reflows.\n\nTHE SELAH PLATE TILTS. This is TDG's own card language, not an impression of it: src/hooks/useTilt.ts and the .card / .card__spot / .card__edge rules in src/styles/base.css. Same 1100px perspective, same 3.2 degrees, same 8px lift, same .5s settle on cubic-bezier(.2,.8,.2,1), same two cursor-tracked properties feeding a 300px spotlight and a 220px lit rim, same data-lit. Flat on touch and under reduced motion. The Lock In sheet gets it too.\n\nLOCK IN HAS ITS SCREEN NOW. openLockInSheet() is a global in renderer.js, so the sheet could be opened and captured directly: what are you doing, how long, where are you working, ambience, radio, a tool, and a word to start with.\n\nAND THE CAUTION YOU ASKED FOR sits directly under the dashboard, where the calendar claim is made -- keep checking Canvas or Blackboard, this app reads what the feed gave it at import, and if the two disagree your school is right."
+    },
+    {
+      "id": "left",
+      "x": 4020,
+      "y": 0,
+      "w": 460,
+      "text": "TESTED, AND WHAT IS LEFT\n\nWALKED ALL THREE PAGES AS A VISITOR: no dead links (the big Download button had href=\"#\" and now goes to the latest release), no image without alt text, one h1 per page, zero horizontal overflow at 390 / 560 / 768 / 1024 / 1280, the bar sticky and un-sticking correctly, the reveals firing on the way down, the rotator caption following the slide, and a download click lighting the first-launch panel.\n\nSTILL OPEN:\n\n- The cassette skin in the radio pop-out. body[data-skin] is all it is, but the app re-asserts 'mini' from its own state every render and the switch goes through IPC.\n\n- Study Hall's Courses and Calendar tabs. Both need a real syllabus or a connected calendar.\n\n- Prices are still off this site. entitlements.js has them; nothing here names a number until you say so."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

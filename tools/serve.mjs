@@ -47,11 +47,19 @@ function openBrowser(url) {
 const server = createServer((request, response) => {
   const pathname = decodeURIComponent((request.url || "/").split("?")[0]);
   const relativePath = pathname === "/" ? "index.html" : pathname.replace(/^[/\\]+/, "");
-  const filePath = resolve(root, normalize(relativePath));
+  let filePath = resolve(root, normalize(relativePath));
 
   if (filePath !== root && !filePath.startsWith(`${root}${sep}`)) {
     sendText(response, 403, "Forbidden");
     return;
+  }
+
+  // A DIRECTORY IS ITS index.html, the way GitHub Pages serves one. Without
+  // this, /updates/ and /themes/ are 404 here and 200 in production -- which
+  // is the worst way round, because the nav links to both by directory and a
+  // local run would be the only place they looked broken.
+  if (existsSync(filePath) && statSync(filePath).isDirectory()) {
+    filePath = resolve(filePath, "index.html");
   }
 
   if (!existsSync(filePath) || !statSync(filePath).isFile()) {

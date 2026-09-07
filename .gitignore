@@ -42,3 +42,6 @@ node_modules/
 # `if (CONFIG.publishableKey)` simply sends neither header. The apiUrl is not a
 # secret either -- it is the address in every request the reader's own browser
 # makes, and read.js refuses any origin outside ALLOWED_API_ORIGINS regardless.
+
+# Redesign mockup preview — not part of the published site.
+preview/

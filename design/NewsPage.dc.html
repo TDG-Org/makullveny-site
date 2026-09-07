@@ -1,29 +1,14 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Every published Makullveny release, newest first, in plain words.">
-    <!-- The NAME, not a headline: a bookmark is saved as the <title>, and iOS
-         falls back to it for a Home Screen tile. The descriptor lives in the
-         meta description above, which is where a search result reads it. -->
-    <title>Updates · Makullveny</title>
-    <meta name="apple-mobile-web-app-title" content="Makullveny">
-    <meta name="application-name" content="Makullveny">
-    <!-- assets/icons/ is the square, opaque family drawn by tools/make-icons.mjs.
-         cabin-icon.png is a ROUND crop and is wrong for every install surface:
-         iOS composites apple-touch-icon on BLACK before applying its own mask,
-         so those transparent corners come back as black wedges. -->
-    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
-    <link rel="icon" type="image/png" sizes="32x32" href="../assets/icons/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="../assets/icons/favicon-16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="../assets/icons/apple-touch-icon.png">
-    <meta name="theme-color" content="#100d0a">
-    <link rel="manifest" href="../site.webmanifest">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-    <style>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <style>
     /* ── Makullveny — the News page (/updates/) ──────────────────────────
        Same system as the front page: a short walnut header that melts into
        pine, then the release timeline. Content is the real updates feed. */
@@ -109,9 +94,9 @@
        pages share one horizon between their warm half and their green half. */
     .seam { position:relative; height:420px; overflow:hidden; background:#141110; }
     .seam .pl { position:absolute; inset:-5% -3%; background-size:cover; background-position:center 62%; background-repeat:no-repeat; }
-    .pl-sky  { background-image:url("../assets/site/scene1.jpg"); filter:saturate(.74) brightness(.58); animation:vista-a 62s ease-in-out infinite alternate; }
-    .pl-mid  { background-image:url("../assets/site/scene2.webp"); filter:brightness(.92); animation:vista-b 48s ease-in-out infinite alternate; }
-    .pl-fore { background-image:url("../assets/site/scene3.webp"); filter:brightness(.78); animation:vista-c 40s ease-in-out infinite alternate; }
+    .pl-sky  { background-image:url("scene1.jpg"); filter:saturate(.74) brightness(.58); animation:vista-a 62s ease-in-out infinite alternate; }
+    .pl-mid  { background-image:url("scene2.webp"); filter:brightness(.92); animation:vista-b 48s ease-in-out infinite alternate; }
+    .pl-fore { background-image:url("scene3.webp"); filter:brightness(.78); animation:vista-c 40s ease-in-out infinite alternate; }
     @keyframes vista-a { from { transform:translate3d(0,0,0) scale(1.02); } to { transform:translate3d(-8px,-3px,0) scale(1.04); } }
     @keyframes vista-b { from { transform:translate3d(0,0,0) scale(1.02); } to { transform:translate3d(-20px,-7px,0) scale(1.05); } }
     @keyframes vista-c { from { transform:translate3d(0,0,0) scale(1.03); } to { transform:translate3d(-38px,4px,0) scale(1.07); } }
@@ -267,16 +252,14 @@
       font:600 11px/1 var(--ui); letter-spacing:.16em; text-transform:uppercase; color:rgba(200,177,137,.6); }
 
   </style>
-  </head>
-  <body>
-
+</helmet>
 
 <div>
   <section class="masthead" id="top">
     <a class="skip" href="#top">Skip to the page</a>
   <header class="topbar">
       <a class="brand" href="../#top" aria-label="Makullveny — back to the front page">
-        <span class="brand-mark"><img src="../assets/site/mark.webp" alt="" width="30" height="30"></span>
+        <span class="brand-mark"><img src="mark.webp" alt="" width="30" height="30"></span>
         <span class="brand-name">Makullveny</span>
       </a>
       <nav>
@@ -363,17 +346,67 @@
     <div class="foot-links"><a href="../#download">Download</a><a href="../themes/">Themes</a><a href="./">News</a><a href="../#privacy">Privacy</a><a href="https://tdg-org.github.io/TDG-Site/#top" target="_blank" rel="noreferrer">TDG</a></div>
   </footer>
 </div>
+</x-dc>
 
-
-  
-    <div class="lightbox" role="dialog" aria-label="Screenshot">
-      <img src="" hidden alt="">
+  <sc-if value="{{ zooming }}" hint-placeholder-val="{{ false }}">
+    <div class="lightbox" onClick="{{ closeZoom }}" role="dialog" aria-label="Screenshot">
+      <img src="{{ zoom }}" alt="{{ zoomAlt }}">
       <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
       <span class="lightbox-hint">Click anywhere to close</span>
     </div>
+  </sc-if>
 
-    <script src="./updates-data.js" defer></script>
-    <script src="../site.js" defer></script>
-    <script src="./updates.js" defer></script>
-  </body>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":3900}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    // The bar's ground is legibility, so it runs whatever the motion setting is.
+    const bar = document.querySelector(".topbar");
+    this.onStick = () => { if (bar) bar.classList.toggle("is-stuck", window.scrollY > 8); };
+    window.addEventListener("scroll", this.onStick, { passive: true });
+    this.onStick();
+
+    // Same lightbox as the front page: one delegated listener, every shot.
+    this.onImg = (event) => {
+      const img = event.target.closest ? event.target.closest(".win img, .ill img, .room img, .peek img") : null;
+      if (!img) return;
+      event.preventDefault();
+      this.setState({ zoom: img.currentSrc || img.src, zoomAlt: img.alt || "" });
+    };
+    this.onKey = (event) => { if (event.key === "Escape") this.setState({ zoom: null }); };
+    document.addEventListener("click", this.onImg);
+    document.addEventListener("keydown", this.onKey);
+
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.documentElement.classList.add("rv-on");
+    const seen = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        seen.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.06 });
+    document.querySelectorAll(".rv").forEach((el) => {
+      if (el.getBoundingClientRect().top < (window.innerHeight || 800)) el.classList.add("is-in");
+      else seen.observe(el);
+    });
+    this.seen = seen;
+  }
+  componentWillUnmount() {
+    if (this.onStick) window.removeEventListener("scroll", this.onStick);
+    document.removeEventListener("click", this.onImg);
+    document.removeEventListener("keydown", this.onKey);
+    if (this.seen) this.seen.disconnect();
+  }
+  renderVals() {
+    const st = this.state || {};
+    return {
+      zoom: st.zoom || "",
+      zoomAlt: st.zoomAlt || "",
+      zooming: Boolean(st.zoom),
+      closeZoom: () => this.setState({ zoom: null })
+    };
+  }
+}
+</script>
+</body>
 </html>

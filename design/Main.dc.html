@@ -1,31 +1,14 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Makullveny is a free, local-first desktop study app for students: a dashboard that lays out the day, a notes workspace on real paper, a focus timer that builds a world, and the small tools around them.">
-    <!-- The NAME, not a headline: a bookmark is saved as the <title>, and iOS
-         falls back to it for a Home Screen tile. The descriptor lives in the
-         meta description above, which is where a search result reads it. -->
-    <title>Makullveny</title>
-    <meta name="apple-mobile-web-app-title" content="Makullveny">
-    <meta name="application-name" content="Makullveny">
-    <!-- assets/icons/ is the square, opaque family drawn by tools/make-icons.mjs.
-         cabin-icon.png is a ROUND crop and is wrong for every install surface:
-         iOS composites apple-touch-icon on BLACK before applying its own mask,
-         so those transparent corners come back as black wedges. -->
-    <link rel="icon" href="./assets/icons/icon.svg" type="image/svg+xml">
-    <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="./assets/icons/apple-touch-icon.png">
-    <meta name="theme-color" content="#100d0a">
-    <link rel="manifest" href="./site.webmanifest">
-    <link rel="preload" as="image" href="./assets/site/ov-bough-top-left.webp" fetchpriority="high">
-    <link rel="preload" as="image" href="./assets/site/hero-dash.jpg" fetchpriority="high">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
-    <style>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <style>
     /* ══════════════════════════════════════════════════════════════════
        MAKULLVENY — front page.
        Palette read out of the app's own src/styles/base.css :root (Cozy
@@ -203,19 +186,19 @@
        parallax handler writes; everything else is CSS. */
     .band { position:relative; height:300px; overflow:hidden; pointer-events:none; }
     .band > span { position:absolute; left:-4%; right:-4%; background-repeat:no-repeat; background-size:100% auto; }
-    .band .b-mist { bottom:26%; height:210px; background-image:url("./assets/site/at-mist.webp"); background-position:center bottom;
+    .band .b-mist { bottom:26%; height:210px; background-image:url("at-mist.webp"); background-position:center bottom;
       opacity:.3; transform:translate3d(calc(var(--p, 0px) * -0.5), 0, 0); animation:band-drift 54s ease-in-out infinite alternate; }
-    .band .b-far { bottom:0; height:170px; background-image:url("./assets/site/at-ground-far.webp"); background-position:center bottom;
+    .band .b-far { bottom:0; height:170px; background-image:url("at-ground-far.webp"); background-position:center bottom;
       opacity:.85; transform:translate3d(calc(var(--p, 0px) * -0.22), 0, 0); }
-    .band .b-near { bottom:0; height:210px; background-image:url("./assets/site/at-ground-near.webp"); background-position:center bottom;
+    .band .b-near { bottom:0; height:210px; background-image:url("at-ground-near.webp"); background-position:center bottom;
       opacity:.95; transform:translate3d(calc(var(--p, 0px) * 0.34), 0, 0); }
-    .band .b-leaves { inset:0; background-image:url("./assets/site/at-leaves.webp"); background-repeat:repeat; background-size:340px 340px;
+    .band .b-leaves { inset:0; background-image:url("at-leaves.webp"); background-repeat:repeat; background-size:340px 340px;
       opacity:.22; animation:leaf-drift 72s linear infinite; }
     @keyframes band-drift { from { transform:translate3d(-14px,0,0); } to { transform:translate3d(14px,0,0); } }
     @keyframes leaf-drift { from { background-position:0 0; } to { background-position:340px 680px; } }
     .band .b-wash { inset:0; background:linear-gradient(180deg, var(--band-top, transparent) 0%, transparent 26%, transparent 62%, var(--band-bottom, transparent) 100%); }
     .lantern { position:absolute; top:0; width:150px; height:246px; pointer-events:none; z-index:2;
-      background:url("./assets/site/at-lantern.webp") top center / contain no-repeat;
+      background:url("at-lantern.webp") top center / contain no-repeat;
       transform-origin:50% 8%; animation:lantern-swing 11s ease-in-out infinite alternate; }
     .lantern::after { content:""; position:absolute; left:50%; top:118px; width:230px; height:230px; margin-left:-115px;
       border-radius:50%; pointer-events:none; background:radial-gradient(closest-side, rgba(240,178,92,.34), transparent 72%);
@@ -421,9 +404,9 @@
     /* ══ THE VISTA — hero to hook, on the three plates ════════════════ */
     .vista { position:relative; height:700px; overflow:hidden; background:#12100d; }
     .vista .pl { position:absolute; inset:-5% -3%; background-size:cover; background-position:center 60%; background-repeat:no-repeat; }
-    .pl-sky  { background-image:url("./assets/site/scene1.jpg"); filter:saturate(.74) brightness(.6); animation:vista-a 62s ease-in-out infinite alternate; }
-    .pl-mid  { background-image:url("./assets/site/scene2.webp"); filter:brightness(.94); animation:vista-b 48s ease-in-out infinite alternate; }
-    .pl-fore { background-image:url("./assets/site/scene3.webp"); filter:brightness(.8); animation:vista-c 40s ease-in-out infinite alternate; }
+    .pl-sky  { background-image:url("scene1.jpg"); filter:saturate(.74) brightness(.6); animation:vista-a 62s ease-in-out infinite alternate; }
+    .pl-mid  { background-image:url("scene2.webp"); filter:brightness(.94); animation:vista-b 48s ease-in-out infinite alternate; }
+    .pl-fore { background-image:url("scene3.webp"); filter:brightness(.8); animation:vista-c 40s ease-in-out infinite alternate; }
     @keyframes vista-a { from { transform:translate3d(0,0,0) scale(1.02); } to { transform:translate3d(-8px,-3px,0) scale(1.04); } }
     @keyframes vista-b { from { transform:translate3d(0,0,0) scale(1.02); } to { transform:translate3d(-20px,-7px,0) scale(1.05); } }
     @keyframes vista-c { from { transform:translate3d(0,0,0) scale(1.03); } to { transform:translate3d(-38px,4px,0) scale(1.07); } }
@@ -741,15 +724,15 @@
     .download .cabin, .download .cabin-fore { position:absolute; right:-2%; bottom:0; left:-2%; height:560px;
       background-size:cover; background-repeat:no-repeat;
       mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.55) 20%, rgba(0,0,0,.92) 46%, rgba(0,0,0,.95) 100%); }
-    .download .cabin { background-image:url("./assets/site/scene2.webp"); background-position:center 78%; opacity:.85; filter:brightness(.92); animation:cabindrift 52s ease-in-out infinite alternate; }
-    .download .cabin-fore { background-image:url("./assets/site/scene3.webp"); background-position:center 74%; opacity:.5; filter:brightness(.72); animation:cabindriftfore 44s ease-in-out infinite alternate; }
+    .download .cabin { background-image:url("scene2.webp"); background-position:center 78%; opacity:.85; filter:brightness(.92); animation:cabindrift 52s ease-in-out infinite alternate; }
+    .download .cabin-fore { background-image:url("scene3.webp"); background-position:center 74%; opacity:.5; filter:brightness(.72); animation:cabindriftfore 44s ease-in-out infinite alternate; }
     .download .cabin-glow { position:absolute; right:0; bottom:0; left:0; height:560px; pointer-events:none; mix-blend-mode:screen;
       background:radial-gradient(ellipse 12% 26% at 75% 62%, rgba(240,178,92,.5), rgba(190,120,54,.14) 44%, transparent 74%); animation:breathe 8s ease-in-out infinite alternate; }
     @keyframes cabindrift { from { transform:translate3d(0,0,0) scale(1.02); } to { transform:translate3d(-16px,-4px,0) scale(1.05); } }
     @keyframes cabindriftfore { from { transform:translate3d(0,0,0) scale(1.03); } to { transform:translate3d(-30px,3px,0) scale(1.06); } }
     /* the sky the trees were standing in front of, and the ground under them */
     .download .dl-sky { position:absolute; right:-2%; bottom:0; left:-2%; height:620px; pointer-events:none;
-      background:url("./assets/site/scene1.jpg") center 62% / cover no-repeat; opacity:.5; filter:saturate(.62) brightness(.5);
+      background:url("scene1.jpg") center 62% / cover no-repeat; opacity:.5; filter:saturate(.62) brightness(.5);
       mask-image:linear-gradient(180deg, transparent 0%, rgba(0,0,0,.7) 26%, rgba(0,0,0,.9) 62%, rgba(0,0,0,.5) 100%);
       animation:cabindrift 66s ease-in-out infinite alternate; }
     .download .dl-ground { position:absolute; right:0; bottom:0; left:0; height:200px; pointer-events:none;
@@ -1092,15 +1075,13 @@
     }
 
   </style>
-  </head>
-  <body>
-
+</helmet>
 
 <div>
   <a class="skip" href="#top">Skip to the page</a>
   <header class="topbar">
     <a class="brand" href="#top" aria-label="Makullveny — back to the top of this page">
-      <span class="brand-mark"><img src="./assets/site/mark.webp" alt="" width="30" height="30"></span>
+      <span class="brand-mark"><img src="mark.webp" alt="" width="30" height="30"></span>
       <span class="brand-name">Makullveny</span>
       <span class="markwrap" aria-label="The Disciples of God" role="img" title="TDG">
         <span class="mark"><i class="mark-bar"></i><i class="mark-bar"></i></span>
@@ -1129,9 +1110,9 @@
       <div class="lamp-rays"></div>
       <div class="lamp-rays b"></div>
       <div class="lamp-grain"></div>
-      <span class="ov ov-tl" style="background-image:url(&quot;./assets/site/ov-bough-top-left.webp&quot;)"></span>
-      <span class="ov ov-tr" style="background-image:url(&quot;./assets/site/ov-bough-top-right.webp&quot;)"></span>
-      <span class="ov ov-ivy" style="background-image:url(&quot;./assets/site/ov-ivy-hanging.webp&quot;)"></span>
+      <span class="ov ov-tl" style="background-image:url(&quot;ov-bough-top-left.webp&quot;)"></span>
+      <span class="ov ov-tr" style="background-image:url(&quot;ov-bough-top-right.webp&quot;)"></span>
+      <span class="ov ov-ivy" style="background-image:url(&quot;ov-ivy-hanging.webp&quot;)"></span>
       <div class="motes">
         <span class="mote" style="left:14%;top:30%;width:3px;height:3px;animation-delay:-2s"></span>
         <span class="mote" style="left:23%;top:52%;width:2px;height:2px;opacity:.5;animation-delay:-9s"></span>
@@ -1186,31 +1167,29 @@
         <div class="win-bar">
           <span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span>
           <span class="win-title">
-            Makullveny — Today
+            {{ title }}
           </span>
         </div>
         <!-- five of the best screens, one every six seconds, or press a dot -->
         <div class="rotator">
-          <img class="rot" data-slide="1" src="./assets/site/hero-dash.jpg" alt="The Makullveny Today dashboard: the Ready desk naming the next assignment, a candle focus timer, the month, courses, what is due, the Quick shelf and Selah" width="2120" height="1340" decoding="async" fetchpriority="high">
-          <img class="rot" data-slide="2" src="./assets/site/hero-book.jpg" alt="The Library Desk with a page of lecture notes on lined paper, and the bookshelf holding a book, a scroll, a journal, a card box and a blueprint" width="1900" height="1214" loading="lazy" decoding="async">
-          <img class="rot" data-slide="3" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow under a pink and orange sky, a book shack in the middle, and a focus timer at 25:00" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="4" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over snow-capped peaks, the book shack lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="5" src="./assets/site/hero-blueprint.jpg" alt="The blueprint sheet: a floor plan drawn on the drafting grid, with the line-type and shape menus open" width="1900" height="1214" loading="lazy" decoding="async">
+          <img class="rot" style="opacity: {{o1}}" src="hero-dash.jpg" alt="The Makullveny Today dashboard: the Ready desk naming the next assignment, a candle focus timer, the month, courses, what is due, the Quick shelf and Selah" width="2120" height="1340" decoding="async" fetchpriority="high">
+          <img class="rot" style="opacity: {{o2}}" src="hero-book.jpg" alt="The Library Desk with a page of lecture notes on lined paper, and the bookshelf holding a book, a scroll, a journal, a card box and a blueprint" width="1900" height="1214" loading="lazy" decoding="async">
+          <img class="rot" style="opacity: {{o3}}" src="hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow under a pink and orange sky, a book shack in the middle, and a focus timer at 25:00" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" style="opacity: {{o4}}" src="hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over snow-capped peaks, the book shack lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" style="opacity: {{o5}}" src="hero-blueprint.jpg" alt="The blueprint sheet: a floor plan drawn on the drafting grid, with the line-type and shape menus open" width="1900" height="1214" loading="lazy" decoding="async">
         </div>
       </div>
       <div class="rot-cap" aria-live="polite">
-        <p class="rc" data-slide="1"><b>Today</b>Everything due, in the order it matters &mdash; the one assignment worth starting, a candle timer for the sitting you are in, and your month beside it.</p>
-        <p class="rc" data-slide="2"><b>Library Desk</b>Your notes on real paper you choose, in books, scrolls, journals, card boxes and blueprints. It prints, it exports, and it never leaves this machine.</p>
-        <p class="rc" data-slide="3"><b>Selah: Study Grounds</b>The hours you actually sat down, built into a place. Study, and the clearing grows a library &mdash; nothing to break, nothing to lose.</p>
-        <p class="rc" data-slide="4"><b>Selah at night</b>The same grounds, lit by the hour you are studying in. Golden morning, midday, dusk, night &mdash; it turns with your day.</p>
-        <p class="rc" data-slide="5"><b>Blueprint</b>A drafting sheet for diagrams, floor plans and anything a lined page fights you on. Snapping grid, real line types, real shapes.</p>
+        <p class="rc" style="opacity: {{o1}}"><b>Today</b>Everything due, in the order it matters &mdash; the one assignment worth starting, a candle timer for the sitting you are in, and your month beside it.</p>
+        <p class="rc" style="opacity: {{o2}}"><b>Library Desk</b>Your notes on real paper you choose, in books, scrolls, journals, card boxes and blueprints. It prints, it exports, and it never leaves this machine.</p>
+        <p class="rc" style="opacity: {{o3}}"><b>Selah: Study Grounds</b>The hours you actually sat down, built into a place. Study, and the clearing grows a library &mdash; nothing to break, nothing to lose.</p>
+        <p class="rc" style="opacity: {{o4}}"><b>Selah at night</b>The same grounds, lit by the hour you are studying in. Golden morning, midday, dusk, night &mdash; it turns with your day.</p>
+        <p class="rc" style="opacity: {{o5}}"><b>Blueprint</b>A drafting sheet for diagrams, floor plans and anything a lined page fights you on. Snapping grid, real line types, real shapes.</p>
       </div>
       <div class="rot-dots">
-        <button class="rot-dot" type="button" data-on="true" aria-label="Show Makullveny — Today"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Library Desk"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · golden hour"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · night"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Library Desk — Blueprint"></button>
+        <sc-for list="{{dots}}" as="dot" hint-placeholder-count="5">
+          <button class="rot-dot" type="button" onClick="{{ dot.pick }}" aria-label="{{ dot.label }}" data-on="{{ dot.on }}"></button>
+        </sc-for>
       </div>
     </div>
   </section>
@@ -1270,7 +1249,7 @@
       <div class="dash-shot rv rv-p" style="--d:.24s">
         <div class="win">
           <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Today</span></div>
-          <img src="./assets/site/widgetdash.jpg" alt="The Makullveny Today dashboard: a Ready desk card naming the next assignment and why it matters, a focus timer at 18:24 with a lit candle, a September calendar, course progress bars, a due-soon list, the Quick shelf of tools and the Selah study grounds" width="1900" height="2008" loading="lazy" decoding="async">
+          <img src="widgetdash.jpg" alt="The Makullveny Today dashboard: a Ready desk card naming the next assignment and why it matters, a focus timer at 18:24 with a lit candle, a September calendar, course progress bars, a due-soon list, the Quick shelf of tools and the Selah study grounds" width="1900" height="2008" loading="lazy" decoding="async">
         </div>
       </div>
       <div class="lockin rv rv-p" style="--d:.28s">
@@ -1292,7 +1271,7 @@
           </div>
         </div>
         <figure class="lockin-shot">
-          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/lockin.jpg" alt="The Lock In sheet: What are you doing, How long with 20 to 90 minute presets, Where are you working, an ambience row of rain, fire, wind, thunder and silence, a radio row, a Bring a tool row, and a word to start with" width="1500" height="1118" loading="lazy" decoding="async"></div>
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="lockin.jpg" alt="The Lock In sheet: What are you doing, How long with 20 to 90 minute presets, Where are you working, an ambience row of rain, fire, wind, thunder and silence, a radio row, a Bring a tool row, and a word to start with" width="1500" height="1118" loading="lazy" decoding="async"></div>
           <figcaption>The sheet that opens when you press Lock In on the Ready Desk.</figcaption>
         </figure>
       </div>
@@ -1332,10 +1311,10 @@
         </p>
       </div>
       <div class="selah-shot rv rv-p" style="--d:.24s">
-        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow with pine forest and mountains, a book shack in the middle, a focus timer at 25:00, and a coin purse, shop and mail at the edges" width="2120" height="1340" loading="lazy" decoding="async"></div>
+        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="selah.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow with pine forest and mountains, a book shack in the middle, a focus timer at 25:00, and a coin purse, shop and mail at the edges" width="2120" height="1340" loading="lazy" decoding="async"></div>
         <span class="selah-glow" aria-hidden="true"></span>
         <figure class="selah-night rv rv-r" style="--d:.42s">
-          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same meadow at night, stars over snow-capped peaks and the book shack lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async"></div>
+          <div class="win"><img src="selah-night.jpg" alt="The same meadow at night, stars over snow-capped peaks and the book shack lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async"></div>
           <figcaption>It turns with the day. Golden hour, midday, dusk, night &mdash; the grounds are lit by the hour you are actually studying in.</figcaption>
         </figure>
       </div>
@@ -1367,7 +1346,7 @@
       <div class="apps-shot rv rv-p" style="--d:.2s">
         <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span>
           <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Apps &amp; Tools</span></div>
-          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools tab: Library Desk marked Ready, Study Hall marked Beta, Luke marked Coming, and the tools — Import Desk, Cloud Backpack, File Workshop, Calculator and Typing Trials — each with its own state" width="1500" height="958" loading="lazy" decoding="async">
+          <img src="apps-tools.jpg" alt="The Apps and Tools tab: Library Desk marked Ready, Study Hall marked Beta, Luke marked Coming, and the tools — Import Desk, Cloud Backpack, File Workshop, Calculator and Typing Trials — each with its own state" width="1500" height="958" loading="lazy" decoding="async">
         </div>
         <p class="apps-shot-note">Everything the app opens, and exactly what state each one is in. Nothing on this page is promised that is not on that screen.</p>
       </div>
@@ -1388,19 +1367,19 @@
         </div>
         <div class="quadgrid rv rv-r" style="--d:.22s">
           <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-book.jpg" alt="A book page of lecture notes on lined paper, with the formatting toolbar, page tabs and the bookshelf rail" width="2120" height="1340" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="lib-book.jpg" alt="A book page of lecture notes on lined paper, with the formatting toolbar, page tabs and the bookshelf rail" width="2120" height="1340" loading="lazy" decoding="async"></div>
             <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#2f5a45,#16281f)"></span><b>Book</b><em>Lined or grid paper, real formats, print or export</em></figcaption>
           </figure>
           <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-blueprint.jpg" alt="The blueprint sheet: a blue drafting grid with line-type and shape tools" width="1240" height="792" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="lib-blueprint.jpg" alt="The blueprint sheet: a blue drafting grid with line-type and shape tools" width="1240" height="792" loading="lazy" decoding="async"></div>
             <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#3f6f8f,#16283a)"></span><b>Blueprint</b><em>Drafting grid, snap-to-grid, shapes and dimensions</em></figcaption>
           </figure>
           <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-journal.jpg" alt="A journal spread with its own warmer paper" width="1240" height="792" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="lib-journal.jpg" alt="A journal spread with its own warmer paper" width="1240" height="792" loading="lazy" decoding="async"></div>
             <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#6b4b78,#2b1d33)"></span><b>Journal</b><em>Its own paper and ink, dated entries, kept private</em></figcaption>
           </figure>
           <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-cardbox.jpg" alt="A card box holding study cards" width="2120" height="1340" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="lib-cardbox.jpg" alt="A card box holding study cards" width="2120" height="1340" loading="lazy" decoding="async"></div>
             <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#a8763c,#3b2712)"></span><b>Card box</b><em>Up to 25 cards a box, colour-coded, straight into Flashcards</em></figcaption>
           </figure>
         </div>
@@ -1411,12 +1390,12 @@
           <div class="show-art">
             <div class="win">
               <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Study Hall — Board</span></div>
-              <img src="./assets/site/studyhall.jpg" alt="The Study Hall board: To Do, In Progress, Almost There and Done, each column colour-graded and carrying its own progress chip" width="2120" height="1340" loading="lazy" decoding="async">
+              <img src="studyhall.jpg" alt="The Study Hall board: To Do, In Progress, Almost There and Done, each column colour-graded and carrying its own progress chip" width="2120" height="1340" loading="lazy" decoding="async">
             </div>
           </div>
           <div class="sh-tabs">
             <figure>
-              <div class="win"><img src="./assets/site/sh-overview.jpg" alt="The Study Hall Overview tab: a Due today list reading off the board, and a Homework progress ring for the week" width="1600" height="1011" loading="lazy" decoding="async"></div>
+              <div class="win"><img src="sh-overview.jpg" alt="The Study Hall Overview tab: a Due today list reading off the board, and a Homework progress ring for the week" width="1600" height="1011" loading="lazy" decoding="async"></div>
               <figcaption>Overview &mdash; what is due today, and how much of the week&rsquo;s board is finished</figcaption>
             </figure>
           </div>
@@ -1443,8 +1422,8 @@
 
   <!-- ══════════ TOOLS ═════════════════════════════════════════════ -->
   <section class="tools" id="tools">
-    <span class="ov ov-tr" style="background-image:url(&quot;./assets/site/ov-bough-top-right.webp&quot;);top:24px;right:-70px;opacity:.5"></span>
-    <span class="ov ov-bl" style="background-image:url(&quot;./assets/site/ov-bough-bottom-left.webp&quot;);opacity:.42"></span>
+    <span class="ov ov-tr" style="background-image:url(&quot;ov-bough-top-right.webp&quot;);top:24px;right:-70px;opacity:.5"></span>
+    <span class="ov ov-bl" style="background-image:url(&quot;ov-bough-bottom-left.webp&quot;);opacity:.42"></span>
     <div class="wrap tools-inner">
       <div class="sec-head">
         <p class="eyebrow teal rv">The tools</p>
@@ -1456,7 +1435,7 @@
         <div class="show-art rv rv-l" style="--d:.1s">
           <div class="win">
             <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">File Workshop</span></div>
-            <img src="./assets/site/fileworkshop.jpg" alt="File Workshop: a files panel, the tool catalog by category, and the outputs panel" width="1500" height="958" loading="lazy" decoding="async">
+            <img src="fileworkshop.jpg" alt="File Workshop: a files panel, the tool catalog by category, and the outputs panel" width="1500" height="958" loading="lazy" decoding="async">
           </div>
         </div>
         <div class="rv rv-r" style="--d:.22s">
@@ -1479,7 +1458,7 @@
             <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M5 4.5h9l5 5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19.5v-15Z" stroke="#e8b273" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 4.5v5h5M8.5 13.5h7M8.5 17h4.5" stroke="#e8b273" stroke-width="1.6" stroke-linecap="round"/></svg></span>
             <div><h4>Import Desk</h4><p>Drop a syllabus in, tick what to keep, and get a class book, a starter flashcard deck and your dates in one pass.</p></div>
           </div>
-          <div class="tool-shot"><div class="win"><img src="./assets/site/importdesk.jpg" alt="Import Desk: paste or drop a syllabus, then choose what to send into a book, flashcards and Study Hall" width="1300" height="952" loading="lazy" decoding="async"></div></div>
+          <div class="tool-shot"><div class="win"><img src="importdesk.jpg" alt="Import Desk: paste or drop a syllabus, then choose what to send into a book, flashcards and Study Hall" width="1300" height="952" loading="lazy" decoding="async"></div></div>
         </article>
 
         <article class="tool-card rv rv-p" style="--d:.16s">
@@ -1487,7 +1466,7 @@
             <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="3" y="6.5" width="14" height="11" rx="2" stroke="#e8b273" stroke-width="1.6"/><path d="M7.5 4h11A2.5 2.5 0 0 1 21 6.5v9" stroke="#e8b273" stroke-width="1.6" stroke-linecap="round"/></svg></span>
             <div><h4>Flashcards</h4><p>Flip and grade a local deck — Again, Good, Easy — while the Library Desk stays open behind it.</p></div>
           </div>
-          <div class="tool-shot"><div class="win"><img src="./assets/site/flashcards.jpg" alt="The Flashcards tool: a deck of eight saved cards, all due, a prompt reading Big-O of merge sort waiting to be flipped, and the Again, Good and Easy grading buttons" width="1500" height="948" loading="lazy" decoding="async"></div></div>
+          <div class="tool-shot"><div class="win"><img src="flashcards.jpg" alt="The Flashcards tool: a deck of eight saved cards, all due, a prompt reading Big-O of merge sort waiting to be flipped, and the Again, Good and Easy grading buttons" width="1500" height="948" loading="lazy" decoding="async"></div></div>
         </article>
 
         <article class="tool-card rv rv-p" style="--d:.24s">
@@ -1495,7 +1474,7 @@
             <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="10" rx="2" stroke="#e8b273" stroke-width="1.6"/><path d="M8 11h.01M12 11h.01M16 11h.01M8.5 14h7" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg></span>
             <div><h4>Typing Trials</h4><p>Practice your typing and watch the speed climb. Timed or word-count runs, live WPM and accuracy, records kept on this device.</p></div>
           </div>
-          <div class="tool-shot"><div class="win"><img src="./assets/site/typing.jpg" alt="Typing Trials showing WPM, accuracy and seconds left above a passage of practice words" width="1300" height="952" loading="lazy" decoding="async"></div></div>
+          <div class="tool-shot"><div class="win"><img src="typing.jpg" alt="Typing Trials showing WPM, accuracy and seconds left above a passage of practice words" width="1300" height="952" loading="lazy" decoding="async"></div></div>
         </article>
 
         <article class="tool-card rv rv-p" style="--d:.32s">
@@ -1503,7 +1482,7 @@
             <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="5" y="3.5" width="14" height="17" rx="2.5" stroke="#e8b273" stroke-width="1.6"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg></span>
             <div><h4>Calculator</h4><p>A scientific calculator that works with no connection at all — trig, logs, factorials, powers, and a keyboard shortcut of your choosing.</p></div>
           </div>
-          <div class="tool-shot" style="display:flex;justify-content:center"><div class="win" style="width:270px"><img src="./assets/site/calculator.jpg" alt="The scientific calculator with degree and radian modes and a full function keypad" width="760" height="1311" loading="lazy" decoding="async"></div></div>
+          <div class="tool-shot" style="display:flex;justify-content:center"><div class="win" style="width:270px"><img src="calculator.jpg" alt="The scientific calculator with degree and radian modes and a full function keypad" width="760" height="1311" loading="lazy" decoding="async"></div></div>
         </article>
       </div>
     </div>
@@ -1595,83 +1574,83 @@
         <div class="stagewrap">
           <div class="panel p1">
             <div class="panel-top"><div><h3>Snow Cabin</h3><p>The cabin at first light — cool blues, bright paper, quiet.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-snow-cabin-dash.jpg" alt="The Makullveny dashboard in the Snow Cabin theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-snow-cabin-dash.jpg" alt="The Makullveny dashboard in the Snow Cabin theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-snow-cabin-lib.jpg" alt="The Library Desk in the Snow Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-snow-cabin-work.jpg" alt="File Workshop in the Snow Cabin theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-snow-cabin-cards.jpg" alt="A card box of study cards in the Snow Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-snow-cabin-lib.jpg" alt="The Library Desk in the Snow Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-snow-cabin-work.jpg" alt="File Workshop in the Snow Cabin theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-snow-cabin-cards.jpg" alt="A card box of study cards in the Snow Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p2">
             <div class="panel-top"><div><h3>Cozy Cabin</h3><p>Firelight, walnut and a window full of snow. The room the app opens in.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-cozy-cabin-dash.jpg" alt="The Makullveny dashboard in the Cozy Cabin theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-cozy-cabin-dash.jpg" alt="The Makullveny dashboard in the Cozy Cabin theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-cozy-cabin-lib.jpg" alt="The Library Desk in the Cozy Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-cozy-cabin-work.jpg" alt="File Workshop in the Cozy Cabin theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-cozy-cabin-cards.jpg" alt="A card box of study cards in the Cozy Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-cozy-cabin-lib.jpg" alt="The Library Desk in the Cozy Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-cozy-cabin-work.jpg" alt="File Workshop in the Cozy Cabin theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-cozy-cabin-cards.jpg" alt="A card box of study cards in the Cozy Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p3">
             <div class="panel-top"><div><h3>Rainy Cafe</h3><p>Overcast blue-grey, and a window you can almost hear.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-rainy-cafe-dash.jpg" alt="The Makullveny dashboard in the Rainy Cafe theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-rainy-cafe-dash.jpg" alt="The Makullveny dashboard in the Rainy Cafe theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-rainy-cafe-lib.jpg" alt="The Library Desk in the Rainy Cafe theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-rainy-cafe-work.jpg" alt="File Workshop in the Rainy Cafe theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-rainy-cafe-cards.jpg" alt="A card box of study cards in the Rainy Cafe theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-rainy-cafe-lib.jpg" alt="The Library Desk in the Rainy Cafe theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-rainy-cafe-work.jpg" alt="File Workshop in the Rainy Cafe theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-rainy-cafe-cards.jpg" alt="A card box of study cards in the Rainy Cafe theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p4">
             <div class="panel-top"><div><h3>Woodland Library</h3><p>Muted oak and green shade. Built for long reading.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-woodland-library-dash.jpg" alt="The Makullveny dashboard in the Woodland Library theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-woodland-library-dash.jpg" alt="The Makullveny dashboard in the Woodland Library theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-woodland-library-lib.jpg" alt="The Library Desk in the Woodland Library theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-woodland-library-work.jpg" alt="File Workshop in the Woodland Library theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-woodland-library-cards.jpg" alt="A card box of study cards in the Woodland Library theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-woodland-library-lib.jpg" alt="The Library Desk in the Woodland Library theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-woodland-library-work.jpg" alt="File Workshop in the Woodland Library theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-woodland-library-cards.jpg" alt="A card box of study cards in the Woodland Library theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p5">
             <div class="panel-top"><div><h3>Neon Terminal</h3><p>High-contrast green on black — and the one theme with accents of its own, in pink and blue.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-terminal-hacker-dash.jpg" alt="The Makullveny dashboard in the Neon Terminal theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-terminal-hacker-dash.jpg" alt="The Makullveny dashboard in the Neon Terminal theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-terminal-hacker-lib.jpg" alt="The Library Desk in the Neon Terminal theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-terminal-hacker-work.jpg" alt="File Workshop in the Neon Terminal theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-terminal-hacker-cards.jpg" alt="A card box of study cards in the Neon Terminal theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-terminal-hacker-lib.jpg" alt="The Library Desk in the Neon Terminal theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-terminal-hacker-work.jpg" alt="File Workshop in the Neon Terminal theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-terminal-hacker-cards.jpg" alt="A card box of study cards in the Neon Terminal theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p6">
             <div class="panel-top"><div><h3>Cherry Blossom</h3><p>Soft pinks, pale paper and a spring window.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-cherry-blossom-dash.jpg" alt="The Makullveny dashboard in the Cherry Blossom theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-cherry-blossom-dash.jpg" alt="The Makullveny dashboard in the Cherry Blossom theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-cherry-blossom-lib.jpg" alt="The Library Desk in the Cherry Blossom theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-cherry-blossom-work.jpg" alt="File Workshop in the Cherry Blossom theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-cherry-blossom-cards.jpg" alt="A card box of study cards in the Cherry Blossom theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-cherry-blossom-lib.jpg" alt="The Library Desk in the Cherry Blossom theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-cherry-blossom-work.jpg" alt="File Workshop in the Cherry Blossom theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-cherry-blossom-cards.jpg" alt="A card box of study cards in the Cherry Blossom theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p7">
             <div class="panel-top"><div><h3>Garden of Eden</h3><p>Deep leaf green, with warm light coming through the canopy.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-garden-of-eden-dash.jpg" alt="The Makullveny dashboard in the Garden of Eden theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-garden-of-eden-dash.jpg" alt="The Makullveny dashboard in the Garden of Eden theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-garden-of-eden-lib.jpg" alt="The Library Desk in the Garden of Eden theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-garden-of-eden-work.jpg" alt="File Workshop in the Garden of Eden theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-garden-of-eden-cards.jpg" alt="A card box of study cards in the Garden of Eden theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-garden-of-eden-lib.jpg" alt="The Library Desk in the Garden of Eden theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-garden-of-eden-work.jpg" alt="File Workshop in the Garden of Eden theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-garden-of-eden-cards.jpg" alt="A card box of study cards in the Garden of Eden theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p8">
             <div class="panel-top"><div><h3>Lantern Study</h3><p>Amber lanterns and dark timber — the warmest room in the app.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-lantern-study-dash.jpg" alt="The Makullveny dashboard in the Lantern Study theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-lantern-study-dash.jpg" alt="The Makullveny dashboard in the Lantern Study theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-lantern-study-lib.jpg" alt="The Library Desk in the Lantern Study theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-lantern-study-work.jpg" alt="File Workshop in the Lantern Study theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-lantern-study-cards.jpg" alt="A card box of study cards in the Lantern Study theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-lantern-study-lib.jpg" alt="The Library Desk in the Lantern Study theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-lantern-study-work.jpg" alt="File Workshop in the Lantern Study theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-lantern-study-cards.jpg" alt="A card box of study cards in the Lantern Study theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
           <div class="panel p9">
             <div class="panel-top"><div><h3>Moonlit Observatory</h3><p>Indigo night, brass instruments and a sky worth looking up at.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-moonlit-observatory-dash.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="1280" height="809" loading="lazy" decoding="async"></div>
+            <div class="win"><img src="t-moonlit-observatory-dash.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="1280" height="809" loading="lazy" decoding="async"></div>
             <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-moonlit-observatory-lib.jpg" alt="The Library Desk in the Moonlit Observatory theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-moonlit-observatory-work.jpg" alt="File Workshop in the Moonlit Observatory theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-moonlit-observatory-cards.jpg" alt="A card box of study cards in the Moonlit Observatory theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
+              <div><div class="win"><img src="t-moonlit-observatory-lib.jpg" alt="The Library Desk in the Moonlit Observatory theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
+              <div><div class="win"><img src="t-moonlit-observatory-work.jpg" alt="File Workshop in the Moonlit Observatory theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
+              <div><div class="win"><img src="t-moonlit-observatory-cards.jpg" alt="A card box of study cards in the Moonlit Observatory theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
             </div>
           </div>
         </div>
@@ -1689,9 +1668,9 @@
            in-app Theme Market. The bundles have their own page, room by room.</p>
       </div>
       <div class="bundles-peek" aria-hidden="true">
-        <span class="peek p-a"><img src="./assets/site/ti-crimson-atelier-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
-        <span class="peek p-b"><img src="./assets/site/ti-abyssal-aquarium-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
-        <span class="peek p-c"><img src="./assets/site/ti-gilded-arcana-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
+        <span class="peek p-a"><img src="ti-crimson-atelier-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
+        <span class="peek p-b"><img src="ti-abyssal-aquarium-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
+        <span class="peek p-c"><img src="ti-gilded-arcana-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
       </div>
       <a class="btn btn-primary bundles-cta" href="./themes/">
         See the theme bundles
@@ -1720,11 +1699,11 @@
         <div class="show-art radio-main">
           <div class="win">
             <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Radio — its own window</span></div>
-            <img src="./assets/site/radio-popout.jpg" alt="The radio popped out into its own window: the mix name, transport controls, a waveform visualiser, a station picker, volume and a glass slider" width="1400" height="969" loading="lazy" decoding="async">
+            <img src="radio-popout.jpg" alt="The radio popped out into its own window: the mix name, transport controls, a waveform visualiser, a station picker, volume and a glass slider" width="1400" height="969" loading="lazy" decoding="async">
           </div>
         </div>
         <figure class="radio-inset">
-          <div class="win"><img src="./assets/site/radio.jpg" alt="The radio docked at the edge of the app with a cassette face, a station picker, volume and transport controls" width="680" height="696" loading="lazy" decoding="async"></div>
+          <div class="win"><img src="radio.jpg" alt="The radio docked at the edge of the app with a cassette face, a station picker, volume and transport controls" width="680" height="696" loading="lazy" decoding="async"></div>
           <figcaption>Two designs — the mini bar above, the cassette here — and three visualisers to put in either.</figcaption>
         </figure>
       </div>
@@ -1733,8 +1712,8 @@
 
   <!-- ══════════ WORKBENCH ═════════════════════════════════════════ -->
   <section class="workbench">
-    <span class="ov ov-cones" style="background-image:url(&quot;./assets/site/ov-pine-cones-ground.webp&quot;);opacity:.5"></span>
-    <span class="ov ov-br" style="background-image:url(&quot;./assets/site/ov-bough-bottom-right.webp&quot;);opacity:.38"></span>
+    <span class="ov ov-cones" style="background-image:url(&quot;ov-pine-cones-ground.webp&quot;);opacity:.5"></span>
+    <span class="ov ov-br" style="background-image:url(&quot;ov-bough-bottom-right.webp&quot;);opacity:.38"></span>
     <div class="wrap" style="position:relative;z-index:2">
       <div class="sec-head">
         <p class="eyebrow rv">On the workbench</p>
@@ -2023,18 +2002,18 @@
     </div>
   </section>
 
-  
-    <div class="lightbox" role="dialog" aria-label="Screenshot">
-      <img src="" hidden alt="">
+  <sc-if value="{{ zooming }}" hint-placeholder-val="{{ false }}">
+    <div class="lightbox" onClick="{{ closeZoom }}" role="dialog" aria-label="Screenshot">
+      <img src="{{ zoom }}" alt="{{ zoomAlt }}">
       <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
       <span class="lightbox-hint">Click anywhere to close</span>
     </div>
-  
+  </sc-if>
 
   <footer>
     <div class="foot-top">
       <div class="foot-brand">
-        <span class="brand-mark" style="width:40px;height:40px;border-radius:12px"><img src="./assets/site/mark.webp" alt="" width="40" height="40"></span>
+        <span class="brand-mark" style="width:40px;height:40px;border-radius:12px"><img src="mark.webp" alt="" width="40" height="40"></span>
         <div>
           <b style="font:700 15px/1 var(--display);color:var(--text)">Makullveny</b>
           <p>A local-first study desk for students. Built under TDG, and free to use.</p>
@@ -2060,9 +2039,203 @@
     </div>
   </footer>
 </div>
+</x-dc>
+<script data-dc-script data-props='{"$preview":{"width":1440,"height":17600}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this.timer = setInterval(() => {
+      this.setState({ i: ((this.state && this.state.i) || 0) + 1 });
+    }, 6000);
 
-    <script src="./updates/updates-data.js" defer></script>
-    <script src="./site.js" defer></script>
-    <script src="./download.js" defer></script>
-  </body>
+    // ── the lightbox ──────────────────────────────────────────────────────
+    // Every screenshot on the page opens full size on a shaded ground. One
+    // delegated listener rather than a handler per image, so it also covers
+    // the theme panels that are swapped in and out.
+    this.onImg = (event) => {
+      const img = event.target.closest ? event.target.closest(".win img, .ill img, .room img, .peek img") : null;
+      if (!img) return;
+      event.preventDefault();
+      this.setState({ zoom: img.currentSrc || img.src, zoomAlt: img.alt || "" });
+    };
+    this.onKey = (event) => { if (event.key === "Escape") this.setState({ zoom: null }); };
+    document.addEventListener("click", this.onImg);
+    document.addEventListener("keydown", this.onKey);
+
+    // ── the parallax ──────────────────────────────────────────────────────
+    // One rAF-throttled handler writing a single custom property per band;
+    // the transforms themselves are CSS, so nothing here touches layout.
+    const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!reduce) {
+      let ticking = false;
+      const bands = () => document.querySelectorAll(".band");
+      this.onScroll = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          ticking = false;
+          const h = window.innerHeight || 800;
+          bands().forEach((band) => {
+            const r = band.getBoundingClientRect();
+            const seen = 1 - (r.top + r.height / 2) / h;
+            band.style.setProperty("--p", (seen * 90).toFixed(1) + "px");
+          });
+        });
+      };
+      window.addEventListener("scroll", this.onScroll, { passive: true });
+      window.addEventListener("resize", this.onScroll);
+      this.onScroll();
+
+      // ── the light follows the pointer ───────────────────────────────────
+      // Two custom properties on the hero, written at most once a frame. The
+      // pool of lamplight and the dust motes read them; nothing else does.
+      let pending = null;
+      this.onMove = (event) => {
+        const hero = document.querySelector(".hero");
+        if (!hero) return;
+        pending = event;
+        if (this.raf) return;
+        this.raf = requestAnimationFrame(() => {
+          this.raf = 0;
+          const r = hero.getBoundingClientRect();
+          if (r.bottom < 0 || r.top > (window.innerHeight || 800)) return;
+          const x = (pending.clientX - r.left) / (r.width || 1);
+          const y = (pending.clientY - r.top) / (r.height || 1);
+          hero.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+          hero.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+          hero.style.setProperty("--mxr", (x - 0.5).toFixed(3));
+          hero.style.setProperty("--myr", (y - 0.5).toFixed(3));
+        });
+      };
+      window.addEventListener("pointermove", this.onMove, { passive: true });
+    }
+
+    // ── the download button hands off to the first-launch panel ───────────
+    // The app is not code-signed, so a download that is never read about is a
+    // download that never opens. Any download control lights the panel and
+    // brings it into view; the class comes off on its own so a second press
+    // plays it again.
+    this.onDownload = (event) => {
+      // Every door out of this page that ends in a downloaded file: the two
+      // #download jumps, the detected-platform button, and each of the four
+      // build cards (some of which download.js fills as links).
+      const hit = event.target.closest
+        ? event.target.closest("a[href*='#download'], .dl-primary a, .dl, a[href*='makullveny-releases']")
+        : null;
+      if (!hit) return;
+      const panel = document.querySelector(".dl-open");
+      if (!panel) return;
+      panel.classList.remove("is-called");
+      void panel.offsetWidth;
+      panel.classList.add("is-called");
+      clearTimeout(this.gate);
+      this.gate = setTimeout(() => panel.classList.remove("is-called"), 8000);
+      const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      panel.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    };
+    document.addEventListener("click", this.onDownload);
+
+    // THE BAR runs whatever the motion setting is -- it is what keeps the
+    // links legible over the art, not an effect.
+    const bar = document.querySelector(".topbar");
+    this.onStick = () => { if (bar) bar.classList.toggle("is-stuck", window.scrollY > 8); };
+    window.addEventListener("scroll", this.onStick, { passive: true });
+    this.onStick();
+
+    // ── the reveals and the tilt ──────────────────────────────────────────
+    if (!reduce) this.startMotion();
+  }
+
+  // Everything that has to wait for a scroll or a pointer. Kept out of
+  // componentDidMount so the reduced-motion branch is one line up there.
+  startMotion() {
+    // REVEALS. The class on <html> is what switches the CSS from "animate on
+    // load" to "animate when seen", so a browser with no script still shows
+    // every card rather than a page of blanks.
+    document.documentElement.classList.add("rv-on");
+    const seen = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        seen.unobserve(entry.target);
+      });
+    }, { rootMargin: "0px 0px -10% 0px", threshold: 0.06 });
+    document.querySelectorAll(".rv").forEach((el) => {
+      const r = el.getBoundingClientRect();
+      // Anything already on screen at load plays now rather than on a scroll
+      // the reader may never make.
+      if (r.top < (window.innerHeight || 800)) el.classList.add("is-in");
+      else seen.observe(el);
+    });
+    this.seen = seen;
+
+    // THE TILT. TDG's own numbers -- src/hooks/useTilt.ts: 1100px of
+    // perspective, 3.2 degrees, an 8px lift, and the two properties the
+    // spotlight and the lit edge read.
+    if (window.matchMedia && window.matchMedia("(hover: hover)").matches) {
+      document.querySelectorAll("[data-tilt]").forEach((el) => {
+        const move = (event) => {
+          const r = el.getBoundingClientRect();
+          const px = ((event.clientX - r.left) / r.width) * 2 - 1;
+          const py = ((event.clientY - r.top) / r.height) * 2 - 1;
+          el.style.transform =
+            "perspective(1100px) rotateY(" + (px * 3.2).toFixed(2) + "deg) rotateX(" +
+            (-py * 3.2).toFixed(2) + "deg) translateY(-8px)";
+          el.style.setProperty("--mx", (((event.clientX - r.left) / r.width) * 100).toFixed(1) + "%");
+          el.style.setProperty("--my", (((event.clientY - r.top) / r.height) * 100).toFixed(1) + "%");
+        };
+        el.addEventListener("pointermove", move);
+        el.addEventListener("pointerenter", () => el.setAttribute("data-lit", "true"));
+        el.addEventListener("pointerleave", () => {
+          el.removeAttribute("data-lit");
+          el.style.transform = "perspective(1100px) rotateY(0deg) rotateX(0deg) translateY(0)";
+        });
+      });
+    }
+  }
+  componentWillUnmount() {
+    clearInterval(this.timer);
+    document.removeEventListener("click", this.onImg);
+    document.removeEventListener("keydown", this.onKey);
+    if (this.onScroll) {
+      window.removeEventListener("scroll", this.onScroll);
+      window.removeEventListener("resize", this.onScroll);
+    }
+    if (this.onMove) window.removeEventListener("pointermove", this.onMove);
+    if (this.onDownload) document.removeEventListener("click", this.onDownload);
+    if (this.onStick) window.removeEventListener("scroll", this.onStick);
+    if (this.seen) this.seen.disconnect();
+    if (this.raf) cancelAnimationFrame(this.raf);
+    clearTimeout(this.gate);
+  }
+  renderVals() {
+    const TITLES = [
+      "Makullveny \u2014 Today",
+      "Makullveny \u2014 Library Desk",
+      "Selah: Study Grounds \u00b7 golden hour",
+      "Selah: Study Grounds \u00b7 night",
+      "Library Desk \u2014 Blueprint"
+    ];
+    const st = this.state || {};
+    const i = (((st.i || 0) % 5) + 5) % 5;
+    const pick = (n) => () => {
+      clearInterval(this.timer);
+      this.setState({ i: n });
+      this.timer = setInterval(() => {
+        this.setState({ i: ((this.state && this.state.i) || 0) + 1 });
+      }, 6000);
+    };
+    const vals = {
+      title: TITLES[i],
+      zoom: st.zoom || "",
+      zoomAlt: st.zoomAlt || "",
+      zooming: Boolean(st.zoom),
+      closeZoom: () => this.setState({ zoom: null }),
+      dots: TITLES.map((t, n) => ({ label: "Show " + t, on: n === i ? "true" : "false", pick: pick(n) }))
+    };
+    for (let n = 0; n < 5; n += 1) vals["o" + (n + 1)] = n === i ? 1 : 0;
+    return vals;
+  }
+}
+</script>
+</body>
 </html>
