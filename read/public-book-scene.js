@@ -56,29 +56,44 @@
 
   var VERSION = 1;
 
-  /* ── The camera's limits ──────────────────────────────────────────────────
-     PITCH_DEFAULT is 56 rather than 90 on purpose. A true 90-degree overhead
-     shot is the one angle at which a book stops looking like an object: no
-     thickness is visible, the candle is a disc, and the whole scene reads as a
-     flat illustration of itself. 56 is looking down at a desk; 90 is a
-     photocopy. The reader can still go to 82 if they want it flatter. */
+  /* ── The camera's limits, and WHICH END IS OVERHEAD ──────────────────────
+     MEASURED, because the comment that used to be here had it backwards and
+     cost a session. .pbs-world is `rotateX(pitch)` and the desk is the XY
+     plane, so pitch 0 is the camera looking STRAIGHT DOWN at it and 90 would be
+     level with it, edge-on. Rotating away from 0 foreshortens.
+
+     The page is 300x404 in the model. Its measured on-screen height/width:
+
+         pitch  0   ratio 1.356   the page's true shape -- dead overhead
+         pitch 14   ratio 1.284   95% of it, and thickness is still visible
+         pitch 56   ratio 0.760   a book on a desk
+         pitch 84   ratio 0.233   nearly edge-on
+
+     So PITCH_MIN is the overhead end and PITCH_MAX is the oblique one. Anything
+     in this file that reasons about "flatter" or "more overhead" must go
+     TOWARD PITCH_MIN. fitCamera() already had this right --
+     `404 * cos(pitch)` is tallest at 0 -- which is what proved the old comment
+     wrong. */
   var PITCH_DEFAULT = 56, PITCH_MIN = 14, PITCH_MAX = 84;
   /* ── AND THE ANGLE AN OPEN BOOK IS READ FROM ────────────────────────────
      A CLOSED book wants 56: it has boards, a spine and thickness there, and it
      reads as an object somebody left on a desk. An OPEN book wants none of
-     that. It wants to be READ, and every degree short of overhead is a degree
+     that. It wants to be READ, and every degree away from overhead is a degree
      of foreshortening between a reader and a line of text -- plus a keystone
      that makes the near page bigger than the far one, so a spread stops being
      two matching halves.
 
-     So the camera flies overhead as the book opens and flies back as it
-     closes. PITCH_READING is the top of the camera's own range rather than a
-     literal 90: the last six degrees are worth 0.5% of page height (cos 6° is
-     .995) and are invisible in text, while at exactly 90 the page block has no
-     thickness, the candle is a disc, and the scene reads as a flat drawing of
-     itself. This is as far up as a reader can drag it by hand, too, so the
-     button and the drag agree about where "all the way" is. */
-  var PITCH_READING = PITCH_MAX;
+     So the camera flies OVERHEAD as the book opens and back down as it closes.
+     PITCH_READING is PITCH_MIN -- the overhead end of the camera's own range,
+     so the button and a reader's own drag agree about where "all the way up"
+     is, and there is nowhere further to go when they get there.
+
+     14 rather than a literal 0: at 14 the page keeps 95% of its true shape
+     (measured ratio 1.284 against 1.356), which is imperceptible in text, and
+     the book still has visible thickness and the candle still reads as a
+     candle. At 0 the scene becomes a flat drawing of itself -- the failure the
+     old comment described correctly and then put at the wrong end. */
+  var PITCH_READING = PITCH_MIN;
   /* Long enough to read as a camera MOVING, short enough that a reader who
      just pressed Open is not waiting to read. Sits just under the page turn
      (FLIP_MS) so opening never feels slower than turning. */
