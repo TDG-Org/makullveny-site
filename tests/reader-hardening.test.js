@@ -431,7 +431,7 @@ test("scene.css answers prefers-reduced-transparency as well as prefers-reduced-
 
 test("the site links /updates/, so the page is not an orphan", function () {
   var home = fs.readFileSync(path.join(__dirname, "..", "index.html"), "utf8");
-  var nav = /<nav>([\s\S]*?)<\/nav>/.exec(home);
+  var nav = /<nav\b[^>]*>([\s\S]*?)<\/nav>/.exec(home);
   assert.ok(nav, "the home page must still have a nav");
   assert.ok(/href="\.\/updates\/"/.test(nav[1]), "the nav must link to /updates/");
 });

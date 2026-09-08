@@ -160,6 +160,9 @@ function build(page) {
     "\n\n" +
     (page.out === "index.html" ? '    <script src="./updates/updates-data.js" defer></script>\n' : "") +
     (page.out === "updates/index.html" ? '    <script src="./updates-data.js" defer></script>\n' : "") +
+    // Themes page has no feed, but its footer prints the version number, which
+    // site.js fills from this same array.
+    (page.out === "themes/index.html" ? '    <script src="../updates/updates-data.js" defer></script>\n' : "") +
     `    <script src="${page.up}site.js" defer></script>\n` +
     (page.out === "index.html" ? '    <script src="./download.js" defer></script>\n' : "") +
     (page.out === "updates/index.html" ? '    <script src="./updates.js" defer></script>\n' : "") +
