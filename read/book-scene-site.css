@@ -1,0 +1,83 @@
+/*
+  WHAT THE SITE MUST SUPPLY, THAT THE COPIED SCENE DELIBERATELY DOES NOT.
+
+  read/public-book-scene.css is a byte-for-byte copy of the app's
+  src/styles/modules/public-book-scene.css, so it must never learn a path that
+  only one of the two repositories has. It NAMES "Lora" and "Manrope" in its
+  font stacks and declares neither; each host points those names at its own
+  files. The app does it in src/publicBookPreview.html; this file is the site's
+  half of the same arrangement.
+
+  WHY IT MATTERS THAT THIS EXISTS AT ALL. The owner's requirement is that the
+  preview in the app and the page at the link are the same page. Without this
+  the app rendered a book set in Lora and this page rendered the same book in
+  whatever serif the reader's machine happened to have -- the same layout in a
+  different voice, which is exactly the drift the copied file pair exists to
+  prevent.
+
+  Same files, byte for byte, as the app ships in assets/fonts/. Variable fonts,
+  so one file covers the whole weight range the scene uses and there is no
+  second request for a bold.
+
+  font-display: swap -- the words appear immediately in the fallback and
+  re-render when the face lands. A reader on a slow connection gets a readable
+  page rather than a blank one.
+*/
+
+@font-face {
+  font-family: "Lora";
+  src: url("../assets/site/fonts/lora/Lora-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Lora";
+  src: url("../assets/site/fonts/lora/Lora-Italic-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Manrope";
+  src: url("../assets/site/fonts/manrope/Manrope-VariableFont_wght.ttf") format("truetype");
+  font-weight: 400 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ── AND A STAGE WITH A HEIGHT IN IT ──────────────────────────────────────
+   .pbs-root is a column flex and .pbs-stage inside it is flex: 1 -- so the
+   stage is however tall its container was told to be, and the scene never
+   tells it. That is correct: a scene that hard-coded its own height could not
+   be a full-window preview in one host and a section of a page in another.
+
+   In the app the height comes free: src/publicBookPreview.html is a whole
+   document doing nothing else, with html and body at 100%. HERE the mount
+   point is a block in an article, between a header and a footer, so its
+   height collapses to its content -- and the measured result was a stage 0px
+   tall with a fully built, fully laid-out book inside it that nobody could
+   see. Every readout said the book was fine, because it was; there was simply
+   nowhere to draw it.
+
+   min() rather than a flat vh: 78vh gives a tall window a proper desk, and
+   900px stops a very tall one from making the reader scroll past the book to
+   find the page it sits on. The floor is what a two-page spread needs before
+   the scene drops to one page per view. */
+#bookScene {
+  height: min(78vh, 900px);
+  min-height: 460px;
+}
+
+/* The same two lines the app's own host writes (src/publicBookPreview.html:
+   #previewHost > .pbs-root). The root is a column flex whose stage is flex: 1,
+   so it has to be told to fill the box above -- and min-height: 0 is the half
+   that is easy to miss: without it a flex child refuses to shrink below its
+   content, and a long page pushes the stage taller than the desk it sits on. */
+#bookScene > .pbs-root {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}

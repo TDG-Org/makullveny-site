@@ -1,0 +1,1432 @@
+/* ===========================================================================
+   THE PUBLIC BOOK SCENE -- ONE STYLESHEET, TWO REPOSITORIES, ONE THEME.
+   ===========================================================================
+
+   This file and src/publicBookScene.js are the WHOLE of what a published book
+   looks like, and they are copied BYTE FOR BYTE into the public site
+   repository as read/public-book-scene.css and read/public-book-scene.js.
+   tests/publicSceneParity.test.js fails when the two copies drift.
+
+   That is why nothing below reads an app token. There is no var(--accent) and
+   no var(--paper) anywhere in this file: the public page has no theme system,
+   no app.css and no :root[data-theme] attribute, so a token here would resolve
+   to nothing on the very page this design exists for. Every colour is a
+   literal, and they are COZY CABIN's literals -- src/styles/base.css's bare
+   :root, which is the default theme and the only theme a published page has.
+
+     --bg      #15120f     --text  #f7ead6     --muted  #c8b189
+     --accent  #d58c4b     --paper #f5e7cf     --ink    #2d2218
+
+   docs/THEMES.md case 3 covers exactly this: a genuinely fixed semantic. A
+   published page is a PHOTOGRAPH of a cabin desk. It does not restyle itself
+   when the writer changes theme at home, any more than a photograph would --
+   and the stranger reading it has no theme at all.
+
+   THE ONE EXCEPTION is the cover colour, which arrives per-snapshot on
+   --pbs-cover-base / -edge / -ink. src/coverColorContract.js owns its
+   derivation; this file only paints it.
+
+   ---------------------------------------------------------------------------
+   THE CAMERA, AND WHY THE TRANSFORM IS SPLIT ACROSS TWO NODES
+   ---------------------------------------------------------------------------
+   .pbs-camera carries translate() and scale() -- SCREEN space.
+   .pbs-world  carries rotateX() and rotateZ() -- MODEL space.
+
+   Splitting them is not tidiness. Zoom-about-the-cursor is only correct when
+   the pan and the scale compose in the same plane as the pointer, and folding
+   the rotation into that same matrix makes the arithmetic depend on the pitch.
+   Split, the pan/zoom maths is plain 2D and exact at every camera angle.
+
+   In .pbs-world the DESK IS THE XY PLANE and +Z IS UP. So anything lying on
+   the desk needs no transform at all, anything standing on it gets
+   rotateX(-90deg), and anything hovering above it gets translateZ(). That is
+   the entire mental model for the candle, the quill and the book.
+   =========================================================================== */
+
+.pbs-root {
+  /* The room. Copied from Cozy Cabin's bare :root -- see the header. */
+  --pbs-bg: #15120f;
+  --pbs-text: #f7ead6;
+  --pbs-muted: #c8b189;
+  --pbs-accent: #d58c4b;
+  --pbs-paper: #f5e7cf;
+  --pbs-ink: #2d2218;
+  --pbs-line: rgba(255, 236, 203, 0.18);
+  --pbs-line-strong: rgba(255, 236, 203, 0.32);
+  --pbs-soft: rgba(255, 244, 222, 0.12);
+
+  /* The desk. Warmer and darker than the room, so the book sits IN a place. */
+  --pbs-wood: #4a3122;
+  --pbs-wood-dark: #2e1d13;
+  --pbs-wood-light: #6b4830;
+
+  /* The candle's light, as three separable things: the pool it throws on the
+     desk, the halo around the flame, and the flame itself. */
+  --pbs-flame: #ffd28a;
+  --pbs-flame-core: #fff6df;
+
+  /* Written by the camera so the flame can billboard -- see .pbs-candle-flame.
+     Declared here so the very first paint is already facing the reader. */
+  --pbs-flame-face: -56deg;
+
+  /* Set per snapshot by publicBookScene.js, never here. The fallbacks are the
+     shipped default cover so a scene with no snapshot still draws. */
+  --pbs-cover-base: #5b3a29;
+  --pbs-cover-edge: #3c2419;
+  --pbs-cover-ink: #f3e6d4;
+
+  /* Written by the camera on every frame. Declared here so the very first
+     paint has a value and nothing jumps. */
+  --pbs-pitch: 56deg;
+  --pbs-yaw: 0deg;
+  --pbs-zoom: 1;
+  --pbs-pan-x: 0px;
+  --pbs-pan-y: 0px;
+
+  /* The book's model size, in px, before the camera scales it. Every geometry
+     rule below is written in terms of these four, so changing the page size is
+     one edit rather than forty. */
+  --pbs-page-w: 300px;
+  --pbs-page-h: 404px;
+  /* 22px here made the two halves read as two SHEETS lying near each other
+     rather than as one book: at this camera the perspective widens the gap to
+     nearly 40px and the desk showed through it. A book's pages very nearly
+     touch, and the dark valley between them is most of what says "spine". */
+  --pbs-gutter: 6px;
+  --pbs-block-z: 46px;
+  --pbs-left-z: 4px;
+  --pbs-right-z: 24px;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  color: var(--pbs-text);
+  background:
+    radial-gradient(120% 90% at 68% 18%, rgba(213, 140, 75, 0.16), transparent 62%),
+    radial-gradient(90% 70% at 20% 90%, rgba(141, 185, 173, 0.07), transparent 60%),
+    var(--pbs-bg);
+  font-family: "Lora", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   [hidden] MEANS HIDDEN. ONE RULE, FOR EVERYTHING IN THE SCENE.
+   ═══════════════════════════════════════════════════════════════════════════
+   The user agent's `[hidden] { display: none }` is (0,1,0) and lives in the
+   USER-AGENT origin, which loses to the author origin before specificity is
+   even consulted. So ANY author rule that sets `display` on a class -- and
+   almost every layout rule in this file does -- silently beats it, and an
+   element with `.hidden === true` stays on screen.
+
+   This repository has paid for that three times: the public reader's
+   "Preview -- not published" badge sat over every genuinely published book, the
+   developer panel was visible to every signed-in student, and while this scene
+   was being built the report dialog asked for a six-digit code BEFORE it had
+   sent one, because `.pbs-field { display: block }` beat the hidden attribute
+   on a field the JS had correctly hidden.
+
+   Guarding each element as it goes wrong is how a bug gets fixed three times.
+   One blanket, scored (0,2,0) with !important, closes the whole class: nothing
+   in this scene can be hidden in script and still painted. Anything that wants
+   to be laid out while hidden must not use the attribute.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.pbs-root[hidden],
+.pbs-root [hidden] { display: none !important; }
+
+/* ── THE MARQUEE: the top of the desk, above the scene ────────────────────
+   Title, description, page count, and whose name is on it. This is the part a
+   reader looks at once, so it is prose-first and quiet, and it never moves
+   with the camera. */
+
+.pbs-marquee {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 24px 16px;
+  border-bottom: 1px solid var(--pbs-line);
+  background: linear-gradient(180deg, rgba(21, 18, 15, 0.92), rgba(21, 18, 15, 0.55));
+  z-index: 3;
+}
+
+.pbs-marquee-main { min-width: 0; }
+
+.pbs-title {
+  margin: 0;
+  font-size: clamp(19px, 2.3vw, 27px);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  color: var(--pbs-text);
+  /* Two lines, then an ellipsis. A 200-character title is allowed by the
+     contract and must not be allowed to push the desk off the screen. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pbs-desc {
+  margin: 6px 0 0;
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--pbs-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pbs-facts {
+  margin: 10px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 10px;
+  font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 11.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--pbs-muted);
+}
+
+.pbs-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border: 1px solid var(--pbs-line);
+  border-radius: 999px;
+  background: var(--pbs-soft);
+  white-space: nowrap;
+}
+
+.pbs-fact-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--pbs-accent);
+  flex: 0 0 auto;
+}
+
+.pbs-marquee-side {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── WHOSE NAME IS ON IT ───────────────────────────────────────────────────
+   On an anonymous share this whole block is ABSENT from the DOM, not hidden.
+   src/shareSnapshot.js omits the identity fields rather than sending them and
+   asking the page not to draw them, and this is the rendering half of that
+   same rule: there is no [hidden] byline here for anything to un-hide. */
+
+.pbs-author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 6px;
+  border: 1px solid var(--pbs-line);
+  border-radius: 999px;
+  background: rgba(255, 244, 222, 0.06);
+}
+
+.pbs-avatar {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 34% 28%, rgba(255, 244, 222, 0.22), rgba(45, 34, 24, 0.55));
+  border: 1px solid var(--pbs-line-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 244, 222, 0.16);
+}
+
+.pbs-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The letter that stands in when a writer never chose an avatar. avatarId 0 is
+   "has not chosen" -- src/avatarChoices.js owns that, and it is a real state
+   rather than a missing value. */
+.pbs-avatar-letter {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--pbs-text);
+  line-height: 1;
+}
+
+.pbs-author-text { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+
+.pbs-author-role {
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pbs-muted);
+}
+
+.pbs-author-name {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--pbs-text);
+  max-width: 22ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── BUTTONS ──────────────────────────────────────────────────────────────
+   One button style for the whole scene. Every one of them declares
+   min-height, because a shared 36px floor is the trap CLAUDE.md names: height
+   and min-height are different properties, and a control asking for height:28px
+   silently renders 36. */
+
+.pbs-btn {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--pbs-line);
+  border-radius: 9px;
+  background: linear-gradient(180deg, rgba(255, 244, 222, 0.10), rgba(255, 244, 222, 0.03));
+  color: var(--pbs-text);
+  font-family: "Manrope", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, transform 120ms ease, color 160ms ease;
+}
+
+.pbs-btn:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(213, 140, 75, 0.26), rgba(213, 140, 75, 0.12));
+  border-color: rgba(213, 140, 75, 0.55);
+}
+
+.pbs-btn:active:not(:disabled) { transform: translateY(1px); }
+
+.pbs-btn:focus-visible {
+  outline: 2px solid var(--pbs-accent);
+  outline-offset: 2px;
+}
+
+.pbs-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pbs-btn-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--pbs-muted);
+}
+
+.pbs-btn-quiet:hover:not(:disabled) { color: var(--pbs-text); }
+
+.pbs-btn-primary {
+  border-color: rgba(213, 140, 75, 0.6);
+  background: linear-gradient(180deg, #e09a56, #c67c3c);
+  color: #241a12;
+}
+
+.pbs-btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #edaa64, #d4894a);
+  border-color: rgba(213, 140, 75, 0.85);
+  color: #241a12;
+}
+
+/* ── THE STAGE ────────────────────────────────────────────────────────────
+   perspective lives HERE and nowhere else. Putting it on .pbs-world instead
+   would make it a property of the rotating node, and the vanishing point would
+   swing with the camera. */
+
+.pbs-stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  perspective: 1500px;
+  perspective-origin: 50% 44%;
+  cursor: grab;
+  touch-action: none;
+  /* Belongs to the room, not the desk: the dark falls off toward the corners
+     so the lit desk reads as the only thing in it. */
+  background: radial-gradient(130% 100% at 50% 46%, transparent 34%, rgba(8, 6, 4, 0.55) 100%);
+}
+
+.pbs-stage.pbs-dragging { cursor: grabbing; }
+
+.pbs-camera {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(var(--pbs-pan-x), var(--pbs-pan-y), 0) scale(var(--pbs-zoom));
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.pbs-world {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: rotateX(var(--pbs-pitch)) rotateZ(var(--pbs-yaw));
+  transform-style: preserve-3d;
+}
+
+/* Everything in the world is positioned from its own centre, so a child only
+   has to say where it is and how big -- never how to undo its own box. */
+.pbs-obj {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+}
+
+/* ── THE DESK ─────────────────────────────────────────────────────────────
+   Lies in the XY plane, which is its natural orientation, so it carries no
+   transform of its own beyond centring. The grain is three stacked gradients
+   rather than an image: it has to be byte-identical in a repository that must
+   never grow a binary it does not need, and it stays sharp at any zoom. */
+
+.pbs-desk {
+  width: 1720px;
+  height: 1180px;
+  margin-left: -860px;
+  margin-top: -590px;
+  border-radius: 26px;
+  background:
+    /* the plank seams */
+    repeating-linear-gradient(90deg,
+      transparent 0 226px,
+      rgba(20, 12, 7, 0.55) 226px 229px,
+      rgba(120, 84, 56, 0.14) 229px 233px,
+      transparent 233px 240px),
+    /* the grain */
+    repeating-linear-gradient(93deg,
+      rgba(255, 232, 200, 0.030) 0 3px,
+      transparent 3px 9px,
+      rgba(28, 17, 10, 0.045) 9px 12px,
+      transparent 12px 21px),
+    /* the board colour, warmed toward the candle */
+    radial-gradient(78% 66% at 70% 46%, var(--pbs-wood-light), transparent 68%),
+    linear-gradient(168deg, var(--pbs-wood) 0%, var(--pbs-wood-dark) 100%);
+  box-shadow:
+    inset 0 0 140px rgba(12, 7, 4, 0.72),
+    0 60px 120px rgba(0, 0, 0, 0.6);
+}
+
+/* THE LIGHT POOL. Lies flat in the desk plane, centred on the candle, and it
+   is the single most important element for making this read as top-down: from
+   above, a candle is mostly the circle of light it throws.
+
+   ── NO mix-blend-mode, AND THAT IS NOT A STYLE PREFERENCE ────────────────
+   This rule and .pbs-candle-halo both carried `mix-blend-mode: screen`, which
+   is the obvious way to paint light on wood. MEASURED IN CHROMIUM: it made
+   every STANDING object in the scene disappear. The candle rendered as a flat
+   cream disc lying on the desk -- no wax body, no flame -- while both were
+   still laid out, still the topmost hit at their own centres, and still
+   reporting correct 3D matrices. Hiding these two elements brought the candle
+   back instantly; putting them back with `mix-blend-mode: normal` kept it.
+
+   A blend needs a flattened backdrop to blend WITH, so a blended element
+   inside a preserve-3d container forces that container to be composited flat,
+   and every rotateX(-90deg) quad in it collapses into the desk plane. There is
+   no version of this scene that has both real 3D and a blend mode inside the
+   world, so the blend goes.
+
+   The look is kept with alpha alone, warmed a little to make up the difference.
+   Over a dark desk the two are nearly indistinguishable; over a bright one
+   `screen` would win, and this desk is never bright.
+
+   tests/publicBookScene.test.js fails on any mix-blend-mode under .pbs-world. */
+.pbs-lightpool {
+  width: 1500px;
+  height: 1180px;
+  margin-left: -750px;
+  margin-top: -590px;
+  pointer-events: none;
+  background: radial-gradient(46% 52% at 74% 44%,
+    rgba(255, 206, 138, 0.44) 0%,
+    rgba(255, 182, 104, 0.24) 34%,
+    rgba(255, 166, 88, 0.10) 58%,
+    transparent 76%);
+  opacity: 0.96;
+  animation: pbs-pool 5.6s ease-in-out infinite;
+}
+
+@keyframes pbs-pool {
+  0%, 100% { opacity: 0.94; transform: scale(1); }
+  37%      { opacity: 1;    transform: scale(1.014); }
+  64%      { opacity: 0.9;  transform: scale(0.994); }
+}
+
+/* ── THE CANDLE ───────────────────────────────────────────────────────────
+   On the desk to the RIGHT of the book, which is where the owner asked for it
+   and also where a right-handed writer would put it -- the light falls across
+   the page rather than across the hand.
+
+   Four pieces, and each one has a different relationship with the desk plane,
+   which is the whole reason that plane is worth thinking in:
+
+     .pbs-candle-shadow  lies flat  (no transform)
+     .pbs-candle-wax     stands up  (rotateX(-90deg)) -- ONE quad, see below
+     .pbs-candle-top     hovers     (translateZ) -- the wax disc from above
+     .pbs-candle-flame   billboards (rotateX counter-rotated by the camera
+                                     pitch, written from JS, so it faces the
+                                     reader at every angle)
+
+   ── THE WHOLE CANDLE COUNTER-ROTATES THE YAW, AND THAT IS THE CYLINDER ───
+   A candle is a cylinder, and a cylinder looks the same from every direction
+   around it. The first draft built one out of TWO CROSSED QUADS, which is the
+   cheap way to fake a cylinder -- and from a camera looking down at 56 degrees
+   it did not read as a cylinder at all: the second quad stuck out to one side
+   as a visible wing, so the candle looked like a folded card.
+
+   One quad that TURNS WITH THE VIEWER is a better cylinder than two that do
+   not. rotateZ(-yaw) here cancels the world's own rotateZ(yaw), so the net
+   orientation of everything inside is independent of where the reader has
+   orbited to -- exactly what a cylinder does -- and it costs one declaration
+   instead of a second copy of every face. It is applied to the whole candle
+   rather than to the wax alone so the flame and the halo turn with it; the top
+   disc and the shadow are round, so spinning them about their own axis is a
+   no-op. */
+
+.pbs-candle {
+  transform: translate3d(410px, -40px, 0) rotateZ(calc(-1 * var(--pbs-yaw)));
+}
+
+.pbs-candle-shadow {
+  width: 210px;
+  height: 150px;
+  margin-left: -105px;
+  margin-top: -60px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(10, 6, 3, 0.5), transparent 78%);
+  filter: blur(6px);
+}
+
+.pbs-candle-wax {
+  width: 96px;
+  height: 126px;
+  margin-left: -48px;
+  /* Bottom edge on the desk: the quad rotates about its own bottom line. */
+  margin-top: -126px;
+  transform-origin: 50% 100%;
+  transform: rotateX(-90deg);
+  /* The top corners are rounded to roughly the ELLIPSE the wax disc projects
+     to at this camera angle. Square ones poked out past the disc on both
+     sides, which read as a candle with ears. */
+  border-radius: 48px 48px 5px 5px / 26px 26px 5px 5px;
+  background:
+    linear-gradient(90deg,
+      rgba(88, 60, 36, 0.65) 0%,
+      rgba(247, 226, 190, 0.98) 22%,
+      #fff6e4 42%,
+      rgba(241, 213, 170, 0.98) 66%,
+      rgba(120, 82, 50, 0.72) 100%),
+    #f3e2c4;
+  box-shadow: 0 0 46px rgba(255, 186, 104, 0.55);
+}
+
+.pbs-candle-top {
+  width: 96px;
+  height: 96px;
+  margin-left: -48px;
+  margin-top: -48px;
+  border-radius: 50%;
+  transform: translateZ(126px);
+  background:
+    radial-gradient(circle at 50% 52%, rgba(146, 96, 44, 0.85) 0 7%, transparent 12%),
+    radial-gradient(circle at 42% 40%, #fffaf0, #f0dcb6 62%, #d8bd8f 100%);
+  box-shadow: 0 0 30px rgba(255, 198, 122, 0.7), inset 0 0 12px rgba(180, 132, 76, 0.35);
+}
+
+.pbs-candle-flame {
+  width: 34px;
+  height: 62px;
+  margin-left: -17px;
+  margin-top: -62px;
+  transform-origin: 50% 100%;
+  transform: translateZ(126px) rotateX(var(--pbs-flame-face));
+  border-radius: 50% 50% 46% 46% / 66% 66% 34% 34%;
+  background: radial-gradient(ellipse at 50% 74%,
+    var(--pbs-flame-core) 0%,
+    var(--pbs-flame) 42%,
+    rgba(255, 150, 60, 0.92) 68%,
+    rgba(226, 92, 30, 0) 100%);
+  /* NO filter, AND THIS IS THE SECOND THING preserve-3d TAKES AWAY.
+     `filter: drop-shadow(...)` around the flame is the obvious way to make it
+     glow, and it drew a visible LIGHTER RECTANGLE in the air above the candle:
+     a filtered element inside a 3D context gets its own render surface, and
+     that surface's bounds composite as a box. The glow is the halo's job
+     instead -- an element that is round, so its bounds are round too. */
+  animation: pbs-flame 2.3s ease-in-out infinite;
+}
+
+@keyframes pbs-flame {
+  0%, 100% { transform: translateZ(126px) rotateX(var(--pbs-flame-face)) scale(1, 1)       translateX(0); }
+  22%      { transform: translateZ(126px) rotateX(var(--pbs-flame-face)) scale(0.94, 1.07) translateX(-1px); }
+  48%      { transform: translateZ(126px) rotateX(var(--pbs-flame-face)) scale(1.05, 0.95) translateX(1.5px); }
+  73%      { transform: translateZ(126px) rotateX(var(--pbs-flame-face)) scale(0.97, 1.04) translateX(-0.5px); }
+}
+
+/* THE GLOW. Since the flame gave up its drop-shadow (see above) this is the
+   only thing making the candle look lit, so it is tighter and warmer than a
+   background wash would be, and it sits at the flame's own height rather than
+   the wick's. */
+.pbs-candle-halo {
+  width: 240px;
+  height: 240px;
+  margin-left: -120px;
+  margin-top: -160px;
+  transform: translateZ(150px) rotateX(var(--pbs-flame-face));
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle,
+    rgba(255, 214, 150, 0.46) 0%,
+    rgba(255, 186, 104, 0.20) 26%,
+    rgba(255, 168, 88, 0.07) 48%,
+    transparent 72%);
+  /* No mix-blend-mode -- see .pbs-lightpool above for what it cost. */
+  animation: pbs-halo 3.1s ease-in-out infinite;
+}
+
+@keyframes pbs-halo {
+  0%, 100% { opacity: 0.85; transform: translateZ(150px) rotateX(var(--pbs-flame-face)) scale(1); }
+  40%      { opacity: 1;    transform: translateZ(150px) rotateX(var(--pbs-flame-face)) scale(1.07); }
+  70%      { opacity: 0.8;  transform: translateZ(150px) rotateX(var(--pbs-flame-face)) scale(0.96); }
+}
+
+/* ── THE QUILL AND THE INK ────────────────────────────────────────────────
+   Below the book, horizontal, lying flat on the desk exactly as it would if
+   somebody had just put it down. Inline SVG rather than a PNG for the same
+   reason the desk grain is a gradient: two repositories have to agree on it
+   byte for byte, and one of them is public. */
+
+.pbs-quill {
+  width: 560px;
+  height: 160px;
+  margin-left: -300px;
+  margin-top: -50px;
+  /* Tucked up under the book rather than below it. At 300px the plume ran
+     underneath the HUD, and a control bar sitting on top of the art is the
+     first thing that makes a scene look unfinished. */
+  transform: translate3d(4px, 226px, 3px) rotateZ(-7deg);
+  pointer-events: none;
+  filter: drop-shadow(6px 12px 10px rgba(10, 6, 3, 0.55));
+}
+
+.pbs-quill svg { width: 100%; height: 100%; display: block; }
+
+.pbs-inkpot {
+  width: 128px;
+  height: 128px;
+  margin-left: -64px;
+  margin-top: -64px;
+  /* Pulled in from -352px, where the pot was half off the left edge at the
+     zoom the camera actually opens at. */
+  transform: translate3d(-336px, 236px, 0);
+  pointer-events: none;
+  filter: drop-shadow(5px 9px 8px rgba(10, 6, 3, 0.6));
+}
+
+.pbs-inkpot svg { width: 100%; height: 100%; display: block; }
+
+/* ── THE BOOK ─────────────────────────────────────────────────────────────
+   preserve-3d all the way down. A single non-preserving ancestor flattens
+   every descendant, which is how a "3D" book quietly becomes a picture of one. */
+
+.pbs-book {
+  transform: translate3d(0, -30px, 0);
+  transform-style: preserve-3d;
+}
+
+.pbs-book-shadow {
+  width: 760px;
+  height: 520px;
+  margin-left: -380px;
+  margin-top: -260px;
+  border-radius: 40px;
+  background: radial-gradient(closest-side,
+    rgba(8, 5, 3, 0.62),
+    rgba(8, 5, 3, 0.18) 62%,
+    transparent 82%);
+  filter: blur(10px);
+  transform: translate3d(16px, 26px, 0);
+}
+
+.pbs-closed[hidden], .pbs-open[hidden] { display: none !important; }
+
+/* ---- closed ---------------------------------------------------------- */
+
+.pbs-closed { transform-style: preserve-3d; }
+
+.pbs-cover {
+  width: calc(var(--pbs-page-w) + 22px);
+  height: calc(var(--pbs-page-h) + 20px);
+  margin-left: calc((var(--pbs-page-w) + 22px) / -2);
+  margin-top: calc((var(--pbs-page-h) + 20px) / -2);
+  border-radius: 5px 13px 13px 5px;
+  background:
+    /* the grain of the boards, kept faint so the cover colour stays the
+       writer's colour rather than this file's idea of leather */
+    repeating-linear-gradient(114deg, rgba(255, 255, 255, 0.035) 0 2px, transparent 2px 6px),
+    radial-gradient(120% 100% at 26% 12%, rgba(255, 245, 225, 0.18), transparent 58%),
+    linear-gradient(150deg, var(--pbs-cover-base) 0%, var(--pbs-cover-edge) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    inset 0 2px 0 rgba(255, 255, 255, 0.10),
+    inset -8px 0 18px rgba(0, 0, 0, 0.28);
+  color: var(--pbs-cover-ink);
+}
+
+/* The front board sits at the top of the page block; the back board is its
+   floor. The block's own thickness is what separates them. */
+.pbs-cover-front { transform: translateZ(var(--pbs-block-z)); }
+.pbs-cover-back  { transform: translateZ(-2px); }
+
+.pbs-cover-plate {
+  position: absolute;
+  inset: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 4px rgba(0, 0, 0, 0.10);
+}
+
+.pbs-cover-title {
+  margin: 0;
+  font-size: 25px;
+  font-weight: 600;
+  line-height: 1.22;
+  letter-spacing: 0.012em;
+  color: var(--pbs-cover-ink);
+  /* Debossed, not embossed: the highlight goes UNDER the letter, which is what
+     a stamped board actually looks like. */
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.22), 0 -1px 1px rgba(0, 0, 0, 0.4);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pbs-cover-rule {
+  width: 54px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.5;
+}
+
+.pbs-cover-byline {
+  margin: 0;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.82;
+  color: var(--pbs-cover-ink);
+}
+
+/* The fore-edge, head and tail of the closed block: standing quads whose
+   striping is what makes a stack of paper read as a stack of paper. */
+.pbs-edge {
+  background: repeating-linear-gradient(90deg,
+    #efe3cd 0 1.6px,
+    #d9c7a6 1.6px 2.4px,
+    #c9b28c 2.4px 3.4px);
+  box-shadow: inset 0 0 14px rgba(90, 62, 34, 0.5);
+}
+
+.pbs-edge-fore {
+  width: var(--pbs-block-z);
+  height: calc(var(--pbs-page-h) + 20px);
+  margin-top: calc((var(--pbs-page-h) + 20px) / -2);
+  left: calc(var(--pbs-page-w) / 2 + 11px);
+  margin-left: calc(var(--pbs-block-z) * -1);
+  transform-origin: 100% 50%;
+  transform: rotateY(90deg);
+}
+
+/* HEAD AND TAIL BOTH HINGE ON THEIR OWN TOP EDGE AND BOTH ROTATE +90.
+   That looks asymmetric and is not. Each strip is laid out running DOWN the
+   page from its hinge line -- the head's hinge is the cover's top edge, the
+   tail's is the cover's bottom edge -- so in both cases the free edge is at
+   local +y, and rotateX(90deg) is what lifts a +y edge to +z.
+
+   The first draft used rotateX(-90deg) on the head and moved the tail's origin
+   to 50% 100% instead. Both were wrong in the same way: rotateX(-90) sends a
+   +y edge to MINUS z, so the head strip stood downward THROUGH the desk, and
+   the tail hinged on the wrong line and splayed out sideways. On screen it read
+   as two spikes at the corners of the book, which is not a symptom anybody
+   would trace back to the sign of a rotation. */
+.pbs-edge-head {
+  width: calc(var(--pbs-page-w) + 22px);
+  height: var(--pbs-block-z);
+  margin-left: calc((var(--pbs-page-w) + 22px) / -2);
+  top: calc((var(--pbs-page-h) + 20px) / -2);
+  transform-origin: 50% 0%;
+  transform: rotateX(90deg);
+  background: repeating-linear-gradient(0deg, #efe3cd 0 1.6px, #d9c7a6 1.6px 2.4px, #c9b28c 2.4px 3.4px);
+}
+
+.pbs-edge-tail {
+  width: calc(var(--pbs-page-w) + 22px);
+  height: var(--pbs-block-z);
+  margin-left: calc((var(--pbs-page-w) + 22px) / -2);
+  top: calc((var(--pbs-page-h) + 20px) / 2);
+  transform-origin: 50% 0%;
+  transform: rotateX(90deg);
+  background: repeating-linear-gradient(0deg, #efe3cd 0 1.6px, #d9c7a6 1.6px 2.4px, #c9b28c 2.4px 3.4px);
+}
+
+.pbs-spine {
+  width: var(--pbs-block-z);
+  height: calc(var(--pbs-page-h) + 20px);
+  margin-top: calc((var(--pbs-page-h) + 20px) / -2);
+  left: calc(var(--pbs-page-w) / -2 - 11px);
+  transform-origin: 0% 50%;
+  transform: rotateY(-90deg);
+  border-radius: 4px 0 0 4px;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.34), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.34)),
+    linear-gradient(150deg, var(--pbs-cover-base), var(--pbs-cover-edge));
+  box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.45);
+}
+
+/* ---- open ------------------------------------------------------------ */
+
+.pbs-open { transform-style: preserve-3d; }
+
+/* ONE PAGE AT A TIME, CENTRED.
+   ---------------------------------------------------------------------------
+   The world's origin is the SPINE, which is right for a spread -- the two
+   halves sit either side of it and the whole thing is centred for free. With
+   only the right half shown, that same origin puts the page entirely to the
+   right of centre, and it was measured at 430px wide sitting 146px off-centre
+   with its right edge 75px PAST the stage. A phone reader saw half a page and
+   had to drag to find the rest.
+
+   Shifting the open block by half a page plus half a gutter lands the one
+   visible page on the origin. It is on the block rather than on the half so
+   the turning leaf, which is positioned from the same origin, moves with it. */
+.pbs-open-single {
+  transform: translateX(calc((var(--pbs-page-w) + var(--pbs-gutter)) / -2));
+}
+
+.pbs-half {
+  width: var(--pbs-page-w);
+  height: var(--pbs-page-h);
+  margin-top: calc(var(--pbs-page-h) / -2);
+  transform-style: preserve-3d;
+}
+
+/* A real open book does not lie flat: the halves lift away from the gutter.
+   Seven degrees is enough to read as a book and little enough to keep the text
+   square when the camera is overhead. */
+.pbs-half-left {
+  left: calc(var(--pbs-gutter) / -2);
+  margin-left: calc(var(--pbs-page-w) * -1);
+  transform-origin: 100% 50%;
+  transform: rotateY(7deg);
+}
+
+.pbs-half-right {
+  left: calc(var(--pbs-gutter) / 2);
+  transform-origin: 0% 50%;
+  transform: rotateY(-7deg);
+}
+
+/* THE BINDING. A dark strip lying in the valley between the two halves, a
+   little below them, so the join reads as a spine the pages come out of rather
+   than as a gap the desk shows through. It is wider than the gutter on purpose:
+   the halves tilt away from it, so at their inner edges they are ABOVE it and a
+   strip exactly one gutter wide would leave two hairlines of desk. */
+.pbs-binding {
+  width: calc(var(--pbs-gutter) + 26px);
+  height: calc(var(--pbs-page-h) + 6px);
+  margin-left: calc((var(--pbs-gutter) + 26px) / -2);
+  margin-top: calc((var(--pbs-page-h) + 6px) / -2);
+  transform: translateZ(-7px);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg,
+      rgba(0, 0, 0, 0.55) 0%,
+      rgba(52, 34, 16, 0.92) 22%,
+      rgba(30, 19, 9, 0.98) 50%,
+      rgba(52, 34, 16, 0.92) 78%,
+      rgba(0, 0, 0, 0.55) 100%);
+}
+
+/* The block of pages still unread on each side. Its thickness is written from
+   JS as --pbs-left-z / --pbs-right-z, so the left stack GROWS and the right
+   stack SHRINKS as the reader turns pages -- which is the one detail that
+   makes a digital book feel like an object rather than a slideshow. */
+.pbs-stack {
+  position: absolute;
+  /* SLIGHTLY LARGER THAN THE PAGE. inset:0 made the stack exactly the size of
+     the sheet on top of it, so it was hidden behind it at every angle and the
+     book had no thickness at all -- the one detail the whole open state depends
+     on. Three or four pixels of overhang is what a real block of paper shows. */
+  inset: -3px -4px -5px -3px;
+  border-radius: 3px;
+  background: repeating-linear-gradient(0deg, #efe3cd 0 1.4px, #dccaa9 1.4px 2.2px, #cdb691 2.2px 3.2px);
+  box-shadow: 0 2px 10px rgba(40, 25, 12, 0.45);
+}
+
+.pbs-stack-left  { transform: translateZ(calc(var(--pbs-left-z) * -1)); }
+.pbs-stack-right { transform: translateZ(calc(var(--pbs-right-z) * -1)); }
+
+.pbs-page {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px 3px 3px 2px;
+  background:
+    radial-gradient(120% 90% at 78% 14%, rgba(255, 236, 200, 0.5), transparent 62%),
+    var(--pbs-paper);
+  color: var(--pbs-ink);
+  box-shadow: 0 1px 2px rgba(60, 40, 20, 0.28);
+}
+
+/* The gutter: paper curving into the spine. One rule per side, mirrored. */
+.pbs-page-gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 46px;
+  pointer-events: none;
+}
+
+.pbs-page-gutter-right {
+  right: 0;
+  background: linear-gradient(270deg, rgba(64, 42, 20, 0.30), rgba(64, 42, 20, 0.10) 46%, transparent 100%);
+}
+
+.pbs-page-gutter-left {
+  left: 0;
+  background: linear-gradient(90deg, rgba(64, 42, 20, 0.30), rgba(64, 42, 20, 0.10) 46%, transparent 100%);
+}
+
+.pbs-page-inner {
+  position: absolute;
+  inset: 0;
+  padding: 30px 30px 40px;
+  overflow: hidden;
+  font-size: 11.4px;
+  line-height: 1.62;
+  /* THE WHEEL BELONGS TO THE CAMERA, with one exception: a page whose words did
+     not fit even at the smallest size the scene will set. That page, and only
+     that page, keeps the gesture -- see .pbs-page-inner-more below. Everywhere
+     else a reader who wants more of a page zooms in, which is what a physical
+     page would do. */
+}
+
+/* EVERYTHING THE WRITER PUT ON THIS PAGE, AND NOTHING THE SCENE ADDED.
+   ---------------------------------------------------------------------------
+   publicBookScene.js's fitPageText() shrinks the type in here and then, if that
+   was not enough, SCALES this whole box so the page arrives complete. The scale
+   is set inline, from script; this rule owns only where it scales FROM.
+
+   top center, so a page that had to be reduced sits under its own top edge with
+   even margins, like a smaller sheet laid on the same paper. From a corner it
+   would drift toward that corner and read as a layout bug.
+
+   The page number and the gutter are deliberately OUTSIDE this box: they belong
+   to the book, not to the writer's page, and scaling them with the text would
+   shrink the furniture along with the content. */
+.pbs-page-sheet {
+  transform-origin: top center;
+}
+
+/* A PAGE WHOSE WORDS DID NOT FIT EVEN AFTER BOTH OF THOSE -- now the rare case
+   rather than the normal one, because a page only reaches here when it carries
+   more than twice what the rectangle holds.
+
+   ---------------------------------------------------------------------------
+   It SCROLLS. The first version stopped at the fade below over
+   `overflow: hidden`, and that is a fade over nothing -- the words behind it
+   were clipped, and there was no route to them at any zoom, because zooming
+   scales the model box and its clipping together. A reader who came to read was
+   refused the end of the page.
+
+   publicBookScene.js hands the wheel to this box while it still has somewhere
+   to go, and takes it back for the camera at the ends. */
+.pbs-page-inner-more {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  /* THE FINGER TOO, NOT JUST THE WHEEL. .pbs-stage sets `touch-action: none` so
+     the camera can own drags, and that also stopped the browser scrolling this
+     box -- so on a phone the end of a long page was still unreachable, which is
+     half the readers and the whole reason this box scrolls at all. `pan-y` hands
+     vertical dragging back to the browser HERE and nowhere else; the scene's
+     pointerdown stands aside for the same element, which is also what makes the
+     scrollbar draggable rather than decorative. */
+  touch-action: pan-y;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(45, 34, 24, 0.28) transparent;
+}
+
+/* Focusable, so a keyboard reader can arrow through it -- and visibly so, or
+   the focus lands somewhere nothing marks. */
+.pbs-page-inner-more:focus-visible {
+  outline: 2px solid rgba(122, 74, 28, 0.75);
+  outline-offset: -3px;
+}
+
+.pbs-page-inner-more::-webkit-scrollbar { width: 8px; }
+.pbs-page-inner-more::-webkit-scrollbar-track { background: transparent; }
+.pbs-page-inner-more::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  background-color: rgba(45, 34, 24, 0.26);
+}
+
+/* The fade sits on the PAGE, which does not scroll, rather than on the box that
+   does -- on the scrolling box it rode up with the text and stopped marking the
+   foot of the page. It reads as "there is more of this" instead of as a
+   renderer that gave up mid-sentence. */
+.pbs-page-more::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 54px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(245, 231, 207, 0) 0%, rgba(245, 231, 207, 0.96) 78%);
+}
+
+.pbs-page-label {
+  margin: 0 0 10px;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 8.4px;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: rgba(45, 34, 24, 0.52);
+  border-bottom: 1px solid rgba(45, 34, 24, 0.16);
+  padding-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pbs-page-body { color: var(--pbs-ink); }
+.pbs-page-body > :first-child { margin-top: 0; }
+.pbs-page-body > :last-child { margin-bottom: 0; }
+.pbs-page-body p { margin: 0 0 0.72em; }
+.pbs-page-body h1 { font-size: 1.5em; margin: 0 0 0.5em; line-height: 1.24; }
+.pbs-page-body h2 { font-size: 1.28em; margin: 1em 0 0.42em; line-height: 1.26; }
+.pbs-page-body h3 { font-size: 1.12em; margin: 0.9em 0 0.36em; }
+.pbs-page-body ul, .pbs-page-body ol { margin: 0 0 0.72em; padding-left: 1.35em; }
+.pbs-page-body li { margin: 0 0 0.24em; }
+.pbs-page-body blockquote {
+  margin: 0 0 0.8em;
+  padding-left: 0.85em;
+  border-left: 2px solid rgba(45, 34, 24, 0.28);
+  color: rgba(45, 34, 24, 0.82);
+  font-style: italic;
+}
+.pbs-page-body a { color: #7a4a1c; text-underline-offset: 2px; }
+.pbs-page-body table { border-collapse: collapse; width: 100%; margin: 0 0 0.8em; }
+.pbs-page-body th, .pbs-page-body td {
+  border: 1px solid rgba(45, 34, 24, 0.28);
+  padding: 3px 5px;
+  text-align: left;
+}
+.pbs-page-body hr { border: 0; border-top: 1px solid rgba(45, 34, 24, 0.22); margin: 0.9em 0; }
+.pbs-page-body .works-cited-heading { font-weight: 600; }
+
+.pbs-page-number {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  color: rgba(45, 34, 24, 0.45);
+}
+
+/* An empty page stays empty on purpose -- it is part of the book -- but it
+   should not read as a bug, so it says so faintly. */
+.pbs-page-blank {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(45, 34, 24, 0.28);
+}
+
+/* ---- the turning leaf ------------------------------------------------- */
+
+/* THE FLIP IS A REAL ROTATION OF A REAL TWO-SIDED SHEET.
+   .pbs-leaf-face-front and .pbs-leaf-face-back are two faces of one node; the
+   back is pre-rotated 180deg and both hide their backface, so exactly one is
+   visible at any angle. That is what makes the paper read as paper rather than
+   as a crossfade -- and it is why the leaf must live INSIDE a preserve-3d
+   chain, which is what .pbs-open and .pbs-book above are for. */
+
+.pbs-leaf {
+  position: absolute;
+  top: calc(var(--pbs-page-h) / -2);
+  width: var(--pbs-page-w);
+  height: var(--pbs-page-h);
+  transform-style: preserve-3d;
+  will-change: transform;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.pbs-leaf-forward {
+  left: calc(var(--pbs-gutter) / 2);
+  transform-origin: 0% 50%;
+}
+
+/* THERE IS NO SEPARATE BACKWARD LEAF, and that is not an omission.
+   A draft of this file carried a .pbs-leaf-backward with its own hinge on the
+   left. It was dead: turn() builds .pbs-leaf-forward for BOTH directions and
+   animates the angle from -180 to 0 to come back, which is the same sheet on
+   the same hinge travelling the other way -- exactly what a real page does.
+   A second hinge would have been a second, subtly different geometry to keep
+   in step with this one for no gain. */
+
+.pbs-leaf-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.pbs-leaf-face-back { transform: rotateY(180deg); }
+
+/* The shadow the turning sheet casts on the page under it. Opacity is animated
+   from JS in step with the rotation, so the darkest moment is the moment the
+   sheet is standing straight up. */
+.pbs-leaf-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, rgba(52, 34, 16, 0.42), rgba(52, 34, 16, 0.06) 55%, transparent 100%);
+}
+
+/* ── THE HUD ──────────────────────────────────────────────────────────────
+   Floats over the stage rather than sitting under it, so the desk keeps the
+   full height of the window. */
+
+.pbs-hud {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 10px;
+  border: 1px solid var(--pbs-line);
+  border-radius: 13px;
+  background: rgba(19, 15, 12, 0.86);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  max-width: calc(100% - 24px);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pbs-hud-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 3px;
+  background: var(--pbs-line);
+}
+
+.pbs-indicator {
+  min-width: 92px;
+  padding: 0 4px;
+  text-align: center;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pbs-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.pbs-hint {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  z-index: 4;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pbs-line);
+  background: rgba(19, 15, 12, 0.7);
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 11.5px;
+  color: var(--pbs-muted);
+  pointer-events: none;
+  transition: opacity 500ms ease;
+}
+
+.pbs-hint[hidden] { display: none !important; }
+.pbs-hint-faded { opacity: 0; }
+
+/* ── THE PREVIEW BADGE ────────────────────────────────────────────────────
+   [hidden] is guarded EXPLICITLY. The UA's [hidden]{display:none} is (0,1,0)
+   and so is a class selector, so a later stylesheet declaring display on the
+   class wins and the badge stays on screen with .hidden === true. That exact
+   bug shipped once on the public reader -- every genuinely published book said
+   "Preview -- not published" over it -- and this guard is how it stays fixed. */
+
+.pbs-badge {
+  position: absolute;
+  left: 16px;
+  top: 14px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid rgba(213, 140, 75, 0.6);
+  background: rgba(213, 140, 75, 0.16);
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #f0c48c;
+}
+
+.pbs-badge[hidden] { display: none !important; }
+
+/* ── THE REPORT DIALOG ────────────────────────────────────────────────────
+   Lives inside the scene root so one copy of this file gives both repositories
+   the same dialog. It never touches the camera and it never reads the
+   snapshot: the only thing it sends is the token the page was opened with. */
+
+.pbs-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(10, 7, 5, 0.72);
+}
+
+.pbs-veil[hidden] { display: none !important; }
+
+.pbs-dialog {
+  width: min(440px, 100%);
+  max-height: 100%;
+  overflow: auto;
+  padding: 22px 24px 20px;
+  border: 1px solid var(--pbs-line-strong);
+  border-radius: 16px;
+  background: linear-gradient(180deg, #241c16, #1a1410);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+}
+
+/* THE ONE SCROLLABLE SURFACE IN THE SCENE, and it styles its own bar.
+   src/styles/modules/scrollbars.css is the app's one owner of every scrollbar
+   in every app window -- and this scene is deliberately NOT in that cascade,
+   because the public page it mirrors has no app stylesheet at all. So the rule
+   the app states globally is restated here, locally, for the only element that
+   can ever show one. tests/appWideScrollbar.test.js asserts both halves: that
+   this document does not reach the app's sheet, and that this rule exists. */
+.pbs-dialog {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 236, 203, 0.30) transparent;
+}
+
+.pbs-dialog::-webkit-scrollbar { width: 10px; }
+.pbs-dialog::-webkit-scrollbar-track { background: transparent; }
+
+.pbs-dialog::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+  background-color: rgba(255, 236, 203, 0.26);
+}
+
+.pbs-dialog::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 236, 203, 0.42);
+}
+
+.pbs-dialog h2 {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--pbs-text);
+}
+
+.pbs-dialog p {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--pbs-muted);
+}
+
+.pbs-dialog-note {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-left: 2px solid rgba(213, 140, 75, 0.6);
+  border-radius: 0 8px 8px 0;
+  background: rgba(213, 140, 75, 0.08);
+  font-size: 12.5px;
+  color: var(--pbs-text);
+}
+
+.pbs-reasons {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 14px;
+  border: 0;
+  padding: 0;
+}
+
+.pbs-reasons legend {
+  padding: 0 0 8px;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pbs-muted);
+}
+
+.pbs-reason {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid var(--pbs-line);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--pbs-text);
+  transition: border-color 140ms ease, background 140ms ease;
+}
+
+.pbs-reason:hover { border-color: rgba(213, 140, 75, 0.5); background: rgba(213, 140, 75, 0.07); }
+.pbs-reason input { margin: 2px 0 0; accent-color: var(--pbs-accent); cursor: pointer; }
+.pbs-reason-picked { border-color: rgba(213, 140, 75, 0.7); background: rgba(213, 140, 75, 0.12); }
+
+.pbs-field { display: block; margin: 0 0 14px; }
+
+.pbs-field-label {
+  display: block;
+  margin: 0 0 6px;
+  font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pbs-muted);
+}
+
+.pbs-field input, .pbs-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 1px solid var(--pbs-line);
+  border-radius: 9px;
+  background: rgba(10, 7, 5, 0.5);
+  color: var(--pbs-text);
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.pbs-field input:focus, .pbs-field textarea:focus {
+  outline: none;
+  border-color: rgba(213, 140, 75, 0.7);
+  box-shadow: 0 0 0 3px rgba(213, 140, 75, 0.16);
+}
+
+.pbs-dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 4px;
+}
+
+.pbs-dialog-status {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--pbs-muted);
+}
+
+.pbs-dialog-status[data-tone="bad"] { color: #f0a48c; }
+.pbs-dialog-status[data-tone="good"] { color: #a8cf9e; }
+
+/* ── NARROW WINDOWS ───────────────────────────────────────────────────────
+   The scene never becomes a different design on a phone -- it is the same
+   desk, further away. Only the marquee restacks, because two columns of prose
+   in 360px is not a layout. */
+
+@media (max-width: 720px) {
+  .pbs-marquee {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px 12px;
+  }
+  .pbs-marquee-side { justify-content: space-between; }
+  .pbs-hud { gap: 5px; padding: 6px 8px; bottom: 10px; }
+  .pbs-indicator { min-width: 78px; font-size: 11px; }
+  /* THE BADGE AND THE HINT BOTH SAT AT top:14, one from the left edge and one
+     centred, and below about 560px they overlap -- measured at 430px, the badge
+     ran 16->212 and the hint 108->323, so the words of each ran through the
+     other. The hint drops below the badge rather than either one moving side to
+     side, because both have to stay readable and there is no width at which
+     they fit on one line. */
+  .pbs-hint {
+    top: 50px;
+    max-width: calc(100% - 32px);
+    text-align: center;
+  }
+}
+
+/* ── REDUCED MOTION ───────────────────────────────────────────────────────
+   The flame stops, the light stops breathing, and the page turn becomes an
+   instant cut rather than a fast one (publicBookScene.js reads the same query
+   and skips the animation). The scene keeps its DEPTH -- reducing motion is
+   not a request for a flat picture, and flattening it would take the design
+   away from the readers who asked for less movement. */
+
+@media (prefers-reduced-motion: reduce) {
+  .pbs-lightpool, .pbs-candle-flame, .pbs-candle-halo { animation: none !important; }
+  .pbs-hint { transition: none !important; }
+}

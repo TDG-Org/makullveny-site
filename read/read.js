@@ -506,7 +506,33 @@
     if (print) print.hidden = false;
     setState("");
     if (kind === "book" && window.MakullvenyBookReader) {
-      window.MakullvenyBookReader.render(snapshot, { byline: byline(snapshot) });
+      /* EVERYTHING THE SNAPSHOT DOES NOT CARRY, OR CARRIES IN A FORM THE
+         RENDERER MUST NOT RE-DERIVE -- assembled here, in the one file that
+         already owns identity, and never worked out again downstream.
+
+         avatarId is forced to 0 on an anonymous snapshot even though an
+         anonymous snapshot has no avatarId to read. That is not redundancy for
+         its own sake: it means the two identity fields are decided by ONE
+         condition on ONE line, so they cannot come apart later -- a byline of
+         "" beside an avatar of somebody's chosen animal is still a page that
+         says who wrote it.
+
+         openByDefault is the writer's choice about how their work is met -- a
+         closed cover is an invitation, an open one is an argument -- so it
+         travels with the snapshot and is honoured here rather than being a
+         preference of this page.
+
+         The token is passed because a REPORT needs to name the page it is
+         about. It is the same opaque token already in this reader's own URL
+         fragment; nothing new is revealed by handing it to the renderer. */
+      var named = byline(snapshot);
+      window.MakullvenyBookReader.render(snapshot, {
+        byline: named,
+        avatarId: named ? snapshot.avatarId : 0,
+        openByDefault: snapshot.openByDefault === true,
+        token: tokenFromHash(),
+        preview: isPreview === true
+      });
     } else if (kind === "blueprint" && window.MakullvenyBlueprintReader) {
       window.MakullvenyBlueprintReader.render(snapshot, { byline: byline(snapshot) });
     } else {
