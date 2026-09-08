@@ -94,9 +94,27 @@
      candle. At 0 the scene becomes a flat drawing of itself -- the failure the
      old comment described correctly and then put at the wrong end. */
   var PITCH_READING = PITCH_MIN;
-  /* Long enough to read as a camera MOVING, short enough that a reader who
-     just pressed Open is not waiting to read. Sits just under the page turn
-     (FLIP_MS) so opening never feels slower than turning. */
+  /* ── THE INTRO, WHICH IS THE ONLY CAMERA MOVE THE SCENE EVER MAKES ───────
+     A reader arrives looking at a book on a desk from PITCH_DEFAULT, holds
+     there long enough to see that it IS a desk with a book and a candle on it,
+     and is then carried up and over until they are looking straight down at the
+     page. After that the camera is theirs and nothing moves it again unless
+     they ask -- not opening the book, not closing it, not turning a page.
+
+     The first version tied the move to OPENING the book, which was wrong twice
+     over: a reader who never pressed Open never got it, and one who opened and
+     closed a few times got flown around each time. An intro happens once.
+
+     HOLD then FLY. Without the hold the move starts before the eye has settled
+     and reads as a page still loading; 420ms is about one unhurried beat.
+     1500ms for the flight itself, which is slow on purpose -- this is the one
+     moment the scene is allowed to be a place rather than a document, and it is
+     the only thing between the reader and the text, so it may not be a
+     flourish they have to sit through twice. */
+  var INTRO_HOLD_MS = 420;
+  var INTRO_MS = 1500;
+  /* Any other pitch move -- there are none left, but flyPitchTo() is general
+     and a future one should not inherit the intro's leisurely pace. */
   var PITCH_FLIGHT_MS = 620;
   var YAW_DEFAULT = 0, YAW_MIN = -34, YAW_MAX = 34;
   var ZOOM_MIN = 0.3, ZOOM_MAX = 3.4, ZOOM_STEP = 1.18;
@@ -927,12 +945,15 @@
         paintSpread();
       }
       paintOpenControls();
-      /* THE CAMERA COMES OVERHEAD WITH IT. See PITCH_READING. fitCamera() runs
-         on every frame of the flight rather than only at the end, because the
-         book's on-screen height GROWS as the foreshortening goes away -- fit
-         it once at the start and the spread grows out of the window on the way
-         up; fit it once at the end and it jumps. */
-      flyPitchTo(wanted ? PITCH_READING : PITCH_DEFAULT);
+      /* THE CAMERA IS NOT TOUCHED HERE, and that is the whole of the fix the
+         owner asked for. Opening the book used to fly the camera overhead and
+         closing it flew back, so a reader who had set their own angle lost it
+         every time they opened something -- and a reader who never pressed Open
+         never came overhead at all. The move belongs to the ARRIVAL now; see
+         playIntro(). This still refits, because an open spread is a different
+         width from a closed board and the framing has to follow. */
+      if (state.cameraTouched) applyCamera();
+      else fitCamera();
       if (typeof opt.onOpenChange === "function") opt.onOpenChange(wanted);
     }
 
@@ -996,10 +1017,11 @@
        animation at all. Pitch is the one value the SCENE has an opinion about,
        and it has that opinion exactly twice -- when the book opens and when it
        closes. */
-    function flyPitchTo(target) {
+    function flyPitchTo(target, ms) {
       var camera = state.camera;
       var from = camera.pitch;
       var to = clampNumber(target, PITCH_MIN, PITCH_MAX, PITCH_DEFAULT);
+      var span = ms > 0 ? ms : PITCH_FLIGHT_MS;
       state.pitchFlight += 1;
       var token = state.pitchFlight;
       var canAnimate = win && typeof win.requestAnimationFrame === "function";
@@ -1017,7 +1039,11 @@
         if (token !== state.pitchFlight) return;  /* superseded, or cancelled */
         var stamp = typeof now === "number" ? now : 0;
         if (started < 0) started = stamp;
-        var t = Math.min(1, Math.max(0, (stamp - started) / PITCH_FLIGHT_MS));
+        /* A reader who takes the wheel mid-flight ends it where it stands.
+           Checked per frame rather than only at the start, because the whole
+           point of a 1.5s intro is that there is time to interrupt it. */
+        if (state.cameraTouched) { state.pitchFlight += 1; return; }
+        var t = Math.min(1, Math.max(0, (stamp - started) / span));
         /* easeInOutCubic. A linear pitch reads as a value being changed; this
            reads as a camera leaving and arriving. */
         var eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -1033,13 +1059,42 @@
        reset -- so the flight cannot land on top of it two frames later. */
     function cancelPitchFlight() { state.pitchFlight += 1; }
 
+    /* THE INTRO. Runs once, on arrival, and is the only camera move this scene
+       makes on its own.
+
+       It is cancellable by simply being touched: every reader gesture calls
+       cancelPitchFlight(), so a reader who grabs the desk half a second in
+       keeps the angle they dragged to and the intro never fights them. That is
+       the right precedence -- an intro is an offer, not a cutscene. */
+    function playIntro() {
+      cancelPitchFlight();
+      state.camera.yaw = YAW_DEFAULT;
+      if (prefersReducedMotion()) {
+        /* No hold and no flight: somebody who asked for reduced motion is asking
+           not to be moved, so they simply START where the intro would have
+           finished. They lose nothing -- the destination is the useful part. */
+        state.camera.pitch = PITCH_READING;
+        fitCamera();
+        return;
+      }
+      state.camera.pitch = PITCH_DEFAULT;
+      fitCamera();
+      var token = state.pitchFlight;
+      later(function () {
+        /* Only if nothing has happened since -- a reader who touched the camera,
+           or a re-render, has already taken this over. */
+        if (token !== state.pitchFlight || state.cameraTouched) return;
+        flyPitchTo(PITCH_READING, INTRO_MS);
+      }, INTRO_HOLD_MS);
+    }
+
     function resetCamera() {
       cancelPitchFlight();
-      /* The resting angle depends on what is on the desk. "Reset the view" on an
-         OPEN book means the angle that book is read from; sending it back to 56
-         would tilt the reader away from the page they are reading, which is the
-         opposite of a reset. */
-      state.camera.pitch = state.open ? PITCH_READING : PITCH_DEFAULT;
+      /* THE READING ANGLE, whatever is on the desk. This is where the intro
+         leaves everybody, so it is the view a reader means by "reset" -- and on
+         an open book, sending it back to 56 would tilt them away from the page
+         they are reading, which is the opposite of a reset. */
+      state.camera.pitch = PITCH_READING;
       state.camera.yaw = YAW_DEFAULT;
       fitCamera();
     }
@@ -1057,7 +1112,11 @@
       camera.panX = originX - ((originX - camera.panX) * next) / camera.zoom;
       camera.panY = originY - ((originY - camera.panY) * next) / camera.zoom;
       camera.zoom = next;
+      /* THE READER HAS THE CAMERA NOW. Setting the flag is what ends the intro
+         -- flyPitchTo() checks it every frame -- so a reader who scrolls two
+         seconds in is not fighting a rise that carries on underneath them. */
       state.cameraTouched = true;
+      cancelPitchFlight();
       clampPan();
       applyCamera();
     }
@@ -1145,7 +1204,10 @@
         var dy = event.clientY - drag.y;
         drag.x = event.clientX;
         drag.y = event.clientY;
+        /* Same as zoomBy(): a drag takes the camera, and taking the camera ends
+           the intro wherever it had got to. */
         state.cameraTouched = true;
+        cancelPitchFlight();
         if (drag.mode === "pan") {
           state.camera.panX += dx;
           state.camera.panY += dy;
@@ -1714,7 +1776,11 @@
         state.cameraTouched = keep.cameraTouched;
         applyCamera();
       } else {
-        resetCamera();
+        /* AN ARRIVAL, so the intro plays. keepView above is an edit landing on a
+           reader who is already here, and re-running the intro under them is
+           exactly what the play-test called out about arrivals in general. */
+        state.cameraTouched = false;
+        playIntro();
       }
       return true;
     }
@@ -1800,6 +1866,8 @@
     PITCH_DEFAULT: PITCH_DEFAULT,
     PITCH_READING: PITCH_READING,
     PITCH_FLIGHT_MS: PITCH_FLIGHT_MS,
+    INTRO_HOLD_MS: INTRO_HOLD_MS,
+    INTRO_MS: INTRO_MS,
     SHEET_SCALE_FLOOR: SHEET_SCALE_FLOOR,
     ZOOM_MIN: ZOOM_MIN,
     ZOOM_MAX: ZOOM_MAX,
