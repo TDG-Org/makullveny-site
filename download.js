@@ -22,9 +22,14 @@
   /* Middle dot, built from its code point so this file stays plain ASCII. */
   var META_SEPARATOR = " " + String.fromCharCode(183) + " ";
 
-  var WINDOWS_NOTE =
-    "Windows builds are not code-signed, so Windows may show an Unknown publisher notice. " +
-    "Choose More info, then Run anyway.";
+  /*
+    The page now explains the unsigned first launch in full, in its own step,
+    above these buttons. This line is the reminder for somebody who scrolled
+    straight past it -- not a second telling.
+  */
+  var FIRST_LAUNCH_NOTE =
+    "Remember step one: the file is not code-signed, so your system will stop " +
+    "the first launch. The two clicks past it are written out above.";
 
   /* ---------------------------------------------------------------- data */
 
@@ -283,15 +288,6 @@
     return null;
   }
 
-  function offersWindows(slots) {
-    for (var i = 0; i < slots.length; i += 1) {
-      if (slots[i] === "windowsInstaller" || slots[i] === "windowsPortable") {
-        return true;
-      }
-    }
-    return false;
-  }
-
   function setBusy(panel, busy) {
     panel.setAttribute("aria-busy", busy ? "true" : "false");
   }
@@ -455,9 +451,8 @@
       panel.appendChild(list);
     }
 
-    if (offersWindows(slots)) {
-      panel.appendChild(makeElement(doc, "p", "download-note", WINDOWS_NOTE));
-    }
+    /* Every build is unsigned, not only the Windows ones. */
+    panel.appendChild(makeElement(doc, "p", "download-note", FIRST_LAUNCH_NOTE));
 
     panel.appendChild(makeReleasesLink(doc, "download-more-link", "All releases and release notes"));
   }

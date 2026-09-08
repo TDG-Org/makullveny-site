@@ -282,9 +282,11 @@
 
   // ── 6. pressing Download lights the panel that says how to open it ────────
   // The app is not code-signed, so a download nobody reads about is a download
-  // that never opens. Any download control lights the first-launch panel and
-  // brings it into view; the class comes off on its own, so a second press
-  // plays it again.
+  // that never opens. The panel now sits ABOVE the button, so most people have
+  // already passed it -- lighting it is a reminder, not a first telling, and
+  // dragging the page back up to something they can already see would be rude.
+  // So: always light it, only scroll when it is actually off screen. The class
+  // comes off on its own, so a second press plays it again.
   (function () {
     var panel = document.querySelector(".dl-open");
     if (!panel) return;
@@ -303,7 +305,11 @@
       gate = setTimeout(function () {
         panel.classList.remove("is-called");
       }, 8000);
-      panel.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      var box = panel.getBoundingClientRect();
+      var seen = box.top < window.innerHeight - 80 && box.bottom > 80;
+      if (!seen) {
+        panel.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      }
     });
   })();
 

@@ -825,7 +825,7 @@
     @keyframes gate-turn { to { --gate:360deg; } }
     @keyframes gate-in { from { opacity:0; } }
     .dl-open.is-called .dl-open-head h3 { color:#ffd9a0; }
-    .dl-open { position:relative; z-index:3; margin-top:2px; padding:14px 16px 16px; border-radius:16px;
+    .dl-open { position:relative; z-index:3; margin-top:20px; padding:14px 16px 16px; border-radius:16px;
       border:1px solid rgba(255,236,203,.13); background:rgba(20,14,9,.42); backdrop-filter:blur(8px); }
     .dl-open-head { display:flex; gap:12px; align-items:flex-start; margin-bottom:8px; }
     .dl-open-ico { flex:none; width:42px; height:42px; border-radius:13px; display:grid; place-items:center;
@@ -885,6 +885,26 @@
       font:400 12.5px/1.6 var(--ui); color:rgba(200,177,137,.7); }
     .dl-open-card code { font:500 11.5px/1.5 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
       color:#e8c79a; background:rgba(0,0,0,.34); padding:3px 7px; border-radius:6px; word-break:break-all; }
+    /* THE SECTION IS TWO STEPS, IN ORDER. The warning comes before the file,
+       because a visitor who meets "Windows protected your PC" with no warning
+       deletes the download and never comes back. The chips number the two
+       halves so the order reads as deliberate rather than as a wall of text
+       standing between somebody and the button. */
+    .dl-step { flex:none; display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px;
+      font:700 10.5px/1 var(--ui); letter-spacing:.14em; text-transform:uppercase;
+      color:#ffd9a8; background:rgba(213,140,75,.2); border:1px solid rgba(213,140,75,.42); }
+    /* The chip stacks above its heading rather than sitting beside it: step two
+       has no panel of its own, so an inline chip would indent the heading past
+       the left edge of the download card directly under it. */
+    .dl-step-head { display:flex; flex-direction:column; align-items:flex-start; gap:9px; margin:0 0 14px; }
+    .dl-step-head h3 { font-size:21px; }
+    .dl-step-head p { font:400 13.5px/1.6 var(--ui); color:rgba(247,234,214,.62); margin-top:3px; }
+    .dl-get { position:relative; z-index:3; margin-top:4px; }
+    /* the sentence the visitor is actually going to see on their own screen,
+       set apart from the instructions so it is recognisable when it appears */
+    .dl-quote { display:block; margin:2px 0 9px; padding:9px 12px; border-radius:10px;
+      border-left:2px solid rgba(213,140,75,.55); background:rgba(0,0,0,.3);
+      font:500 12.5px/1.55 var(--ui); color:rgba(247,234,214,.82); }
 
     /* ══ NEWS ═════════════════════════════════════════════════════════ */
     .news { background:linear-gradient(180deg,#1a1109 0%,#171009 50%,#131009 100%); padding:104px 0 108px; }
@@ -1114,6 +1134,9 @@
       .cta-row .btn, .newhere-acts .btn, .dl-primary .btn { width:100%; justify-content:center; }
       .trustbar, .plats { flex-direction:column; gap:9px; }
       .dl-open { padding:14px 14px 16px; }
+      /* the "read this first" chip drops above its heading rather than
+         squeezing it into two words per line */
+      .dl-warn { display:flex; width:fit-content; margin:0 0 9px; vertical-align:0; }
       .checknote { flex-direction:column; gap:12px; padding:18px 18px 20px; }
       .panel-shots { grid-template-columns:repeat(2,minmax(0,1fr)); }
       .newhere-acts .btn { width:100%; }
@@ -1875,14 +1898,74 @@
     </div>
     <div class="wrap dl-inner">
       <div class="dl-head">
-        <p class="eyebrow rv">Download</p>
-        <h2 class="rv" style="--d:.08s">Try Makullveny now.</h2>
-        <p class="rv" style="--d:.16s">Free, and it stays free. Makullveny is new and ships most weeks, and this page reads the release list itself &mdash; so what you see below is the latest build for your system, not a number somebody typed here.</p>
+        <p class="eyebrow rv">Want to try?</p>
+        <h2 class="rv" style="--d:.08s">Two steps, and it's yours.</h2>
+        <p class="rv" style="--d:.16s">Free, and it stays free. One thing before you take the file, though: Makullveny is not code-signed, so the first time you open it your computer is going to stop you and say something alarming. It is two clicks past, and the same two clicks every time somebody downloads an app from one person instead of a company. Here is exactly what you will see.</p>
       </div>
+
+      <!-- ── STEP ONE, AND IT IS FIRST ON PURPOSE ───────────────────────
+           The warning is put before the button, not after it. Somebody who
+           meets "Windows protected your PC" with no warning deletes the file
+           and never comes back; somebody who was told about it thirty seconds
+           earlier clicks through it. -->
+      <div class="dl-open">
+        <div class="dl-open-head">
+          <span class="dl-open-ico">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M7 10.5V7.6a5 5 0 0 1 10 0v2.9" stroke="#e8b273" stroke-width="1.7" stroke-linecap="round"/><rect x="4.6" y="10.5" width="14.8" height="9.4" rx="2.2" stroke="#e8b273" stroke-width="1.7"/><path d="M12 14v2.6" stroke="#f0c88f" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          <div>
+            <h3><span class="dl-warn">Step 1 &middot; Read this first</span>The warning you are going to get</h3>
+            <p>Signing certificates cost more per year than this project makes, which is nothing &mdash; so the file is unsigned, and both systems stop the first launch.
+               Nothing is wrong with the download. Find your system below, and know which button to press.</p>
+          </div>
+        </div>
+        <div class="dl-open-grid">
+          <div class="dl-open-card">
+            <b><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:7px"><path d="M3.5 5.6 10 4.7v6.6H3.5V5.6ZM11.4 4.5 20.5 3.2v8.1h-9.1V4.5ZM3.5 12.7H10v6.6l-6.5-.9v-5.7ZM11.4 12.7h9.1v8.1l-9.1-1.3v-6.8Z" fill="#c8b189"/></svg>Windows</b>
+            <span class="dl-quote">&ldquo;Windows protected your PC. Microsoft Defender SmartScreen prevented an unrecognised app from starting.&rdquo;</span>
+            <ol>
+              <li>Run the installer. The blue <b>&ldquo;Windows protected your PC&rdquo;</b> box appears.</li>
+              <li>Click <b>More info</b> &mdash; the small link under the message.</li>
+              <li>Click <b>Run anyway</b>.</li>
+            </ol>
+            <span class="dl-open-note">Two clicks, once. It will not ask again.</span>
+          </div>
+          <div class="dl-open-card">
+            <b><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:7px"><path d="M15.8 12.6c0-2.2 1.8-3.2 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7c1.2 0 1.9-1 2.6-2.1.8-1.2 1.2-2.4 1.2-2.4-.1 0-2.3-.9-2.3-3.4ZM13.6 5.9c.6-.7 1-1.7.9-2.7-.9 0-2 .6-2.6 1.3-.6.6-1.1 1.7-.9 2.6 1 .1 2-.5 2.6-1.2Z" fill="#c8b189"/></svg>macOS</b>
+            <span class="dl-quote">&ldquo;Makullveny is damaged and can&rsquo;t be opened&rdquo; &mdash; or &ldquo;can&rsquo;t be opened because Apple cannot check it for malicious software.&rdquo;</span>
+            <ol>
+              <li>Drag Makullveny into <b>Applications</b>, then try to open it once. macOS refuses.</li>
+              <li>Open <b>System Settings &rarr; Privacy &amp; Security</b> and scroll down.</li>
+              <li>Beside &ldquo;Makullveny was blocked&rdquo;, click <b>Open Anyway</b>, then <b>Open</b>.</li>
+            </ol>
+            <span class="dl-open-note">Or in Terminal, once: <code>xattr -dr com.apple.quarantine /Applications/Makullveny.app</code></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="dl-pointer" aria-hidden="true">
+        <span class="dl-pointer-label">Now you know what to expect &mdash; here it is</span>
+        <svg class="dl-arrow" width="46" height="58" viewBox="0 0 46 58" fill="none">
+          <path d="M23 4v42" stroke="#e8b273" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="5 6"/>
+          <path d="M11 36 23 50l12-14" stroke="#e8b273" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <!-- ── STEP TWO: the file itself ──────────────────────────────────── -->
+      <div class="dl-get">
+        <div class="dl-step-head">
+          <span class="dl-step">Step 2</span>
+          <div>
+            <h3>Take the file</h3>
+            <p>Read live from the release list, so this is the newest build for the computer you are on &mdash; not a number somebody typed into this page.</p>
+          </div>
+        </div>
 
       <!-- download.js fills this from the releases feed and clears whatever
            is inside first, so the cards below are the no-script fallback: real
-           links to the releases page that work with nothing running. -->
+           links to the releases page that work with nothing running. It renders
+           the one button for this computer first, then every other system
+           under it, which is the order this section is built around. -->
       <div id="download-panel" class="download-card" aria-busy="false">
       <div class="dl-primary rv rv-p" style="--d:.22s">
         <div style="display:flex;align-items:center;gap:18px">
@@ -1919,46 +2002,8 @@
       </div>
 
       </div>
+      </div>
 
-      <div class="dl-pointer" aria-hidden="true">
-        <span class="dl-pointer-label">Downloaded it? Read this before you open it</span>
-        <svg class="dl-arrow" width="46" height="58" viewBox="0 0 46 58" fill="none">
-          <path d="M23 4v42" stroke="#e8b273" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="5 6"/>
-          <path d="M11 36 23 50l12-14" stroke="#e8b273" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="dl-open">
-        <div class="dl-open-head">
-          <span class="dl-open-ico">
-            <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M7 10.5V7.6a5 5 0 0 1 10 0v2.9" stroke="#e8b273" stroke-width="1.7" stroke-linecap="round"/><rect x="4.6" y="10.5" width="14.8" height="9.4" rx="2.2" stroke="#e8b273" stroke-width="1.7"/><path d="M12 14v2.6" stroke="#f0c88f" stroke-width="1.8" stroke-linecap="round"/></svg>
-          </span>
-          <div>
-            <h3><span class="dl-warn">⚠️ Read this first</span>Opening it the first time</h3>
-            <p>Makullveny is not code-signed yet — signing certificates cost more than this project makes,
-               which is nothing. Both systems will stop the first launch. Here is the way past, once.</p>
-          </div>
-        </div>
-        <div class="dl-open-grid">
-          <div class="dl-open-card">
-            <b><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:7px"><path d="M3.5 5.6 10 4.7v6.6H3.5V5.6ZM11.4 4.5 20.5 3.2v8.1h-9.1V4.5ZM3.5 12.7H10v6.6l-6.5-.9v-5.7ZM11.4 12.7h9.1v8.1l-9.1-1.3v-6.8Z" fill="#c8b189"/></svg>Windows</b>
-            <ol>
-              <li>Run the installer. Windows shows a blue <b>“Windows protected your PC”</b> box.</li>
-              <li>Click <b>More info</b> — the small link under the message.</li>
-              <li>Click <b>Run anyway</b>.</li>
-            </ol>
-            <span class="dl-open-note">Two clicks, once. It will not ask again.</span>
-          </div>
-          <div class="dl-open-card">
-            <b><svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:7px"><path d="M15.8 12.6c0-2.2 1.8-3.2 1.9-3.3-1-1.5-2.6-1.7-3.2-1.7-1.4-.1-2.7.8-3.3.8-.7 0-1.7-.8-2.8-.8-1.5 0-2.8.8-3.5 2.1-1.5 2.6-.4 6.5 1.1 8.6.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.6.7 2.8.7c1.2 0 1.9-1 2.6-2.1.8-1.2 1.2-2.4 1.2-2.4-.1 0-2.3-.9-2.3-3.4ZM13.6 5.9c.6-.7 1-1.7.9-2.7-.9 0-2 .6-2.6 1.3-.6.6-1.1 1.7-.9 2.6 1 .1 2-.5 2.6-1.2Z" fill="#c8b189"/></svg>macOS</b>
-            <ol>
-              <li>Drag Makullveny into <b>Applications</b>, then try to open it once. macOS refuses.</li>
-              <li>Open <b>System Settings → Privacy &amp; Security</b> and scroll down.</li>
-              <li>Beside “Makullveny was blocked”, click <b>Open Anyway</b>, then <b>Open</b>.</li>
-            </ol>
-            <span class="dl-open-note">Or in Terminal, once: <code>xattr -dr com.apple.quarantine /Applications/Makullveny.app</code></span>
-          </div>
-        </div>
-      </div>
       <div class="dl-foot">
         <span>Windows 10 or newer · macOS 11 or newer · a recent Linux desktop.</span>
       </div>
