@@ -10,8 +10,12 @@
       repo (everything is fetched at runtime), no service-role key, no object
       key that reveals identity, no authenticated database client — one fetch,
       to one function, with one opaque token. See read.js's header for the
-      full accounting; this file only adds two rendering modes (book.js,
+      full accounting; this file only adds two rendering modes (book-scene.js,
       blueprint.js) on top of that same fetch and the same sanitizer.
+
+      REPORTING adds a SECOND call to that same function and no third thing: no
+      new host, no new config entry and still no key. read/book-scene.js owns it
+      and re-checks the origin itself.
 
       THE TOKEN IS IN THE FRAGMENT (never sent to a server, never in Referer).
       THE SANITIZER IS A SECOND, INDEPENDENT ALLOWLIST WALK for book pages; the
@@ -33,11 +37,21 @@
          POST the reader's token to some other host. read.js carries the same
          origin in ALLOWED_API_ORIGINS and refuses before the request is even
          opened; the two MUST be changed together. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./read.css">
+    <!-- scene.css still dresses the BLUEPRINT viewer. Its book rules are dead
+         with read/book.js and are left in place rather than surgically removed
+         from a file the blueprint half also depends on. -->
     <link rel="stylesheet" href="./scene.css">
+    <!-- THE BOOK SCENE. public-book-scene.css is a byte-for-byte copy of the
+         app's src/styles/modules/public-book-scene.css and must never be edited
+         here; book-scene-site.css is the site's own, and holds the two things
+         the copied file deliberately leaves to its host: where its two named
+         faces live, and how tall its stage is. -->
+    <link rel="stylesheet" href="./public-book-scene.css">
+    <link rel="stylesheet" href="./book-scene-site.css">
   </head>
   <body>
     <!-- OPEN GRAPH IS WRITTEN BY read.js, NEVER HERE — see read.js. -->
@@ -55,49 +69,19 @@
       <article id="readerArticle" class="reader-article" hidden>
         <p id="readerPreviewBadge" class="reader-preview-badge" hidden>Preview &mdash; not published</p>
 
-        <!-- ── the book experience ─────────────────────────────────────── -->
-        <section id="bookScene" class="book-scene" hidden>
-          <div class="book-desk">
-            <div class="candle" aria-hidden="true">
-              <span class="candle-glow"></span>
-              <span class="candle-flame"></span>
-              <span class="candle-wick"></span>
-              <span class="candle-body"></span>
-            </div>
+        <!-- ── the book experience ─────────────────────────────────────────
+             A MOUNT POINT AND NOTHING ELSE. Every node inside this element is
+             built by read/public-book-scene.js, which is a byte-for-byte copy
+             of the app's src/publicBookScene.js -- the desk, the book, the
+             candle, the quill, the page turn, the camera and the report dialog.
+             That is what makes the preview inside the app and this page the
+             SAME page rather than two that agree.
 
-            <div id="bookCover" class="book-cover" tabindex="0" role="button" aria-label="Open the book">
-              <h1 id="bookCoverTitle" class="book-cover-title"></h1>
-              <p id="bookCoverByline" class="book-cover-byline" hidden></p>
-              <span class="book-cover-hint">Tap or press Enter to open</span>
-            </div>
-
-            <div id="bookReading" class="book-reading" hidden>
-              <div class="book-toolbar">
-                <h1 id="bookTitle" class="book-title"></h1>
-                <p id="bookByline" class="book-byline" hidden></p>
-                <p id="bookDescription" class="book-description" hidden></p>
-              </div>
-              <div id="bookViewport" class="book-viewport" tabindex="-1">
-                <div id="bookLeaves" class="book-leaves"></div>
-              </div>
-              <div class="book-controls" role="group" aria-label="Book controls">
-                <button type="button" id="bookPrev" aria-label="Previous page">&#8592;</button>
-                <span id="bookPageIndicator" class="reader-indicator" aria-live="polite"></span>
-                <button type="button" id="bookNext" aria-label="Next page">&#8594;</button>
-                <span class="reader-controls-sep" aria-hidden="true"></span>
-                <button type="button" id="bookZoomOut" aria-label="Zoom out">&#8722;</button>
-                <button type="button" id="bookZoomReset" aria-label="Reset zoom">100%</button>
-                <button type="button" id="bookZoomIn" aria-label="Zoom in">+</button>
-                <button type="button" id="bookZoomFit" aria-label="Fit to view">Fit</button>
-                <button type="button" id="bookSound" aria-pressed="false" aria-label="Page-turn sound: off">Sound: Off</button>
-              </div>
-              <section id="bookCredits" class="reader-credits" hidden>
-                <h2 class="reader-credits-title">Credits</h2>
-                <ul id="bookCreditsList" class="reader-credits-list"></ul>
-              </section>
-            </div>
-          </div>
-        </section>
+             The markup that used to live here -- a flat cover, a viewport and a
+             row of zoom buttons -- is gone with read/book.js, which owned it.
+             read/book-scene.js is the thin, site-only adapter that mounts the
+             scene here and hands it the report transport. -->
+        <section id="bookScene" class="book-scene" hidden></section>
 
         <!-- ── the blueprint experience ────────────────────────────────── -->
         <section id="blueprintScene" class="blueprint-scene" hidden>
@@ -138,14 +122,19 @@
     </footer>
 
     <!-- DEPLOY-TIME CONFIG, LOADED BEFORE THE VIEWER. See read/config.js.
-         book.js and blueprint.js load BEFORE read.js on purpose: they define
-         window.MakullvenyBookReader / MakullvenyBlueprintReader unconditionally
-         at load time but only look up window.MakullvenyReader lazily, inside
-         render() — see book.js's header comment. read.js is the one that sets
-         window.MakullvenyReader and is the only file that calls render(), so
-         it must run last. -->
+         book-scene.js and blueprint.js load BEFORE read.js on purpose: they
+         define window.MakullvenyBookReader / MakullvenyBlueprintReader
+         unconditionally at load time but only look up window.MakullvenyReader
+         lazily, inside render(). read.js is the one that sets
+         window.MakullvenyReader and is the only file that calls render(), so it
+         must run last.
+
+         public-book-scene.js must parse before book-scene.js uses it, and it is
+         THE COPY -- src/publicBookScene.js in the app repository, byte for byte.
+         Never edit it here. -->
     <script src="./config.js"></script>
-    <script src="./book.js"></script>
+    <script src="./public-book-scene.js"></script>
+    <script src="./book-scene.js"></script>
     <script src="./blueprint.js"></script>
     <script src="./read.js"></script>
   </body>

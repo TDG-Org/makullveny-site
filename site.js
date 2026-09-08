@@ -49,6 +49,10 @@
       i = ((n % slides.length) + slides.length) % slides.length;
       slides.forEach(function (el, k) {
         el.style.opacity = k === i ? "1" : "0";
+        // marks the slide the lightbox should open: the stacked slides all
+        // receive the click regardless of which one is showing.
+        if (k === i) el.setAttribute("data-current", "");
+        else el.removeAttribute("data-current");
       });
       caps.forEach(function (el, k) {
         el.style.opacity = k === i ? "1" : "0";
@@ -82,8 +86,13 @@
     var box = document.querySelector(".lightbox");
     if (!box) return;
     var shot = box.querySelector("img");
+    // The markup ships the <img> with `hidden` on it so a script-less page never
+    // flashes a broken-image icon. Once we take over, the box's own `hidden` is
+    // what shows and hides the overlay -- so the image must be un-hidden when we
+    // open, or the ground shades in over a picture that is still display:none.
     function close() {
       box.hidden = true;
+      shot.hidden = true;
       shot.removeAttribute("src");
     }
     close();
@@ -95,9 +104,17 @@
       var img =
         e.target.closest && e.target.closest(".win img, .ill img, .room img, .peek img");
       if (!img) return;
+      // The rotator stacks all five slides on top of each other and only moves
+      // opacity, so a click always lands on the last one in the DOM regardless
+      // of which is showing. Redirect to the slide the rotator marked current.
+      var rotator = img.closest(".rotator");
+      if (rotator) {
+        img = rotator.querySelector(".rot[data-current]") || img;
+      }
       e.preventDefault();
       shot.src = img.currentSrc || img.src;
       shot.alt = img.alt || "";
+      shot.hidden = false;
       box.hidden = false;
     });
     document.addEventListener("keydown", function (e) {
@@ -117,6 +134,39 @@
     }
     window.addEventListener("scroll", stick, { passive: true });
     stick();
+  })();
+
+  // ── the phone menu ─────────────────────────────────────────────────────────
+  // A menu button toggles `.nav-open` on .topbar; the CSS turns the nav from a
+  // horizontal row into a drawer under the bar only below its own breakpoint.
+  // This has to work with no regard for reduced motion -- it is how a phone
+  // reaches the rest of the page, not decoration -- so it runs unconditionally.
+  (function () {
+    var bar = document.querySelector(".topbar");
+    var toggle = bar && bar.querySelector(".nav-toggle");
+    var nav = bar && bar.querySelector("nav");
+    if (!bar || !toggle || !nav) return;
+    function setOpen(open) {
+      bar.classList.toggle("nav-open", open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    toggle.addEventListener("click", function () {
+      setOpen(!bar.classList.contains("nav-open"));
+    });
+    nav.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest("a")) setOpen(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") setOpen(false);
+    });
+    document.addEventListener("click", function (e) {
+      if (bar.classList.contains("nav-open") && !bar.contains(e.target)) setOpen(false);
+    });
+    // A drawer left open while resizing past the breakpoint would otherwise
+    // stay stuck open (or invisibly "open") once the CSS drops the drawer rules.
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 820) setOpen(false);
+    });
   })();
 
   // ── the three most recent releases ────────────────────────────────────────
@@ -178,6 +228,56 @@
     out.textContent = n
       ? n + (n === 1 ? " release" : " releases") + " shown · newest first"
       : "newest first";
+  })();
+
+  // ── the real version number, wherever a page prints it ────────────────────
+  // Replaces the hand-typed number that used to sit in the News masthead and
+  // the two footers. Reads the same array the feed does, so the version on the
+  // page can never disagree with the release list right next to it.
+  (function () {
+    var vEls = document.querySelectorAll("[data-latest-version]");
+    var dEls = document.querySelectorAll("[data-latest-date]");
+    if (!vEls.length && !dEls.length) return;
+    var all = window.MAKULLVENY_UPDATES;
+    if (!Array.isArray(all) || !all.length || !all[0]) return;
+    var latest = all[0];
+    if (latest.version) {
+      [].forEach.call(vEls, function (el) { el.textContent = latest.version; });
+    }
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(latest.date || ""));
+    if (m) {
+      var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                 "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      var pretty = Number(m[3]) + " " + MON[Number(m[2]) - 1] + " " + m[1];
+      [].forEach.call(dEls, function (el) { el.textContent = pretty; });
+    }
+  })();
+
+  // ── the theme pickers: bring the newly-picked preview into view ───────────
+  // Both the front page's rail/stage browser and the Themes page's swatch rail
+  // are a checked-radio + CSS-sibling trick, so picking one never fires a JS
+  // event of its own the layout could react to. Phone only: on anything wider
+  // the rail and its preview are already both on screen. 820px is the same
+  // line the rest of the site draws "phone" at (it's the hamburger-menu
+  // breakpoint), so this can't fire on a tablet or a narrower laptop window.
+  (function () {
+    var PHONE_MAX_WIDTH = 820;
+    var groups = [
+      { radios: "input[name='theme']", stage: ".stagewrap" },
+      { radios: "input[name='coll']", stage: ".coll-stage" }
+    ];
+    groups.forEach(function (g) {
+      var radios = [].slice.call(document.querySelectorAll(g.radios));
+      var stage = document.querySelector(g.stage);
+      if (!radios.length || !stage) return;
+      radios.forEach(function (radio) {
+        radio.addEventListener("change", function () {
+          if (!radio.checked) return;
+          if (window.innerWidth > PHONE_MAX_WIDTH) return;
+          stage.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        });
+      });
+    });
   })();
 
   // ── 6. pressing Download lights the panel that says how to open it ────────
