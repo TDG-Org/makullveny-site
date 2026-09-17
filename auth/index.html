@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      THE AUTH RETURN PAGE. Supabase (GoTrue) redirects here after somebody
+      confirms a new account, follows a magic link, accepts an invite, changes
+      their email address, or asks to reset a password.
+
+      WHY A WEB PAGE AT ALL, when the app owns a makullveny:// scheme and that
+      scheme is allowlisted and works. Because a custom scheme fails SILENTLY
+      in the places people actually open email: an in-app browser inside a mail
+      client, a work laptop that blocks unknown protocol handlers, a phone that
+      has never had the app installed. In every one of those the student sees a
+      blank tab or an error about a site that cannot be reached, and concludes
+      the app is broken. An https page always loads, always says what happened,
+      and THEN offers the hand-off.
+
+      SECURITY, because the URL fragment on this page can carry a real session.
+      - The fragment never leaves this page: the CSP allows no connect-src, no
+        form-action and no frames, so there is nothing here that could send it
+        anywhere even if this script were wrong.
+      - referrer is no-referrer, so it cannot leak through a click either.
+      - Nothing is written to localStorage, sessionStorage or a cookie.
+      - The fragment is stripped from the address bar as soon as it is read, so
+        it is not left sitting in shoulder-view or in a copied URL.
+      - noindex, because a page whose URL can contain a token must never be in
+        a search index.
+
+      THIS PAGE MUST NEVER PROMISE MORE THAN IT KNOWS, for the same reason the
+      checkout return page next door must not: it knows only what URL it was
+      sent to, and a URL is not proof. It says the LINK worked; the app is what
+      decides whether somebody is signed in, and the app re-asks the server.
+    -->
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <title>Makullveny — back to the app</title>
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./auth.css">
+  </head>
+  <body>
+    <main>
+      <!--
+        EVERY WORD HERE IS THE FALLBACK, and that is deliberate. If auth.js
+        fails to load or throws, a student still lands on a page that tells
+        them the truth and gives them a way onward. The script only ever makes
+        this MORE specific.
+      -->
+      <div class="mark" id="mark" aria-hidden="true">&#10022;</div>
+      <h1 id="title">You&#8217;re all set</h1>
+      <p class="lead" id="lead">Go back to Makullveny &mdash; you&#8217;re signed in.</p>
+
+      <a class="button" id="open" href="makullveny://auth-callback">Open Makullveny</a>
+
+      <hr>
+      <p class="fine" id="fine">
+        You can close this tab.
+      </p>
+    </main>
+    <script src="./auth.js"></script>
+  </body>
+</html>
