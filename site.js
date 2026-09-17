@@ -304,6 +304,46 @@
   // The delay is deliberate: the browser starts its own download UI on that
   // click, and scrolling the page out from under somebody in the same frame
   // reads as a glitch rather than a hand-off.
+  // ── the one-line macOS alternative, copied in one press ──────────────────
+  // The command is real text in the page, so it can always be selected and
+  // copied by hand; this only saves the selecting. The button says what
+  // happened rather than trusting the reader to notice their clipboard
+  // changed, and says it for two seconds, which is long enough to read and
+  // short enough not to look stuck.
+  (function () {
+    var buttons = document.querySelectorAll("[data-dl-copy]");
+    if (!buttons.length || !navigator.clipboard) return;
+    buttons.forEach(function (button) {
+      var source = document.getElementById(button.getAttribute("data-dl-copy"));
+      if (!source) return;
+      var label = button.textContent;
+      var settle;
+      button.addEventListener("click", function () {
+        navigator.clipboard.writeText(source.textContent.trim()).then(
+          function () {
+            button.textContent = "Copied";
+            button.classList.add("is-copied");
+            clearTimeout(settle);
+            settle = setTimeout(function () {
+              button.textContent = label;
+              button.classList.remove("is-copied");
+            }, 2000);
+          },
+          function () {
+            // Clipboard refused (an insecure origin, or the reader said no).
+            // Selecting the line is the fallback, so offer exactly that.
+            button.textContent = "Select it";
+            var range = document.createRange();
+            range.selectNodeContents(source);
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+        );
+      });
+    });
+  })();
+
   (function () {
     var trail = document.querySelector(".dl-trail");
     if (!trail) return;
