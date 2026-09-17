@@ -243,8 +243,14 @@
        bottom of the bar, so there is no line anywhere: the ground for the text
        simply gets darker toward the top. The blur is masked with the same
        ramp, or it would end in a visible seam of its own. */
+    /* THE BAR'S GUTTER IS THE PAGE'S GUTTER. It used to be a flat 130px, which
+       is exactly what (1440 - 1180) / 2 comes to -- the wrap's own margin at
+       the width this was drawn on. Written as the same sum it stays aligned
+       with the content at every width instead of only that one, and the bar
+       stops shoving the wordmark into the middle of a tablet. */
     .topbar { position:sticky; top:0; z-index:60; display:flex; align-items:center; justify-content:space-between;
-      padding:18px 130px 30px; margin-bottom:-12px; border:0; background:none; box-shadow:none; }
+      padding:18px calc((100% - min(1180px, 100% - 48px)) / 2) 30px;
+      margin-bottom:-12px; border:0; background:none; box-shadow:none; }
     .topbar::before { content:""; position:absolute; inset:0; z-index:-1; pointer-events:none;
       background:linear-gradient(180deg, rgba(22,15,10,.97) 0%, rgba(22,15,10,.9) 34%,
                                          rgba(22,15,10,.6) 64%, rgba(22,15,10,.22) 84%, transparent 100%);
@@ -324,9 +330,11 @@
     .topbar nav a:not(.btn):hover { color:#f0c88f; } .topbar nav a:not(.btn):hover::after { transform:scaleX(1); }
 
     /* ── the phone menu ────────────────────────────────────────────────────
-       Hidden above 820px. Below it, this button toggles `.nav-open` on
+       Hidden above 980px. Below it, this button toggles `.nav-open` on
        .topbar (site.js), and the media query further down turns the nav
-       itself into a drawer under the bar. */
+       itself into a drawer under the bar. 980, not 820: eight links, a button
+       and the wordmark need about 1030px of bar, so anything under that was
+       a squeezed row long before it was a narrow screen. */
     .nav-toggle { display:none; flex:none; width:40px; height:40px; border-radius:11px;
       align-items:center; justify-content:center; gap:5px; flex-direction:column;
       border:1px solid rgba(255,236,203,.18); background:rgba(255,241,205,.06); cursor:pointer;
@@ -338,7 +346,7 @@
     .topbar.nav-open .nav-toggle-bar:nth-child(2) { opacity:0; }
     .topbar.nav-open .nav-toggle-bar:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
     @media (prefers-reduced-motion:reduce) { .nav-toggle-bar { transition:none; } }
-    @media (max-width:820px) and (prefers-reduced-motion:reduce) { .topbar nav { transition:none; } }
+    @media (max-width:980px) and (prefers-reduced-motion:reduce) { .topbar nav { transition:none; } }
 
     /* ══ HERO — lamplight ═════════════════════════════════════════════ */
     .hero { position:relative; padding:88px 0 0; background:linear-gradient(180deg,#120f0c 0%,#171009 46%,#1d1309 100%); }
@@ -1090,14 +1098,22 @@
       .peek { position:static; transform:none !important; width:min(320px, 46%); }
     }
 
-    @media (max-width:820px) {
+    /* ── THE BAR STOPS BEING A DESKTOP BAR HERE ──────────────────────────
+       The drawer used to arrive at 820, the width phones start at, rather than
+       at the width the row stops fitting: eight links, a button and the
+       wordmark need about 1030px of bar, so every tablet between those two
+       numbers got a squeezed, nearly touching row. It arrives at 980 now. The
+       other half of the tablet problem -- the wordmark sitting an eighth of
+       the window in from the edge -- was the bar's flat 130px gutter, fixed
+       where .topbar is declared. */
+    @media (max-width:980px) {
       /* The nav becomes a drawer under the bar: the toggle button shows, and
          the links move from a horizontal row to a dropped-down list. */
-      .topbar { gap:14px; padding-left:18px; padding-right:18px; }
+      .topbar { gap:14px; }
       .nav-toggle { display:inline-flex; }
       .topbar nav { position:absolute; top:100%; left:0; right:0; z-index:59;
         flex-direction:column; align-items:stretch; gap:0;
-        padding:6px 18px 18px; margin:0;
+        padding:6px 24px 18px; margin:0;
         background:linear-gradient(180deg, #140e09, #0d0a07);
         border-bottom:1px solid var(--line-soft); box-shadow:0 30px 60px rgba(0,0,0,.5);
         max-height:0; overflow:hidden; opacity:0; pointer-events:none;
@@ -1107,7 +1123,9 @@
       .topbar nav a:not(:first-child) { border-top:1px solid var(--line-soft); }
       .topbar nav a:not(.btn)::after { display:none; }
       .topbar nav .btn-primary { width:100%; justify-content:center; margin-top:14px; border-top:0; }
+    }
 
+    @media (max-width:820px) {
       h1 { font-size:44px; }
       .stage { margin:40px auto -120px; }
       .dash-facts, .selah-facts, .faith-cards, .workbench-grid,
@@ -1149,6 +1167,9 @@
 
     @media (max-width:560px) {
       .wrap { width:calc(100% - 32px); }
+      /* the wrap's gutter tightens here, so the bar's does too */
+      .topbar { padding-left:16px; padding-right:16px; }
+      .topbar nav { padding-left:16px; padding-right:16px; }
       footer { padding:24px 18px 22px; }
       h1 { font-size:34px; }
       h2 { font-size:26px !important; }

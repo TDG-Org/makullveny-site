@@ -180,8 +180,9 @@
     });
     // A drawer left open while resizing past the breakpoint would otherwise
     // stay stuck open (or invisibly "open") once the CSS drops the drawer rules.
+    // 980 is where the CSS swaps the drawer back for the horizontal row.
     window.addEventListener("resize", function () {
-      if (window.innerWidth > 820) setOpen(false);
+      if (window.innerWidth > 980) setOpen(false);
     });
   })();
 
