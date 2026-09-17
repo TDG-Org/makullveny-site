@@ -439,8 +439,9 @@
       letter-spacing:.2em; text-transform:uppercase; color:var(--accent); }
     @media (prefers-reduced-motion:reduce) { .rc { transition:none; } }
     .rot-dots { position:absolute; left:50%; bottom:-34px; transform:translateX(-50%); display:flex; gap:9px; }
-    .rot-dot { width:9px; height:9px; padding:0; border:0; border-radius:50%; cursor:pointer;
+    .rot-dot { position:relative; width:9px; height:9px; padding:0; border:0; border-radius:50%; cursor:pointer;
       background:rgba(255,236,203,.2); transition:background .35s ease, transform .35s cubic-bezier(.2,.8,.3,1); }
+    .rot-dot::after { content:""; position:absolute; inset:-18px -8px; border-radius:6px; }
     .rot-dot:hover { background:rgba(255,236,203,.44); transform:scale(1.25); }
     .rot-dot[data-on="true"] { background:#d58c4b; transform:scale(1.25); box-shadow:0 0 0 4px rgba(213,140,75,.16); }
     @media (prefers-reduced-motion:reduce) { .rot, .win-title .wt, .rot-dots i { animation:none; } .rot.s1, .win-title .wt.s1 { opacity:1; } }
@@ -1132,7 +1133,7 @@
         max-height:0; overflow:hidden; opacity:0; pointer-events:none;
         transition:max-height .35s cubic-bezier(.2,.8,.3,1), opacity .25s ease; }
       .topbar.nav-open nav { max-height:75vh; overflow-y:auto; opacity:1; pointer-events:auto; }
-      .topbar nav a { white-space:normal; padding:14px 4px; }
+      .topbar nav a { white-space:normal; padding:15px 4px; min-height:44px; display:flex; align-items:center; }
       .topbar nav a:not(:first-child) { border-top:1px solid var(--line-soft); }
       .topbar nav a:not(.btn)::after { display:none; }
       .topbar nav .btn-primary { width:100%; justify-content:center; margin-top:14px; border-top:0; }
@@ -1154,7 +1155,9 @@
       .dl-lamp { left:-38px; width:28px; height:28px; border-radius:10px; font-size:14px; }
       .dl-words h3 { font-size:20px; }
       .dl-plat-rail > div { width:100%; }
-      .dl-plat-btn { flex:1; justify-content:center; padding:10px 8px; }
+      .dl-plat-btn { flex:1; justify-content:center; padding:10px 8px; min-height:44px; }
+      /* 38px is a mouse target. Everything from here down is a thumb. */
+      .btn-sm { min-height:44px; }
       /* The three theme tiles stay in a row here: stacking them turns one
          panel into two thousand pixels of scrolling for no extra detail,
          and every tile opens full size on a tap anyway. */
@@ -1188,7 +1191,9 @@
       h2 { font-size:26px !important; }
       .hero { padding-top:96px; }
       .stage { margin:32px auto -70px; }
-      .rot-dots { gap:8px; }
+      /* the pitch, not the dot, is what the thumb is aiming at */
+      .rot-dots { gap:26px; }
+      .rot-dot::after { inset:-18px -13px; }
       .cta-row { flex-direction:column; align-items:stretch; }
       .cta-row .btn, .newhere-acts .btn { width:100%; justify-content:center; }
       .trustbar, .plats { flex-direction:column; gap:9px; }
@@ -1636,7 +1641,7 @@
            padding and a second gradient in between. The rule is what keeps
            "five small tools" honest: the radio sits after the five, not in
            them. -->
-      <div class="sound sound-tail">
+      <div class="wrap sound sound-tail">
   <div class="rv rv-l">
           <p class="eyebrow">Sound</p>
           <h2 style="font-size:38px;line-height:1.07;margin:14px 0 14px">A lofi radio and room ambience, built in.</h2>
