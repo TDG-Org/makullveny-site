@@ -293,30 +293,29 @@
     });
   })();
 
-  // ── 6. pressing Download lights the panel that says how to open it ────────
+  // ── 6. pressing Download carries the reader on to the next stop ───────────
   // The app is not code-signed, so a download nobody reads about is a download
-  // that never opens. Any download control lights the first-launch panel and
-  // brings it into view; the class comes off on its own, so a second press
-  // plays it again.
+  // that never opens. That used to be handled by lighting up a panel somewhere
+  // below the button; the trail puts the instructions directly under it now, so
+  // the only thing left worth doing is moving the reader on. The moment they
+  // press Download, the useful thing to look at is stop two -- not the button
+  // they have already used.
+  //
+  // The delay is deliberate: the browser starts its own download UI on that
+  // click, and scrolling the page out from under somebody in the same frame
+  // reads as a glitch rather than a hand-off.
   (function () {
-    var panel = document.querySelector(".dl-open");
-    if (!panel) return;
-    var gate;
+    var trail = document.querySelector(".dl-trail");
+    if (!trail) return;
     document.addEventListener("click", function (e) {
-      var hit =
-        e.target.closest &&
-        e.target.closest(
-          "a[href*='#download'], .dl-primary a, .dl, a[href*='makullveny-releases'], #download-panel a[download], #download-panel .button"
-        );
+      var hit = e.target.closest && e.target.closest("[data-dl-get]");
       if (!hit) return;
-      panel.classList.remove("is-called");
-      void panel.offsetWidth;
-      panel.classList.add("is-called");
-      clearTimeout(gate);
-      gate = setTimeout(function () {
-        panel.classList.remove("is-called");
-      }, 8000);
-      panel.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      var here = hit.closest(".dl-stop");
+      var next = here && here.nextElementSibling;
+      if (!next) return;
+      setTimeout(function () {
+        next.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      }, 220);
     });
   })();
 

@@ -1,15 +1,28 @@
 /*
   Makullveny downloads.
 
-  Reads the latest public release once per page load and rewrites the
-  download card with what actually exists. The card already contains a
-  working link to the releases page before this file runs, so a visitor
-  without JavaScript still has a way in.
+  WHAT CHANGED, AND WHY IT MATTERS. This file used to clear #download-panel and
+  build the whole download card from the releases feed. It does not any more.
+  The download section is real HTML now -- a numbered trail through the install,
+  with a working link to the releases page in every step-one button and the
+  platform picker driven by radio inputs and a CSS sibling selector. All of it
+  reads and switches with this script blocked.
+
+  So this file only fills in what the markup CANNOT know on its own:
+
+    - the direct URL of the file for the reader's own system
+    - its name, its size, and the version they are about to get
+    - which platform trail to open first
+    - and, on a phone, a word that this is desktop software
+
+  Every one of those is an ENHANCEMENT of markup that already said something
+  true. A blocked script costs the reader the file name; it never costs them
+  the way in.
 
   Rules this file keeps:
     - one network call per page load, never a poll
     - a missing release (HTTP 404) is a normal state, not an error
-    - never render a button for a file that is not in the release
+    - never point a button at a file that is not in the release
     - never show updater plumbing (.blockmap, latest*.yml, the mac .zip)
 */
 (function () {
@@ -22,16 +35,16 @@
   /* Middle dot, built from its code point so this file stays plain ASCII. */
   var META_SEPARATOR = " " + String.fromCharCode(183) + " ";
 
-  var WINDOWS_NOTE =
-    "Windows builds are not code-signed, so Windows may show an Unknown publisher notice. " +
-    "Choose More info, then Run anyway.";
-
   /* ---------------------------------------------------------------- data */
 
   /*
     electron-builder names its files from a template and the version, so the
     exact strings change every release. Match on shape, not on a remembered
     filename.
+
+    The two Mac builds are told apart here rather than lumped together: the
+    page offers Apple Silicon by default and Intel as the alternative, and it
+    can only keep that promise if the two are separate slots.
   */
   function classifyAsset(name) {
     var lower = String(name || "").toLowerCase();
@@ -52,6 +65,12 @@
       return lower.indexOf("setup") === -1 ? "windowsPortable" : "windowsInstaller";
     }
     if (/\.dmg$/.test(lower)) {
+      if (/arm64|aarch64|apple[-_.]?silicon/.test(lower)) {
+        return "macosArm";
+      }
+      if (/x64|x86[-_]?64|intel/.test(lower)) {
+        return "macosIntel";
+      }
       return "macos";
     }
     if (/\.appimage$/.test(lower)) {
@@ -68,6 +87,8 @@
     var groups = {
       windowsInstaller: null,
       windowsPortable: null,
+      macosArm: null,
+      macosIntel: null,
       macos: null,
       linux: null
     };
@@ -93,6 +114,32 @@
     }
 
     return groups;
+  }
+
+  /*
+    A release that does not carry the exact build a button asked for is a
+    normal thing -- an untagged .dmg instead of an arm64 one, a portable .exe
+    in a release with no installer. Each slot names what it will accept
+    instead, in order, before the button gives up and stays pointed at the
+    releases page.
+  */
+  var FALLBACK = {
+    windowsInstaller: ["windowsInstaller", "windowsPortable"],
+    windowsPortable: ["windowsPortable", "windowsInstaller"],
+    macosArm: ["macosArm", "macos", "macosIntel"],
+    macosIntel: ["macosIntel", "macos"],
+    macos: ["macos", "macosArm", "macosIntel"],
+    linux: ["linux"]
+  };
+
+  function resolveSlot(groups, slot) {
+    var chain = FALLBACK[slot] || [slot];
+    for (var i = 0; i < chain.length; i += 1) {
+      if (groups[chain[i]]) {
+        return groups[chain[i]];
+      }
+    }
+    return null;
   }
 
   function detectPlatform(nav) {
@@ -153,6 +200,10 @@
     return "unknown";
   }
 
+  /* The picker's three trails, keyed the way the markup keys them. */
+  var TRAIL_FOR = { windows: "win", macos: "mac", linux: "lin" };
+  var TRAIL_NAME = { win: "Windows", mac: "macOS", lin: "Linux" };
+
   function formatSize(bytes) {
     if (typeof bytes !== "number" || !isFinite(bytes) || bytes <= 0) {
       return "";
@@ -183,306 +234,180 @@
     }
   }
 
-  /* ------------------------------------------------------------ rendering */
+  /* --------------------------------------------------------------- filling */
 
-  var PLATFORM_LABELS = {
-    windowsInstaller: "Windows installer",
-    windowsPortable: "Windows portable",
-    macos: "macOS",
-    linux: "Linux"
-  };
-
-  function makeElement(doc, tag, className, text) {
-    var node = doc.createElement(tag);
-    if (className) {
-      node.className = className;
-    }
-    if (text) {
+  function setText(root, selector, text) {
+    var node = root.querySelector(selector);
+    if (node) {
       node.textContent = text;
     }
-    return node;
   }
 
-  function makeLink(doc, className, href, text) {
-    var link = makeElement(doc, "a", className, text);
-    link.setAttribute("href", href);
-    link.setAttribute("target", "_blank");
-    link.setAttribute("rel", "noreferrer");
-    return link;
-  }
-
-  function makeReleasesLink(doc, className, text) {
-    return makeLink(doc, className, RELEASES_PAGE, text);
-  }
-
-  function clear(panel) {
-    while (panel.firstChild) {
-      panel.removeChild(panel.firstChild);
+  /*
+    The file name is drawn inside the illustration of the browser's download
+    list and inside the SmartScreen App: line, because a reader comparing the
+    picture to their own screen should be comparing the same string. Those are
+    <text> nodes, so this is a text swap, not an image swap.
+  */
+  function nameTheShots(scope, fileName) {
+    var shots = scope.querySelectorAll("[data-dl-shotfile]");
+    for (var i = 0; i < shots.length; i += 1) {
+      shots[i].textContent = fileName;
     }
   }
 
-  function describeAsset(asset) {
-    var size = formatSize(asset.size);
-    return size ? asset.name + " (" + size + ")" : asset.name;
-  }
+  function fillButton(button, groups, versionLabel) {
+    var stop = button.closest ? button.closest(".dl-stop") : null;
+    var scope = stop || button.parentNode;
+    var asset = resolveSlot(groups, button.getAttribute("data-dl-slot"));
 
-  function downloadLabel(slot, isPrimary) {
-    if (!isPrimary) {
-      return PLATFORM_LABELS[slot];
-    }
-    if (slot === "windowsInstaller") {
-      return "Download for Windows";
-    }
-    if (slot === "windowsPortable") {
-      return "Download for Windows (portable)";
-    }
-    if (slot === "macos") {
-      return "Download for macOS";
-    }
-    return "Download for Linux";
-  }
-
-  function makeDownloadRow(doc, asset, isPrimary) {
-    var row = makeElement(doc, "div", "download-row" + (isPrimary ? " is-primary" : ""));
-    var link = makeLink(
-      doc,
-      "button " + (isPrimary ? "primary" : "secondary"),
-      asset.url,
-      downloadLabel(asset.slot, isPrimary)
-    );
-    link.setAttribute("download", "");
-    row.appendChild(link);
-    row.appendChild(makeElement(doc, "p", "download-file", describeAsset(asset)));
-    return row;
-  }
-
-  function slotOrder(groups) {
-    var order = ["windowsInstaller", "windowsPortable", "macos", "linux"];
-    var available = [];
-    for (var i = 0; i < order.length; i += 1) {
-      if (groups[order[i]]) {
-        available.push(order[i]);
-      }
-    }
-    return available;
-  }
-
-  function primarySlotFor(family, groups) {
-    if (family === "windows") {
-      if (groups.windowsInstaller) {
-        return "windowsInstaller";
-      }
-      return groups.windowsPortable ? "windowsPortable" : null;
-    }
-    if (family === "macos") {
-      return groups.macos ? "macos" : null;
-    }
-    if (family === "linux") {
-      return groups.linux ? "linux" : null;
-    }
-    return null;
-  }
-
-  function offersWindows(slots) {
-    for (var i = 0; i < slots.length; i += 1) {
-      if (slots[i] === "windowsInstaller" || slots[i] === "windowsPortable") {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  function setBusy(panel, busy) {
-    panel.setAttribute("aria-busy", busy ? "true" : "false");
-  }
-
-  function renderLoading(panel) {
-    var doc = panel.ownerDocument;
-    clear(panel);
-    setBusy(panel, true);
-    panel.appendChild(makeElement(doc, "p", "download-lede", "Checking the latest release."));
-    panel.appendChild(makeReleasesLink(doc, "download-more-link", "All releases and release notes"));
-  }
-
-  function renderNoRelease(panel) {
-    var doc = panel.ownerDocument;
-    clear(panel);
-    setBusy(panel, false);
-    panel.appendChild(makeElement(doc, "p", "download-eyebrow eyebrow", "Not yet"));
-    panel.appendChild(
-      makeElement(
-        doc,
-        "p",
-        "download-lede",
-        "There is no public build to download yet. Makullveny is still being polished, and the first release will appear on the releases page."
-      )
-    );
-    panel.appendChild(
-      makeElement(
-        doc,
-        "p",
-        "download-note",
-        "Watching that page is the quietest way to hear about it. Nothing on this site will email you."
-      )
-    );
-    var actions = makeElement(doc, "div", "download-actions");
-    actions.appendChild(makeReleasesLink(doc, "button secondary", "Watch the releases page"));
-    panel.appendChild(actions);
-  }
-
-  function renderUnavailable(panel) {
-    var doc = panel.ownerDocument;
-    clear(panel);
-    setBusy(panel, false);
-    panel.appendChild(
-      makeElement(doc, "p", "download-lede", "The release list could not be read just now.")
-    );
-    panel.appendChild(
-      makeElement(
-        doc,
-        "p",
-        "download-note",
-        "The releases page on GitHub always has whatever is published, along with the release notes."
-      )
-    );
-    var actions = makeElement(doc, "div", "download-actions");
-    actions.appendChild(makeReleasesLink(doc, "button secondary", "Open the releases page"));
-    panel.appendChild(actions);
-  }
-
-  function appendMeta(panel, release) {
-    var doc = panel.ownerDocument;
-    var parts = [];
-    var tag = typeof release.tag_name === "string" ? release.tag_name.trim() : "";
-    var published = formatDate(release.published_at);
-
-    if (tag) {
-      parts.push("Version " + tag);
-    }
-    if (published) {
-      parts.push("Published " + published);
-    }
-    if (parts.length) {
-      panel.appendChild(
-        makeElement(doc, "p", "download-eyebrow eyebrow", parts.join(META_SEPARATOR))
-      );
-    }
-  }
-
-  function renderRelease(panel, release, family) {
-    var doc = panel.ownerDocument;
-    var groups = groupAssets(release && release.assets);
-    var slots = slotOrder(groups);
-    var restSlots = [];
-    var primarySlot = null;
-    var i;
-
-    clear(panel);
-    setBusy(panel, false);
-    appendMeta(panel, release || {});
-
-    if (!slots.length) {
-      panel.appendChild(
-        makeElement(
-          doc,
-          "p",
-          "download-lede",
-          "This release is published, but it does not carry an app file this page can offer."
-        )
-      );
-      var emptyActions = makeElement(doc, "div", "download-actions");
-      emptyActions.appendChild(makeReleasesLink(doc, "button secondary", "Open the releases page"));
-      panel.appendChild(emptyActions);
+    if (!asset) {
+      /* Leave the releases-page link exactly as the HTML shipped it. */
+      button.classList.add("is-missing");
+      setText(scope, "[data-dl-file]", "Not in the latest release");
+      setText(scope, "[data-dl-size]", "");
+      setText(scope, "[data-dl-ver]", versionLabel);
       return;
     }
 
-    primarySlot = family === "mobile" ? null : primarySlotFor(family, groups);
-    for (i = 0; i < slots.length; i += 1) {
-      if (slots[i] !== primarySlot) {
-        restSlots.push(slots[i]);
+    button.classList.remove("is-missing");
+    button.setAttribute("href", asset.url);
+    button.setAttribute("download", "");
+    setText(scope, "[data-dl-file]", asset.name);
+    setText(scope, "[data-dl-size]", formatSize(asset.size));
+    setText(scope, "[data-dl-ver]", versionLabel);
+
+    var trail = button.closest ? button.closest(".dl-trail") : null;
+    if (trail) {
+      nameTheShots(trail, asset.name);
+    }
+  }
+
+  /*
+    THE SECOND BUILD IS OFFERED ONLY IF IT EXISTS. Releases do not all carry
+    both: v1.20.3 shipped an Apple Silicon disk image and no Intel one. A line
+    reading "Using an Intel Mac? Intel build" beside a release that has no
+    Intel build is a promise this page cannot keep, so when the feed does not
+    have it, the offer and its separator are taken away rather than left
+    pointing hopefully at the releases page.
+  */
+  function fillAlternate(link, groups) {
+    var asset = resolveSlot(groups, link.getAttribute("data-dl-alt"));
+    var wrap = link.closest ? link.closest("[data-dl-altwrap]") : null;
+
+    if (!asset) {
+      if (wrap) {
+        wrap.hidden = true;
+        var separator = wrap.nextElementSibling;
+        if (separator && separator.hasAttribute("data-dl-altsep")) {
+          separator.hidden = true;
+        }
       }
+      return;
     }
 
+    link.setAttribute("href", asset.url);
+    link.setAttribute("download", "");
+  }
+
+  function applyRelease(root, release, groups) {
+    var tag = release && typeof release.tag_name === "string" ? release.tag_name.trim() : "";
+    var published = formatDate(release && release.published_at);
+    var versionLabel = "";
+
+    if (tag) {
+      versionLabel = /^v/i.test(tag) ? tag.replace(/^v/i, "Version ") : "Version " + tag;
+    }
+    if (versionLabel && published) {
+      versionLabel += META_SEPARATOR + published;
+    }
+
+    var buttons = root.querySelectorAll("[data-dl-get]");
+    for (var i = 0; i < buttons.length; i += 1) {
+      fillButton(buttons[i], groups, versionLabel);
+    }
+
+    var alts = root.querySelectorAll("[data-dl-alt]");
+    for (var j = 0; j < alts.length; j += 1) {
+      fillAlternate(alts[j], groups);
+    }
+  }
+
+  /* Nothing published yet. Expected today, and not a failure. */
+  function applyNoRelease(root) {
+    var buttons = root.querySelectorAll("[data-dl-get]");
+    for (var i = 0; i < buttons.length; i += 1) {
+      buttons[i].classList.add("is-missing");
+      buttons[i].setAttribute("href", RELEASES_PAGE);
+      var stop = buttons[i].closest ? buttons[i].closest(".dl-stop") : root;
+      setText(stop, "[data-dl-file]", "No public build yet");
+      setText(stop, "[data-dl-size]", "");
+      setText(stop, "[data-dl-ver]", "Watching the releases page is the quietest way to hear");
+    }
+  }
+
+  /*
+    Open the trail that matches this computer. The markup ships with Windows
+    checked, which is a guess; this makes it an observation. A phone is told
+    plainly that Makullveny is desktop software rather than being handed a
+    file that cannot run there.
+  */
+  function openTrailFor(root, family) {
     if (family === "mobile") {
-      panel.appendChild(
-        makeElement(
-          doc,
-          "p",
-          "download-lede",
-          "Makullveny is desktop software. It does not run on a phone or a tablet, so open this page on a computer to install it. These are the builds in this release."
-        )
-      );
-    } else if (primarySlot) {
-      panel.appendChild(
-        makeElement(doc, "p", "download-lede", "Makullveny for desktop, ready for this computer.")
-      );
-      panel.appendChild(makeDownloadRow(doc, groups[primarySlot], true));
-    } else if (family === "unknown") {
-      panel.appendChild(
-        makeElement(
-          doc,
-          "p",
-          "download-lede",
-          "Makullveny is desktop software. Pick the build that matches your computer."
-        )
-      );
-    } else {
-      panel.appendChild(
-        makeElement(
-          doc,
-          "p",
-          "download-lede",
-          "This release does not include a build for your system. These are the builds it does include."
-        )
-      );
-    }
-
-    if (restSlots.length) {
-      panel.appendChild(
-        makeElement(
-          doc,
-          "h3",
-          "download-subhead",
-          primarySlot ? "Other systems" : "Desktop builds in this release"
-        )
-      );
-      var list = makeElement(doc, "ul", "download-list");
-      for (i = 0; i < restSlots.length; i += 1) {
-        var item = makeElement(doc, "li");
-        item.appendChild(makeDownloadRow(doc, groups[restSlots[i]], false));
-        list.appendChild(item);
+      var note = root.querySelector("[data-dl-mobile]");
+      if (note) {
+        note.hidden = false;
       }
-      panel.appendChild(list);
+      return;
     }
 
-    if (offersWindows(slots)) {
-      panel.appendChild(makeElement(doc, "p", "download-note", WINDOWS_NOTE));
+    var key = TRAIL_FOR[family];
+    if (!key) {
+      return;
     }
 
-    panel.appendChild(makeReleasesLink(doc, "download-more-link", "All releases and release notes"));
+    var radio = root.querySelector('[data-dl-plat="' + key + '"]');
+    if (radio && !radio.checked) {
+      radio.checked = true;
+    }
+
+    var hint = root.querySelector("[data-dl-hint]");
+    if (hint) {
+      hint.textContent = "";
+      hint.appendChild(document.createTextNode("We think you are on "));
+      var strong = document.createElement("b");
+      strong.textContent = TRAIL_NAME[key];
+      hint.appendChild(strong);
+      hint.appendChild(
+        document.createTextNode(" " + String.fromCharCode(8212) + " press another if that is wrong.")
+      );
+      hint.hidden = false;
+    }
   }
 
   /* ----------------------------------------------------------------- flow */
 
   function start(options) {
     var settings = options || {};
-    var panel = settings.panel;
+    var root = settings.root;
 
-    if (!panel || !panel.ownerDocument) {
-      return null;
-    }
-
-    var fetchImpl = settings.fetchImpl;
-    if (typeof fetchImpl !== "function") {
-      /* No fetch available: leave the plain releases link that shipped in the HTML. */
+    if (!root || !root.querySelector) {
       return null;
     }
 
     var family = detectPlatform(settings.nav);
+    openTrailFor(root, family);
+
+    var fetchImpl = settings.fetchImpl;
+    if (typeof fetchImpl !== "function") {
+      /* No fetch: the links the HTML shipped with are already correct. */
+      return null;
+    }
+
     var settled = false;
     var timer = null;
 
-    function finish(render) {
+    function finish(apply) {
       if (settled) {
         return;
       }
@@ -491,36 +416,35 @@
         clearTimeout(timer);
         timer = null;
       }
-      render();
+      apply();
     }
 
-    function fail() {
-      finish(function () {
-        renderUnavailable(panel);
-      });
+    /* The feed being unreadable leaves the markup alone, which already works. */
+    function giveUp() {
+      finish(function () {});
     }
 
-    renderLoading(panel);
-
-    timer = setTimeout(fail, typeof settings.timeoutMs === "number" ? settings.timeoutMs : REQUEST_TIMEOUT_MS);
+    timer = setTimeout(
+      giveUp,
+      typeof settings.timeoutMs === "number" ? settings.timeoutMs : REQUEST_TIMEOUT_MS
+    );
 
     return fetchImpl(LATEST_API, {
       headers: { Accept: "application/vnd.github+json" }
     })
       .then(function (response) {
         if (!response) {
-          fail();
+          giveUp();
           return null;
         }
-        /* Nothing published yet. Expected today, not a failure. */
         if (response.status === 404) {
           finish(function () {
-            renderNoRelease(panel);
+            applyNoRelease(root);
           });
           return null;
         }
         if (!response.ok) {
-          fail();
+          giveUp();
           return null;
         }
         return response.json();
@@ -530,23 +454,23 @@
           return;
         }
         if (!data || typeof data !== "object") {
-          fail();
+          giveUp();
           return;
         }
         finish(function () {
-          renderRelease(panel, data, family);
+          applyRelease(root, data, groupAssets(data.assets));
         });
       })
-      .catch(fail);
+      .catch(giveUp);
   }
 
   function boot() {
-    var panel = document.getElementById("download-panel");
-    if (!panel) {
+    var root = document.getElementById("download");
+    if (!root) {
       return;
     }
     start({
-      panel: panel,
+      root: root,
       nav: typeof navigator === "undefined" ? null : navigator,
       fetchImpl:
         typeof window !== "undefined" && typeof window.fetch === "function"
@@ -569,6 +493,7 @@
       LATEST_API: LATEST_API,
       classifyAsset: classifyAsset,
       groupAssets: groupAssets,
+      resolveSlot: resolveSlot,
       detectPlatform: detectPlatform,
       formatSize: formatSize,
       formatDate: formatDate,
