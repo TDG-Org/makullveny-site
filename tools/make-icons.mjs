@@ -11,7 +11,7 @@
  * on the day the mark changes, and never as part of anything else.
  *
  * ── why the site needed it ────────────────────────────────────────────────
- * `assets/cabin-icon.png` is a 256px raster with a ROUND crop and transparent
+ * `assets/cabin-icon.png` is a 512px raster with a ROUND crop and transparent
  * corners. It is right in the header, where it sits on the page's own
  * background. It is wrong for every install surface, and iOS is the clearest
  * case: Safari composites `apple-touch-icon` on BLACK before applying its own
@@ -43,42 +43,31 @@ try {
 /** The night behind the cabin, and the colour every icon falls back to. */
 const NIGHT = '#18251f';
 
-/** `assets/cabin-logo.svg`, with the tile's corner radius made an argument. */
-const art = (radius) =>
-  Buffer.from(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">` +
-      `<defs>` +
-      `<linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">` +
-      `<stop offset="0" stop-color="#dceffc"/><stop offset="1" stop-color="#7f9f9f"/></linearGradient>` +
-      `<linearGradient id="wood" x1="0" x2="1" y1="0" y2="1">` +
-      `<stop offset="0" stop-color="#c98c50"/><stop offset="1" stop-color="#5e3725"/></linearGradient>` +
-      `</defs>` +
-      `<rect width="128" height="128" rx="${radius}" fill="${NIGHT}"/>` +
-      `<circle cx="96" cy="25" r="12" fill="#f7ddb0" opacity=".95"/>` +
-      `<path d="M14 82c13-17 26-24 38-21 10 2 16 10 26 8 10-1 17-10 36-7v43H14z" fill="url(#sky)" opacity=".9"/>` +
-      `<path d="M28 68 64 38l36 30v37H28z" fill="url(#wood)"/>` +
-      `<path d="M21 70 64 33l43 37-8 9-35-30-35 30z" fill="#3b2419"/>` +
-      `<rect x="42" y="75" width="18" height="30" rx="3" fill="#2b1d17"/>` +
-      `<rect x="68" y="73" width="20" height="17" rx="3" fill="#f6d99b"/>` +
-      `<path d="M73 82h10M78 77v10" stroke="#6b4127" stroke-width="3" stroke-linecap="round"/>` +
-      `<path d="M40 92h18M67 95h24M34 61h60" stroke="#f0b266" stroke-width="4" stroke-linecap="round" opacity=".7"/>` +
-      `<path d="M22 103c24-6 55-6 84 0" stroke="#f8f2e6" stroke-width="8" stroke-linecap="round"/>` +
-      `</svg>`,
-  );
+const png = { compressionLevel: 9, adaptiveFiltering: true };
+
+/** The approved high-resolution rounded artwork used by the page header. */
+const source = path.join(root, 'assets', 'cabin-icon.png');
+const sourceData = (
+  await sharp(source).resize(256, 256).png(png).toBuffer()
+).toString('base64');
+const roundedSvg = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">` +
+    `<image width="256" height="256" href="data:image/png;base64,${sourceData}"/>` +
+    `</svg>`,
+);
 
 const out = path.join(root, 'assets', 'icons');
 fs.mkdirSync(out, { recursive: true });
 
-const png = { compressionLevel: 9, adaptiveFiltering: true };
 const square = (size) =>
-  sharp(art(0), { density: (size / 128) * 96 }).resize(size, size).flatten({ background: NIGHT });
+  sharp(source).resize(size, size).flatten({ background: NIGHT });
 
 const write = async (size, name) => {
   await square(size).png(png).toFile(path.join(out, name));
   console.log('assets/icons/', name);
 };
 
-fs.writeFileSync(path.join(out, 'icon.svg'), art(28));
+fs.writeFileSync(path.join(out, 'icon.svg'), roundedSvg);
 console.log('assets/icons/ icon.svg');
 
 for (const size of [16, 32]) await write(size, `favicon-${size}.png`);

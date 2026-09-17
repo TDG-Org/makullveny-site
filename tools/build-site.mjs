@@ -32,9 +32,10 @@ const PAGES = [
     src: "design/Main.dc.html",
     out: "index.html",
     up: "./",
-    title: "Makullveny",
+    title: "Study smarter. Stress less. | Makullveny",
+    headline: "Study smarter. Stress less.",
     desc:
-      "Makullveny is a free, local-first desktop study app for students: a dashboard that lays out the day, a notes workspace on real paper, a focus timer that builds a world, and the small tools around them.",
+      "Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.",
     preload: ["assets/site/ov-bough-top-left.webp", "assets/site/hero-dash.jpg"]
   },
   {
@@ -71,10 +72,14 @@ function head(page) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="${page.desc}">
-    <!-- The NAME, not a headline: a bookmark is saved as the <title>, and iOS
-         falls back to it for a Home Screen tile. The descriptor lives in the
-         meta description above, which is where a search result reads it. -->
+    <meta name="description" content="${page.desc}">${page.headline ? `
+    <meta property="og:title" content="${page.headline}">
+    <meta property="og:description" content="${page.desc}">
+    <meta name="twitter:title" content="${page.headline}">
+    <meta name="twitter:description" content="${page.desc}">` : ""}
+    <!-- The default headline is the page title; iOS still uses the app name
+         below for its Home Screen tile. The full descriptor stays in the
+         meta description, where a search result reads it. -->
     <title>${page.title}</title>
     <meta name="apple-mobile-web-app-title" content="Makullveny">
     <meta name="application-name" content="Makullveny">

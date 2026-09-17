@@ -133,7 +133,7 @@ one.
 
 The one thing worth knowing before touching it: `apple-touch-icon.png` is
 square, opaque and has no corner radius of its own, while `assets/cabin-icon.png`
-in the page header is a round crop with transparent corners. That is not an
+in the page header is a rounded 512px source with transparent corners. That is not an
 inconsistency to tidy up. iOS composites a touch icon on **black** and then cuts
 its own squircle out of it, so a round or rounded source arrives on the Home
 Screen with black wedges around it. The header icon sits on the page's own

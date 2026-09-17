@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Makullveny is a free, local-first desktop study app for students: a dashboard that lays out the day, a notes workspace on real paper, a focus timer that builds a world, and the small tools around them.">
-    <!-- The NAME, not a headline: a bookmark is saved as the <title>, and iOS
-         falls back to it for a Home Screen tile. The descriptor lives in the
-         meta description above, which is where a search result reads it. -->
-    <title>Makullveny</title>
+    <meta name="description" content="Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.">
+    <meta property="og:title" content="Study smarter. Stress less.">
+    <meta property="og:description" content="Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.">
+    <meta name="twitter:title" content="Study smarter. Stress less.">
+    <meta name="twitter:description" content="Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.">
+    <!-- The default headline is the page title; iOS still uses the app name
+         below for its Home Screen tile. The full descriptor stays in the
+         meta description, where a search result reads it. -->
+    <title>Study smarter. Stress less. | Makullveny</title>
     <meta name="apple-mobile-web-app-title" content="Makullveny">
     <meta name="application-name" content="Makullveny">
     <!-- assets/icons/ is the square, opaque family drawn by tools/make-icons.mjs.
@@ -776,7 +780,11 @@
       background:linear-gradient(180deg, #331f10 0%, rgba(51,31,14,.24) 16%, rgba(40,25,11,.1) 46%, rgba(26,17,9,.32) 82%, rgba(19,13,8,.88) 100%); }
     .download::before { content:""; position:absolute; left:50%; top:6%; width:1200px; height:620px; transform:translateX(-50%); filter:blur(56px); opacity:.55;
       background:radial-gradient(ellipse at 50% 40%, rgba(235,166,84,.24), transparent 66%); }
-    .dl-inner { position:relative; z-index:2; }
+    .dl-inner { position:relative; z-index:2; display:flex; flex-direction:column; }
+    .dl-head { order:0; }
+    .dl-open { order:1; }
+    .download-card { order:2; margin-top:16px; }
+    .dl-foot { order:3; }
     .dl-head { text-align:center; margin-bottom:14px; }
     .dl-head h2 { font-size:50px; margin:16px 0 15px; }
     .dl-head p { font:400 16.5px/1.72 var(--ui); color:rgba(247,234,214,.74); max-width:56ch; margin:0 auto; }
@@ -797,7 +805,7 @@
     /* The arrow is the hinge between "here's the download" and "here's how to
        open it" -- it only reads as one flowing thought if it sits close to
        both, not floating in its own gap. */
-    .dl-pointer { position:relative; z-index:3; display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:2px; }
+    .dl-pointer { display:none; }
     .dl-pointer-label { font:700 11.5px/1 var(--ui); letter-spacing:.14em; text-transform:uppercase; color:#eab97e; }
     .dl-arrow { animation:dl-nudge 1.9s cubic-bezier(.4,0,.4,1) infinite; }
     .dl-arrow path { animation:dl-glow 1.9s ease-in-out infinite; }
@@ -1185,11 +1193,11 @@
 
     <div class="hero-inner">
       <span class="badge rv" style="--d:.05s"><i></i> Free forever · Windows, macOS &amp; Linux · Account optional</span>
-      <h1 class="rv" style="--d:.14s">Imagine every tool<br>you study with,<br><em>in one place.</em></h1>
+      <h1 class="rv" style="--d:.14s" data-hero-headline>Study smarter. <em>Stress less.</em></h1>
       <p class="lead rv" style="--d:.24s">
-        Your notes, your flashcards, your syllabus, a file converter, a focus timer and a lofi
-        radio — all on one desktop, on your own machine. Free, and you never have to make an
-        account: signing in is there when you want cloud backup, and off until then.
+        Your cozy home base for student life. Makullveny plans your assignments around your day,
+        helps you focus on what matters, and turns every study session into progress you can see—with
+        notes, calendars, flashcards, file tools, music, and more together in one place.
       </p>
       <div class="cta-row rv" style="--d:.34s">
         <a class="btn btn-primary" href="#download" style="min-height:54px;padding:0 28px;font-size:15.5px">
@@ -1405,7 +1413,7 @@
       <div class="apps-shot rv rv-p" style="--d:.2s">
         <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span>
           <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Apps &amp; Tools</span></div>
-          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools tab: Library Desk marked Ready, Study Hall marked Beta, Luke marked Coming, and the tools — Import Desk, Cloud Backpack, File Workshop, Calculator and Typing Trials — each with its own state" width="1500" height="958" loading="lazy" decoding="async">
+          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools tab: Library Desk marked Ready, Study Hall marked Beta, Clyde marked Coming, and the tools — Import Desk, Cloud Backpack, File Workshop, Calculator and Typing Trials — each with its own state" width="1500" height="958" loading="lazy" decoding="async">
         </div>
         <p class="apps-shot-note">Everything the app opens, and exactly what state each one is in. Nothing on this page is promised that is not on that screen.</p>
       </div>
@@ -1782,7 +1790,7 @@
       <div class="workbench-grid">
         <article class="workbench-card rv rv-p" style="--d:.08s">
           <span class="wb-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="14.4" rx="6.3" ry="5.6" stroke="#e8b273" stroke-width="1.5"/><path d="M6.9 10.2 5.1 5.9l4 2.1M17.1 10.2l1.8-4.3-4 2.1" stroke="#e8b273" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9.9" cy="13.6" r="1.15" fill="#f0c88f"/><circle cx="14.1" cy="13.6" r="1.15" fill="#f0c88f"/><path d="M12 15.6v1.1" stroke="#f0c88f" stroke-width="1.4" stroke-linecap="round"/><path d="M10.4 17.6c.5.5 2.7.5 3.2 0" stroke="#f0c88f" stroke-width="1.4" stroke-linecap="round"/><path d="M4.4 16.2c-.9.3-1.5 1-1.6 1.9M19.6 16.2c.9.3 1.5 1 1.6 1.9" stroke="#e8b273" stroke-width="1.4" stroke-linecap="round"/></svg></span>
-          <h4>Luke <em class="wb-sub">your study pet, and an AI helper</em></h4>
+          <h4>Clyde <em class="wb-sub">your study pet, and an AI helper</em></h4>
           <p>A friendly companion who keeps you company at the desk, looks things up, converts units, and remembers what you highlight. Local-first, and every module says what it can reach before you switch it on.</p>
           <span class="pill soon">Not yet available</span>
         </article>
@@ -1876,8 +1884,8 @@
     <div class="wrap dl-inner">
       <div class="dl-head">
         <p class="eyebrow rv">Download</p>
-        <h2 class="rv" style="--d:.08s">Try Makullveny now.</h2>
-        <p class="rv" style="--d:.16s">Free, and it stays free. Makullveny is new and ships most weeks, and this page reads the release list itself &mdash; so what you see below is the latest build for your system, not a number somebody typed here.</p>
+        <h2 class="rv" style="--d:.08s">Want to try Makullveny now?</h2>
+        <p class="rv" style="--d:.16s">Makullveny is free. Signing certificates are currently unaffordable for this project, so Windows and macOS will ask you to confirm the first time you open it.</p>
       </div>
 
       <!-- download.js fills this from the releases feed and clears whatever
@@ -1933,9 +1941,8 @@
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M7 10.5V7.6a5 5 0 0 1 10 0v2.9" stroke="#e8b273" stroke-width="1.7" stroke-linecap="round"/><rect x="4.6" y="10.5" width="14.8" height="9.4" rx="2.2" stroke="#e8b273" stroke-width="1.7"/><path d="M12 14v2.6" stroke="#f0c88f" stroke-width="1.8" stroke-linecap="round"/></svg>
           </span>
           <div>
-            <h3><span class="dl-warn">⚠️ Read this first</span>Opening it the first time</h3>
-            <p>Makullveny is not code-signed yet — signing certificates cost more than this project makes,
-               which is nothing. Both systems will stop the first launch. Here is the way past, once.</p>
+            <h3>Opening it the first time</h3>
+            <p>Here is the one-time confirmation each system needs before it can open Makullveny.</p>
           </div>
         </div>
         <div class="dl-open-grid">

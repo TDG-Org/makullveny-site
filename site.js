@@ -25,6 +25,22 @@
     window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var canHover = !window.matchMedia || window.matchMedia("(hover: hover)").matches;
 
+  // Search and social metadata use the first line in the HTML. One line is
+  // chosen at load, then left alone while somebody reads the page.
+  (function () {
+    var headline = document.querySelector("[data-hero-headline]");
+    if (!headline) return;
+    var lines = [
+      "Study smarter. <em>Stress less.</em>",
+      "Plan clearly. <em>Study calmly.</em>",
+      "Turn academic chaos <em>into clarity.</em>",
+      "Organize your academia, <em>simplify your life.</em>",
+      "Your cozy space for <em>getting things done.</em>",
+      "Plan. Focus. <em>Thrive.</em>"
+    ];
+    headline.innerHTML = lines[Math.floor(Math.random() * lines.length)];
+  })();
+
   // ── 1. the rotator ────────────────────────────────────────────────────────
   // Five slides and five captions share one index, so the picture and the words
   // about it can never disagree. Six seconds, and a dot takes over when pressed.
@@ -256,12 +272,9 @@
   // ── the theme pickers: bring the newly-picked preview into view ───────────
   // Both the front page's rail/stage browser and the Themes page's swatch rail
   // are a checked-radio + CSS-sibling trick, so picking one never fires a JS
-  // event of its own the layout could react to. Phone only: on anything wider
-  // the rail and its preview are already both on screen. 820px is the same
-  // line the rest of the site draws "phone" at (it's the hamburger-menu
-  // breakpoint), so this can't fire on a tablet or a narrower laptop window.
+  // event of its own the layout could react to. The scroll is restricted to the
+  // phone layout, so a desktop or tablet choice never moves the reader.
   (function () {
-    var PHONE_MAX_WIDTH = 820;
     var groups = [
       { radios: "input[name='theme']", stage: ".stagewrap" },
       { radios: "input[name='coll']", stage: ".coll-stage" }
@@ -273,7 +286,7 @@
       radios.forEach(function (radio) {
         radio.addEventListener("change", function () {
           if (!radio.checked) return;
-          if (window.innerWidth > PHONE_MAX_WIDTH) return;
+          if (!window.matchMedia("(max-width: 600px)").matches) return;
           stage.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
         });
       });
