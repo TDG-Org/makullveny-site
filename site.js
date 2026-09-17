@@ -42,8 +42,10 @@
   })();
 
   // ── 1. the rotator ────────────────────────────────────────────────────────
-  // Five slides and five captions share one index, so the picture and the words
-  // about it can never disagree. Six seconds, and a dot takes over when pressed.
+  // Every slide, caption, dot and window title shares ONE index, so the picture
+  // and the words about it can never disagree. Add a slide in design/Main.dc.html
+  // and you must add a title here AND in build-site.mjs, or the new picture
+  // borrows an older one's name. Six seconds, and a dot takes over when pressed.
   (function () {
     var stage = document.querySelector(".rotator");
     if (!stage) return;
@@ -56,7 +58,10 @@
       "Makullveny — Library Desk",
       "Selah: Study Grounds · golden hour",
       "Selah: Study Grounds · night",
-      "Library Desk — Blueprint"
+      "Library Desk — Blueprint",
+      "Study Hall — Overview",
+      "Study Hall — Courses",
+      "Study Hall — Calendar"
     ];
     var i = 0;
     var timer;

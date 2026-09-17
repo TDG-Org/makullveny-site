@@ -43,13 +43,23 @@ import { tmpdir } from "node:os";
 import { createRequire } from "node:module";
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), "..");
-const APP = join(SITE, "..", "Makullveny");
+/* The app checkout. A sibling directory is the common case, but this machine
+   keeps the working copy elsewhere and a release shoot wants a worktree on a
+   specific tag rather than whatever branch happens to be checked out. MAK_APP
+   overrides it; the sibling stays the default so the plain command is short. */
+const APP = process.env.MAK_APP || join(SITE, "..", "Makullveny");
 const OUT = join(SITE, "assets", "site");
 const SANDBOX = join(tmpdir(), "mak-preview-siteshots");
 const PORT = 9333;
 
-/* Every shot lays out at this width, so the app looks like the same app from
-   one picture to the next. It is the width the current hero was taken at. */
+/* The DEFAULT layout width. This is the zoom control, and it is the opposite
+   of what it looks like: a SMALLER css width is a MORE zoomed picture, because
+   the app lays itself out in a smaller window and then gets scaled up to the
+   output size. 1060 was the width the first hero was taken at, and at that
+   width the wider screens -- the dashboard with its widget wall, Apps & Tools,
+   Courses, the calendar week -- are cropped so tightly you cannot see what the
+   screen actually is. Those shots set their own `css` below; the ones that
+   were already right keep this. */
 const CSS_WIDTH = 1060;
 
 const argv = process.argv.slice(2);
@@ -89,13 +99,28 @@ const SHOTS = [
     id: "dash",
     to: ["hero-dash.jpg"],
     size: [2120, 1340],
+    css: 1500,
     what: "the dashboard, Today",
+    go: `await go("dashboard"); tab('[data-dashboard-tab="today"]');`
+  },
+  /* THE WHOLE DESK, not the top of it. This is the tall picture in the
+     dashboard section, and the point of it is the widget WALL -- every card
+     the reader can rearrange. A 1060-wide window showed the first two rows
+     enormously and cut the rest off, which made the one picture that is
+     supposed to say "this is all yours to move" say "here is a timer". */
+  {
+    id: "widgetdash",
+    to: ["widgetdash.jpg"],
+    size: [1900, 2080],
+    css: 1500,
+    what: "the dashboard, every widget",
     go: `await go("dashboard"); tab('[data-dashboard-tab="today"]');`
   },
   {
     id: "apps",
     to: ["apps-tools.jpg"],
     size: [1500, 958],
+    css: 1500,
     what: "the dashboard, Apps & Tools",
     go: `await go("dashboard"); tab('[data-dashboard-tab="tools"]');`
   },
@@ -103,13 +128,15 @@ const SHOTS = [
     id: "board",
     to: ["studyhall.jpg"],
     size: [2120, 1340],
+    css: 1500,
     what: "Study Hall, the board",
     go: `await go("study-review"); await sleep(420); tab('[data-study-review-tab="board"]');`
   },
   {
     id: "overview",
     to: ["sh-overview.jpg"],
-    size: [1600, 1011],
+    size: [2120, 1340],
+    css: 1500,
     what: "Study Hall, Overview",
     go: `await go("study-review"); await sleep(420); tab('[data-study-review-tab="overview"]');`
   },
@@ -117,20 +144,23 @@ const SHOTS = [
     id: "courses",
     to: ["sh-courses.jpg"],
     size: [2120, 1340],
-    what: "Study Hall, Courses (new)",
+    css: 1560,
+    what: "Study Hall, Courses",
     go: `await go("study-review"); await sleep(420); tab('[data-study-review-tab="courses"]');`
   },
   {
     id: "calendar",
     to: ["sh-calendar.jpg"],
     size: [2120, 1340],
-    what: "Study Hall, Calendar (new)",
+    css: 1560,
+    what: "Study Hall, Calendar",
     go: `await go("study-review"); await sleep(420); tab('[data-study-review-tab="schedule"]');`
   },
   {
     id: "cards",
     to: ["flashcards.jpg"],
     size: [1500, 948],
+    css: 1400,
     what: "Study Hall, Flashcards",
     go: `await go("study-review"); await sleep(420); tab('[data-study-review-tab="flashcards"]');`
   },
@@ -297,6 +327,32 @@ const CLEAR_THE_WAY = `
       if (seen(bell) && close) { close.click(); gone.push("class bell"); await sleep(320); continue; }
       break;
     }
+    /* THE RADIO DOCK IS NOT PART OF THE SCREEN BEING PHOTOGRAPHED. It is
+       fixed to the bottom of the window, so it lands in every shot -- and
+       because the frame ends where the picture ends rather than where the
+       dock does, it arrives as a pale half-panel hanging off the bottom
+       edge that reads as a rendering fault. The site photographs the radio
+       properly in its own section; here it just gets out of the way.
+       Hidden, not clicked shut: closing it is a preference the app would
+       then remember for the rest of the run. */
+    const dock = document.getElementById("globalRadioDock");
+    if (dock && dock.style.visibility !== "hidden") {
+      dock.style.visibility = "hidden";
+      gone.push("radio dock");
+    }
+    /* Anything else still FIXED over the frame is in the picture whether it
+       was asked for or not. Reported by name so the next person does not
+       have to guess from a JPEG what the pale shape was. */
+    const stuck = [...document.querySelectorAll("body *")].filter((el) => {
+      const cs = getComputedStyle(el);
+      if (cs.position !== "fixed" || cs.visibility === "hidden") return false;
+      if (parseFloat(cs.opacity) === 0) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width < 40 || r.height < 24) return false;
+      return r.bottom > innerHeight - 220 && r.top < innerHeight;
+    }).map((el) => el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") +
+      (el.className ? "." + String(el.className).trim().split(/\s+/).slice(0, 3).join(".") : ""));
+    if (stuck.length) gone.push("STILL FIXED AT THE BOTTOM: " + [...new Set(stuck)].slice(0, 4).join(" | "));
     return gone.length ? [...new Set(gone)].join(", ") : "nothing in the way";
   };
 `;
@@ -484,8 +540,9 @@ async function run() {
         continue;
       }
       const [width, height] = shot.size;
-      const cssHeight = Math.round((CSS_WIDTH * height) / width);
-      const scale = width / CSS_WIDTH;
+      const cssWidth = shot.css || CSS_WIDTH;
+      const cssHeight = Math.round((cssWidth * height) / width);
+      const scale = width / cssWidth;
 
       process.stdout.write(`${shot.id.padEnd(9)} ${shot.what.padEnd(34)}`);
 
@@ -511,7 +568,7 @@ async function run() {
       /* Metrics AFTER the navigation: several views measure themselves on the
          way in, and a size change mid-transition leaves a half-laid-out card. */
       await target.send("Emulation.setDeviceMetricsOverride", {
-        width: CSS_WIDTH, height: cssHeight, deviceScaleFactor: scale, mobile: false
+        width: cssWidth, height: cssHeight, deviceScaleFactor: scale, mobile: false
       });
       /* Long enough for the reveal animations and any image in the view. */
       await wait(1400);

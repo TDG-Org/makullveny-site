@@ -97,13 +97,18 @@ function head(page) {
 `;
 }
 
-// The five hero slides, and the window title the rotator writes for each.
+// The hero slides, and the window title the rotator writes for each. This
+// list also decides how many dots get written out, so it has to stay the
+// same length as the .rot images in the artboard and as TITLES in site.js.
 const SLIDE_TITLES = [
   "Makullveny — Today",
   "Makullveny — Library Desk",
   "Selah: Study Grounds · golden hour",
   "Selah: Study Grounds · night",
-  "Library Desk — Blueprint"
+  "Library Desk — Blueprint",
+  "Study Hall — Overview",
+  "Study Hall — Courses",
+  "Study Hall — Calendar"
 ];
 
 function build(page) {
