@@ -929,6 +929,15 @@
        in one move, so it sits UNDER the steps and smaller than them -- an
        aside for somebody who already lives in a terminal, not a second set
        of instructions for somebody who does not. */
+    /* The optional one-liner, after the trail rather than inside it. It sits
+       off the numbered rail on purpose -- pulled back out of the lamp gutter,
+       quieter than a step, and introduced by a line that tells anybody who
+       already succeeded to walk past it. */
+    .dl-otherway { margin:26px 0 0 -38px; padding:16px 18px 18px; border-radius:15px;
+      border:1px dashed rgba(255,236,203,.16); background:rgba(255,241,205,.028); }
+    .dl-otherway-lead { font:700 12px/1.5 var(--ui); letter-spacing:.07em; text-transform:uppercase;
+      color:rgba(200,177,137,.66); margin:0 0 4px; }
+    .dl-otherway .dl-aside { margin-top:8px; }
     .dl-aside { margin-top:14px; padding:13px 15px; border-radius:13px;
       border:1px dashed rgba(255,236,203,.18); background:rgba(255,245,225,.035); }
     .dl-aside-head { font:400 12.5px/1.6 var(--ui); color:rgba(247,234,214,.7); }
@@ -977,7 +986,7 @@
        hand off to that directly -- see the .news gradient, whose tail moved
        to #100d0a for exactly this reason. */
     .priv-grid { display:grid; grid-template-columns:380px minmax(0,1fr); gap:54px; align-items:start; }
-    .priv-tail { grid-column:1 / -1; margin-top:44px; padding-top:38px; border-top:1px solid rgba(255,236,203,.1); }
+    .priv-tail { margin-top:44px; padding-top:38px; border-top:1px solid rgba(255,236,203,.1); }
     .priv-row { display:flex; gap:18px; padding:22px 2px; border-top:1px solid var(--line-soft); }
     .priv-row:last-child { border-bottom:1px solid var(--line-soft); }
     .priv-row b { flex:none; width:190px; font:700 15px/1.5 var(--ui); color:var(--text); }
@@ -2110,18 +2119,6 @@
           <div class="dl-words">
             <h3>Give it permission, once</h3>
             <p>Open <b>System Settings</b>, choose <b>Privacy &amp; Security</b> in the sidebar, and scroll down to the Security section. A line about Makullveny is waiting there.</p>
-            <div class="dl-aside">
-            <p class="dl-aside-head"><b>Or, if you would rather type one line</b> &mdash; this does the same thing, once.</p>
-            <ol class="dl-aside-steps">
-              <li>Press <kbd>&#8984;</kbd> <kbd>Space</kbd>, type <b>Terminal</b>, press <kbd>Return</kbd>.</li>
-              <li>Copy the line below, paste it in with <kbd>&#8984;</kbd> <kbd>V</kbd>, and press <kbd>Return</kbd>.</li>
-            </ol>
-            <div class="dl-copy">
-              <code id="dl-xattr">xattr -dr com.apple.quarantine /Applications/Makullveny.app</code>
-              <button type="button" class="dl-copy-btn" data-dl-copy="dl-xattr">Copy</button>
-            </div>
-            <p class="dl-aside-note">Nothing is installed and nothing is granted: it removes the &#8220;downloaded from the internet&#8221; mark from this one app, which is what the Open Anyway button above does too. Then open Makullveny normally.</p>
-          </div>
           </div>
           <div class="dl-figs">
           <figure class="dl-fig">
@@ -2142,6 +2139,28 @@
             <p>From here Makullveny opens from Launchpad, Spotlight or the Dock like anything else, and updates open without asking again.</p>
             <p>One last thing worth thirty seconds: while Makullveny is open, <b>right-click its icon in the Dock</b> and choose <b>Options &#8594; Keep in Dock</b>. It stays there from now on, so opening it tomorrow is one click instead of a trip to Applications.</p>
             <div class="dl-done"><span aria-hidden="true">&#127969;</span><div><b>macOS remembers this app now</b><p>Nothing to do here &mdash; this is just where the path ends.</p></div></div>
+          </div>
+        </div>
+
+        <!-- OUTSIDE the numbered stops on purpose. This is a replacement for
+             the four steps above, not a fifth one, and while it lived inside
+             step four the two of them read as "do this AND type that" -- with
+             a terminal command as the scary half. Nobody who just finished
+             needs it; it is here for somebody who got stuck, which is why it
+             sits at the end and says so in its first line. -->
+        <div class="dl-otherway">
+          <p class="dl-otherway-lead">Already open? You&#8217;re done &mdash; ignore this.</p>
+            <div class="dl-aside">
+            <p class="dl-aside-head"><b>Or, if you would rather type one line</b> &mdash; this does the same thing, once.</p>
+            <ol class="dl-aside-steps">
+              <li>Press <kbd>&#8984;</kbd> <kbd>Space</kbd>, type <b>Terminal</b>, press <kbd>Return</kbd>.</li>
+              <li>Copy the line below, paste it in with <kbd>&#8984;</kbd> <kbd>V</kbd>, and press <kbd>Return</kbd>.</li>
+            </ol>
+            <div class="dl-copy">
+              <code id="dl-xattr">xattr -dr com.apple.quarantine /Applications/Makullveny.app</code>
+              <button type="button" class="dl-copy-btn" data-dl-copy="dl-xattr">Copy</button>
+            </div>
+            <p class="dl-aside-note">Nothing is installed and nothing is granted: it removes the &#8220;downloaded from the internet&#8221; mark from this one app, which is what the Open Anyway button above does too. Then open Makullveny normally.</p>
           </div>
         </div>
       </div>
@@ -2225,7 +2244,7 @@
     <div class="wrap newhere-inner">
       <div class="newhere-say rv rv-l">
         <p class="eyebrow">About the project, and where a bug goes</p>
-        <h2>Makullveny is made by two brothers, and it is being built in the open.</h2>
+        <h2>Makullveny is made by two brothers, and it is being built in front of you.</h2>
         <p>
           It is a <b>TDG</b> project &mdash; The Disciples of God, the same two of us behind
           the other apps on the TDG site. The whole app is a work in progress: we are
@@ -2278,7 +2297,7 @@
 
       <!-- Was its own section directly below this one. id="privacy" is not
            decoration: the footers on all three pages point at it. -->
-      <div class="priv-grid priv-tail" id="privacy">
+      <div class="wrap priv-grid priv-tail" id="privacy">
   <div class="rv rv-l">
           <p class="eyebrow">Privacy</p>
           <h2 style="font-size:40px;line-height:1.08;margin:15px 0 14px">Your work stays yours.</h2>
