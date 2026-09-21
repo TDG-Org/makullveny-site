@@ -146,3 +146,4 @@ node tools/serve.mjs
 ```
 
 Serves the repository root at `http://localhost:4173`.
+Use this before publishing a visual pass so screenshots and download links can be checked in-browser.
