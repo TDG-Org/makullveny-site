@@ -96,15 +96,22 @@ test("ALLOWED_API_ORIGINS and the page's CSP connect-src name the SAME origin", 
   assert.ok(sources.indexOf("https:") === -1, "connect-src must never be the wide-open `https:` again");
 });
 
-test("the committed read/config.js declares nothing — no URL, no key", function () {
-  /* This repository is public. The deploy fills this file in; git must not. */
-  /* Code only — the file's own doc comment shows a filled-in EXAMPLE. */
+test("the committed read/config.js names the one public door and holds no key", function () {
+  /* SHARING WENT LIVE ON 2026-09-07 and this test still said the file must
+     declare nothing -- so it failed on every run since, and a suite that is
+     always red protects nothing. What must stay true is narrower and stronger:
+     the URL is the mak-share function on the ONE allowed origin, and the key
+     field is empty, because mak-share runs with verify_jwt off and this public
+     repository holds no key of any kind (see config.js). */
   var config = code("config.js");
   var apiUrl = /apiUrl:\s*"([^"]*)"/.exec(config);
   var key = /publishableKey:\s*"([^"]*)"/.exec(config);
   assert.ok(apiUrl && key, "config.js must still declare both fields");
-  assert.equal(apiUrl[1], "", "a committed apiUrl ties this public repo to one project");
+  assert.equal(apiUrl[1], ALLOWED_ORIGIN + "/functions/v1/mak-share", "the reader talks to mak-share and nothing else");
+  assert.ok(R.apiOriginAllowed(apiUrl[1]), "the configured URL must pass read.js's own origin check");
   assert.equal(key[1], "", "no key of any kind belongs in git here");
+  assert.ok(!/eyJ[A-Za-z0-9_-]{10,}/.test(source("config.js")), "nothing shaped like a JWT anywhere in the file");
+  assert.ok(!/sb_(publishable|secret)_/.test(source("config.js")), "nothing shaped like a Supabase key anywhere in the file");
 });
 
 /* ────────────────────────────────────── the exact cover colour ─────────── */
@@ -294,7 +301,19 @@ test("no viewer source file READS one of those fields off a response", function 
      This one covers the fields nothing renders YET — it fails the moment
      someone writes `snapshot.reason` anywhere in the viewer. Property access
      only, so the prose above (which names all six) does not trip it. */
-  ["read.js", "book.js", "blueprint.js"].forEach(function (name) {
+  /* read.js and blueprint.js read the fetched RESPONSE and snapshot, so every
+     property access is scanned. The book scene's two files are scanned for
+     reads off a snapshot or payload only: book-scene.js legitimately carries a
+     REPORT's own `code` (a refusal token matched against a fixed list) and the
+     reader's own typed reason, neither of which is a field of the reading. */
+  ["book-scene.js", "public-book-scene.js"].forEach(function (name) {
+    var text = code(name);
+    FORBIDDEN_FIELDS.forEach(function (field) {
+      assert.ok(!new RegExp("(snapshot|payload)\\s*\\.\\s*" + field + "\\b").test(text),
+        name + " must not read a `." + field + "` property off the reading");
+    });
+  });
+  ["read.js", "blueprint.js"].forEach(function (name) {
     var text = code(name);
     FORBIDDEN_FIELDS.forEach(function (field) {
       assert.ok(!new RegExp("\\.\\s*" + field + "\\b").test(text),
@@ -370,7 +389,7 @@ test("the token is never written anywhere a person or another origin could read 
   var text = code("read.js");
   assert.ok(/TOKEN_STORAGE_KEY\s*=\s*"mak\.read\.token"/.test(text),
     "the per-tab storage key must be the documented one");
-  ["read.js", "book.js", "blueprint.js"].forEach(function (name) {
+  ["read.js", "book-scene.js", "public-book-scene.js", "blueprint.js"].forEach(function (name) {
     assert.ok(!/console\s*\./.test(code(name)), name + " must log nothing at all");
   });
   /* No query-string carrier, and no link built out of the token. */
@@ -402,9 +421,12 @@ test("every sessionStorage and history access sits inside a try block", function
 });
 
 test("both renderers expose a teardown, and neither adds a listener it cannot remove", function () {
-  ["book.js", "blueprint.js"].forEach(function (name) {
+  /* read/book.js is gone; the book is the copied scene now, whose teardown is
+     named destroy(). */
+  [["public-book-scene.js", /destroy:\s*destroy/], ["blueprint.js", /teardown:\s*teardown/]].forEach(function (pair) {
+    var name = pair[0];
     var text = code(name);
-    assert.ok(/teardown:\s*teardown/.test(text), name + " must export teardown()");
+    assert.ok(pair[1].test(text), name + " must export its teardown");
     assert.ok(/removeEventListener/.test(text), name + " must remove what it adds");
     /* Every installation goes through the tracked on() helper. The only
        literal addEventListener calls left are inside that helper and the
@@ -434,4 +456,74 @@ test("the site links /updates/, so the page is not an orphan", function () {
   var nav = /<nav\b[^>]*>([\s\S]*?)<\/nav>/.exec(home);
   assert.ok(nav, "the home page must still have a nav");
   assert.ok(/href="\.\/updates\/"/.test(nav[1]), "the nav must link to /updates/");
+});
+
+/* ─────────────────────────────── the token reaches the report ──────────── */
+
+test("the book scene is handed the token the page was OPENED with, not a re-read of the address bar", function () {
+  /* captureToken() strips the fragment before the request goes out, and the
+     render runs in onload -- so a tokenFromHash() there always read "" and
+     every report was filed about no page at all. */
+  var view = R.bookViewFor({ displayName: "Nate", avatarId: 4, openByDefault: true }, "abcdefghijkmnpqrstuv", false);
+  assert.equal(view.token, "abcdefghijkmnpqrstuv");
+  assert.equal(view.byline, "Nate");
+  assert.equal(view.avatarId, 4);
+  assert.equal(view.openByDefault, true);
+  assert.equal(view.preview, false);
+  var text = code("read.js");
+  assert.ok(!/token:\s*tokenFromHash\(\)/.test(text), "render must not re-read the (already stripped) fragment");
+  assert.ok(/openedToken\s*=\s*token/.test(text), "open() must remember the captured token");
+});
+
+test("bookViewFor: an anonymous reading carries no name and no avatar, and a preview no token", function () {
+  var anon = R.bookViewFor({ anonymous: true, displayName: "Nate", avatarId: 4 }, "abcdefghijkmnpqrstuv", false);
+  assert.equal(anon.byline, "");
+  assert.equal(anon.avatarId, 0);
+  var preview = R.bookViewFor({ displayName: "Nate" }, "abcdefghijkmnpqrstuv", true);
+  assert.equal(preview.token, "");
+  assert.equal(preview.preview, true);
+});
+
+test("a request that never answers does not leave 'Opening…' up forever", function () {
+  var text = code("read.js");
+  assert.ok(/request\.timeout\s*=\s*\d+/.test(text), "the read request must carry a timeout");
+  assert.ok(/request\.ontimeout\s*=/.test(text), "and say something when it fires");
+});
+
+/* ─────────────────────────────── the style a page may keep ─────────────── */
+
+test("sanitizeStyle keeps alignment, indents, hanging indents and highlights", function () {
+  assert.equal(R.sanitizeStyle("text-align: center;"), "text-align: center");
+  assert.equal(R.sanitizeStyle("margin-left: 0.5in; text-indent: -0.5in"), "margin-left: 0.5in; text-indent: -0.5in");
+  assert.equal(R.sanitizeStyle("margin-left: 40px; margin-right: 2em; padding-left: 24px"), "margin-left: 40px; margin-right: 2em; padding-left: 24px");
+  assert.equal(R.sanitizeStyle("background-color: rgb(255, 240, 102);"), "background-color: rgb(255, 240, 102)");
+  assert.equal(R.sanitizeStyle("color: #1A2B3C"), "color: #1a2b3c");
+  assert.equal(R.sanitizeStyle("font-weight: bold; font-style: italic; text-decoration: underline line-through"),
+    "font-weight: bold; font-style: italic; text-decoration: underline line-through");
+  assert.equal(R.sanitizeStyle("font-size: 18px"), "font-size: 18px");
+  assert.equal(R.sanitizeStyle("TEXT-ALIGN: Right"), "text-align: right", "names and keywords are case-insensitive");
+  assert.equal(R.sanitizeStyle("text-align: left; text-align: center"), "text-align: center", "the last declaration wins, as in CSS");
+});
+
+test("sanitizeStyle drops everything that is not a closed shape", function () {
+  [
+    "position: absolute", "left: 0", "top: -9999px", "transform: rotate(90deg)", "display: none",
+    "width: 100vw", "font-family: Comic Sans MS", "line-height: 9",
+    "background-color: url(https://evil.example/x.png)", "color: var(--x)", "color: red",
+    "color: expression(alert(1))", "margin-left: calc(100% + 1px)", "margin-left: -40px",
+    "text-indent: 99999px", "font-size: 400px", "font-size: 2px", "text-align: center !important",
+    "text-align: centre", "text-decoration: blink", "font-weight: 950", "margin-left: 10vw",
+    "background-color: rgb(1,2,3) url(x)", "color: #12345", ""
+  ].forEach(function (input) {
+    assert.equal(R.sanitizeStyle(input), "", "must be dropped: " + input);
+  });
+  assert.equal(R.sanitizeStyle("position: fixed; text-align: justify; z-index: 99"), "text-align: justify");
+  assert.equal(R.sanitizeStyle("x".repeat(3000)), "", "an absurd attribute is refused whole");
+});
+
+test("the kept style list is exactly the contract list", function () {
+  assert.deepEqual(R.STYLE_PROPERTIES.slice().sort(), [
+    "background-color", "color", "font-size", "font-style", "font-weight", "margin-left",
+    "margin-right", "padding-left", "text-align", "text-decoration", "text-indent"
+  ]);
 });
