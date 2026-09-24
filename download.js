@@ -273,6 +273,11 @@
     button.classList.remove("is-missing");
     button.setAttribute("href", asset.url);
     button.setAttribute("download", "");
+    /* The markup opens the releases PAGE in a new tab, which is right for a
+       page. For the file itself it is wrong: the browser jumps to a new tab
+       while site.js opens the install guide on this one, behind it. A direct
+       file downloads in place, so the reader stays where the guide is. */
+    button.removeAttribute("target");
     setText(scope, "[data-dl-file]", asset.name);
     setText(scope, "[data-dl-size]", formatSize(asset.size));
     setText(scope, "[data-dl-ver]", versionLabel);
@@ -464,7 +469,29 @@
       .catch(giveUp);
   }
 
+  /*
+    The hero's Download button names the reader's own system. The markup
+    ships a neutral label, so a blocked script or an unrecognised system
+    still reads correctly; a phone is pointed at a computer, since that is
+    what the section it lands on will tell them anyway.
+  */
+  var HERO_LABEL = {
+    windows: "Download for Windows",
+    macos: "Download for macOS",
+    linux: "Download for Linux",
+    mobile: "Get it for your computer"
+  };
+
+  function labelHero(doc, family) {
+    var label = doc.querySelector("[data-dl-hero-label]");
+    var text = HERO_LABEL[family];
+    if (label && text) {
+      label.textContent = text;
+    }
+  }
+
   function boot() {
+    labelHero(document, detectPlatform(typeof navigator === "undefined" ? null : navigator));
     var root = document.getElementById("download");
     if (!root) {
       return;
@@ -495,6 +522,7 @@
       groupAssets: groupAssets,
       resolveSlot: resolveSlot,
       detectPlatform: detectPlatform,
+      labelHero: labelHero,
       formatSize: formatSize,
       formatDate: formatDate,
       start: start

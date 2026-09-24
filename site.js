@@ -95,6 +95,32 @@
         start();
       });
     });
+    // The arrows step one either way, and restart the clock like a dot does,
+    // so a reader looking at a slide is not moved on the instant they arrive.
+    [].slice.call(document.querySelectorAll("[data-rot-step]")).forEach(function (el) {
+      el.addEventListener("click", function () {
+        show(i + (Number(el.getAttribute("data-rot-step")) || 1));
+        if (!reduce) start();
+      });
+    });
+    // A sideways swipe on a touch screen does the same. Mostly-horizontal and
+    // at least 40px, so a vertical scroll that starts on the picture still
+    // scrolls, and a tap still opens the lightbox.
+    var x0 = null;
+    var y0 = null;
+    stage.addEventListener("touchstart", function (e) {
+      x0 = e.touches[0].clientX;
+      y0 = e.touches[0].clientY;
+    }, { passive: true });
+    stage.addEventListener("touchend", function (e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      var dy = e.changedTouches[0].clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      show(i + (dx < 0 ? 1 : -1));
+      if (!reduce) start();
+    }, { passive: true });
     show(0);
     if (!reduce) start();
   })();
@@ -350,18 +376,221 @@
     });
   })();
 
+  // ── 7. ...and, on Windows and macOS, puts the warning in front of them ─────
+  // Watching real visitors: they press Download, go straight to the file, and
+  // never scroll to the stop that explains the warning -- so they meet it cold
+  // and give up. Four rewrites of the trail did not change that, because none
+  // of them was on screen at the moment it mattered. So the press does NOT
+  // download: it opens a dialog with the two presses that get past the
+  // warning, and the pictures of them cloned from the trail's own
+  // [data-dl-warn] stops. The file comes from the dialog's own "Got it --
+  // download" link, which copies the pressed button's href. Nobody reaches
+  // the installer without the instructions having been in front of them.
+  //
+  // Linux has no signing warning, and a phone gets no file, so both keep the
+  // old hand-off: scroll on to the next stop.
   (function () {
     var trail = document.querySelector(".dl-trail");
     if (!trail) return;
+    var guide = document.querySelector("[data-dl-guide]");
+    var figs = guide && guide.querySelector("[data-dl-guide-figs]");
+    var go = guide && guide.querySelector("[data-dl-guide-go]");
+    var where = document.querySelector("[data-dl-where]");
+    var warnStop = null;
+
+    function goTo(stop) {
+      if (!stop) return;
+      setTimeout(function () {
+        stop.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+      }, 220);
+    }
+
+    // The trail's drawings use <marker id>s; a clone keeps the ids unique by
+    // giving its own a suffix, and pointing its own url(#...) at them.
+    function cloneFig(fig, n) {
+      var html = fig.outerHTML
+        .replace(/id="([^"]+)"/g, 'id="$1-g' + n + '"')
+        .replace(/url\(#([^)]+)\)/g, "url(#$1-g" + n + ")");
+      var box = document.createElement("div");
+      box.innerHTML = html;
+      return box.firstElementChild;
+    }
+
+    // Which browser, only to name it in the pointer's line. Edge and Opera
+    // both say "Chrome" in their user agent too, so they are asked first.
+    function browserName() {
+      var ua = navigator.userAgent || "";
+      if (/Edg\//.test(ua)) return "Edge";
+      if (/OPR\/|Opera/.test(ua)) return "Opera";
+      if (/Firefox\//.test(ua)) return "Firefox";
+      if (/Chrome\/|Chromium\//.test(ua)) return "Chrome";
+      if (/Safari\//.test(ua)) return "Safari";
+      return "";
+    }
+
+    // Safari asks, the first time a site downloads anything, whether to allow
+    // downloads from it -- one more box that looks like a refusal -- so on
+    // Safari the pointer says what to press. Every other browser just starts.
+    function sayWhere() {
+      var say = where && where.querySelector("[data-dl-where-say]");
+      if (!say || browserName() !== "Safari") return;
+      say.textContent = "If Safari asks, click ";
+      var allow = document.createElement("b");
+      allow.textContent = "Allow";
+      say.appendChild(allow);
+      say.appendChild(document.createTextNode("."));
+    }
+
+    // The pointer is a popover so it lands in the top layer ABOVE the modal
+    // dialog; without the Popover API it is still a fixed box, just under the
+    // dialog's backdrop rather than over it.
+    function showWhere(on) {
+      if (!where) return;
+      var open = false;
+      try { open = where.matches(":popover-open"); } catch (_e) { open = false; }
+      if (on) {
+        where.hidden = false;
+        if (typeof where.showPopover === "function" && !open) where.showPopover();
+      } else {
+        if (typeof where.hidePopover === "function" && open) where.hidePopover();
+        where.hidden = true;
+      }
+    }
+
+    // On a short or narrow screen the pointer's card lands on the dialog's top
+    // right corner, over its close button. Only then, the dialog steps down
+    // below the card -- a move of its own, not a jump -- and back on reopening.
+    //
+    // `translate`, not `transform`: the entrance animation owns transform, and
+    // an animation outranks an inline style. It never pushes the dialog's
+    // bottom off the screen, so on a very short window it moves what it can.
+    function clearOfWhere(on) {
+      guide.style.translate = "";
+      if (!on || !where || where.hidden) return;
+      var card = where.querySelector(".dl-where-card") || where;
+      var c = card.getBoundingClientRect();
+      var d = guide.getBoundingClientRect();
+      if (d.right <= c.left || d.top >= c.bottom + 12) return;
+      var shift = Math.min(c.bottom + 16 - d.top, window.innerHeight - 8 - d.bottom);
+      if (shift > 0) guide.style.translate = "0 " + Math.round(shift) + "px";
+    }
+
+    function setStage(done) {
+      showWhere(done);
+      clearOfWhere(done);
+      [].slice.call(guide.querySelectorAll("[data-dl-guide-pre]")).forEach(function (el) { el.hidden = done; });
+      [].slice.call(guide.querySelectorAll("[data-dl-guide-post]")).forEach(function (el) { el.hidden = !done; });
+      if (go) go.hidden = done;
+    }
+
+    // The dialog's link becomes the button that was pressed: the same file,
+    // and a new tab only when it is the releases PAGE (download.js drops the
+    // target once it has the file itself).
+    function aimAt(button) {
+      if (!go) return;
+      go.setAttribute("href", button.getAttribute("href"));
+      if (button.hasAttribute("download")) go.setAttribute("download", "");
+      else go.removeAttribute("download");
+      var target = button.getAttribute("target");
+      if (target) {
+        go.setAttribute("target", target);
+        go.setAttribute("rel", "noreferrer");
+      } else {
+        go.removeAttribute("target");
+        go.removeAttribute("rel");
+      }
+    }
+
+    function openGuide(plat, stops) {
+      [].slice.call(guide.querySelectorAll("[data-dl-guide-for]")).forEach(function (el) {
+        var on = el.getAttribute("data-dl-guide-for") === plat;
+        el.hidden = !on;
+        if (on) {
+          var h = el.querySelector("h3");
+          if (h) guide.setAttribute("aria-labelledby", h.id);
+        }
+      });
+      // Step N gets the drawing of picture N, and only the drawing: the step
+      // card already says what the trail's caption says, in fewer words.
+      var arts = [];
+      stops.forEach(function (stop) {
+        [].slice.call(stop.querySelectorAll(".dl-fig")).forEach(function (fig) {
+          arts.push(fig);
+        });
+      });
+      var panel = guide.querySelector('[data-dl-guide-for="' + plat + '"]');
+      var steps = panel ? [].slice.call(panel.querySelectorAll(".dl-guide-steps > li")) : [];
+      steps.forEach(function (li, k) {
+        var old = li.querySelector(".dl-guide-art");
+        if (old) li.removeChild(old);
+        var fig = arts[k];
+        var art = fig && fig.querySelector(".dl-fig-art");
+        if (!art) return;
+        var copy = cloneFig(art, k + 1);
+        copy.className = "dl-guide-art";
+        li.appendChild(copy);
+      });
+      warnStop = stops[0];
+      setStage(false);
+      if (typeof guide.showModal === "function") guide.showModal();
+      else guide.setAttribute("open", "");
+      if (go) go.focus();
+    }
+
+    function closeGuide() {
+      if (typeof guide.close === "function") guide.close();
+      else guide.removeAttribute("open");
+    }
+
+    if (guide && figs) {
+      [].slice.call(guide.querySelectorAll("[data-dl-guide-close]")).forEach(function (el) {
+        el.addEventListener("click", closeGuide);
+      });
+      var every = guide.querySelector("[data-dl-guide-steps]");
+      if (every) {
+        every.addEventListener("click", function () {
+          closeGuide();
+          goTo(warnStop);
+        });
+      }
+      // The real download. Its default is left alone -- that IS the download --
+      // and the dialog stays open, now saying so, for the install to follow.
+      sayWhere();
+      if (go) {
+        go.addEventListener("click", function () {
+          setTimeout(function () {
+            setStage(true);
+            var done = guide.querySelector("[data-dl-guide-close][data-dl-guide-post]");
+            if (done) done.focus();
+          }, 0);
+        });
+      }
+      // However the dialog closes -- Done, the cross, Escape -- the pointer goes too.
+      guide.addEventListener("close", function () {
+        showWhere(false);
+      });
+      // A press on the shaded ground outside the box closes it too.
+      guide.addEventListener("click", function (e) {
+        if (e.target === guide) closeGuide();
+      });
+    }
+
     document.addEventListener("click", function (e) {
       var hit = e.target.closest && e.target.closest("[data-dl-get]");
       if (!hit) return;
       var here = hit.closest(".dl-stop");
-      var next = here && here.nextElementSibling;
-      if (!next) return;
-      setTimeout(function () {
-        next.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-      }, 220);
+      var within = hit.closest(".dl-trail");
+      var plat = within && within.getAttribute("data-plat");
+      var stops = within ? [].slice.call(within.querySelectorAll("[data-dl-warn]")) : [];
+      var mobile = document.querySelector("[data-dl-mobile]");
+      var onPhone = mobile && !mobile.hidden;
+      if (guide && figs && stops.length && !onPhone && (plat === "win" || plat === "mac")) {
+        e.preventDefault();
+        aimAt(hit);
+        openGuide(plat, stops);
+        return;
+      }
+      goTo(here && here.nextElementSibling);
     });
   })();
 
