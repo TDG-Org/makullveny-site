@@ -57,10 +57,12 @@ const PAGES = [
   }
 ];
 
+// Cormorant Garamond 500 is the Home button's words — the TDG site's own face
+// and weight for them (bless.css), and nothing else on these pages uses it.
 const FONTS =
   '<link rel="preconnect" href="https://fonts.googleapis.com">\n' +
   '    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n' +
-  '    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&display=swap">';
+  '    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500&display=swap">';
 
 function head(page) {
   const u = page.up;
@@ -94,6 +96,7 @@ function head(page) {
     <meta name="theme-color" content="#100d0a">
     <link rel="manifest" href="${u}site.webmanifest">${preloads}
     ${FONTS}
+    <link rel="stylesheet" href="${u}bless.css">
 `;
 }
 

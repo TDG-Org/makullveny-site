@@ -45,3 +45,6 @@ node_modules/
 
 # Redesign mockup preview — not part of the published site.
 preview/
+
+# DevFleet writes its per-repo task manifest here; machine-local, never part of the site.
+.appmanifest.json

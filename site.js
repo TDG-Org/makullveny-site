@@ -13,6 +13,7 @@
 //   4. the reveals, which wait until you have scrolled to them
 //   5. the top bar's ground, which fades in once the page moves
 //   6. the download controls, which light the first-launch panel
+//   7. the home mark: the cross that turns into a sword and says Jesus Loves You
 //
 // Nothing here is required to READ the page: with this file blocked every
 // picture, every word and every link still works, the reveals simply play on
@@ -189,6 +190,318 @@
     window.addEventListener("resize", function () {
       if (window.innerWidth > 980) setOpen(false);
     });
+  })();
+
+  // ── 7. the home mark ──────────────────────────────────────────────────────
+  // Press the Home button and the cross at the end of the brand turns into a
+  // sword and a sparkle writes "Jesus Loves You" — the TDG site's own
+  // flourish, the same one, so pressing Home here and there cannot be told
+  // apart. Its look and its clock are bless.css, copied byte for byte from
+  // TDG-Site's src/components/Nav.css; this is the part that plays Nav.tsx,
+  // written again for a page with no React. The reasons behind each step are
+  // in Nav.tsx on the TDG side, and they hold here unchanged:
+  //
+  //   - THE SWORD NOW, THE WORDS A BEAT LATER. The press mounts only the
+  //     sword (a dozen pieces), the words 150ms later and the glitter at
+  //     320ms, so the press itself is cheap and the heavy mounts land while
+  //     the sword is already turning on the compositor.
+  //   - ONE CLOCK. Everything is started on the sword's own start time
+  //     (`joinClock`), so a late mount lands in step, never behind.
+  //   - ALL READS, THEN ALL WRITES, and each letter's timing is measured once
+  //     and kept, so later presses mount with their timing already on.
+  //   - THE ROOM IS MEASURED. Beside the link row the row dims for the words
+  //     if they would have to shrink below reading size; beside the menu
+  //     button the words shrink instead, because that is a control.
+  //
+  // The subpages link home with a whole page load, which would cut a
+  // flourish off after a frame. So there the press only leaves a note for the
+  // front page, and the flourish plays when home arrives: the button does the
+  // same thing from every page — takes you home and says it there.
+  (function () {
+    var brand = document.querySelector(".topbar .brand");
+    var wrap = brand && brand.querySelector(".nav__markwrap");
+    var mark = wrap && wrap.querySelector(".nav__mark");
+    var body = mark && mark.querySelector(".nav__mark-body");
+    if (!wrap || !mark || !body) return;
+    var bar = document.querySelector(".topbar");
+    var FLAG = "mk-bless-arrive";
+    var plain = function (e) {
+      return e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey;
+    };
+
+    if (brand.getAttribute("href") !== "#top") {
+      // A subpage. The note carries a time, so a navigation that never
+      // happened cannot surprise somebody who wanders home an hour later.
+      brand.addEventListener("click", function (e) {
+        if (!plain(e)) return;
+        try {
+          sessionStorage.setItem(FLAG, String(Date.now()));
+        } catch (err) {
+          /* storage off: home simply arrives without the flourish */
+        }
+      });
+      return;
+    }
+
+    var BLESSING = ["Jesus", "Loves", "You"];
+    // Nav.tsx's numbers, which bless.css's clock is written against.
+    var BLESS_MS = 5400 + 250;
+    var WORDS_LATE_MS = 150;
+    var GLITTER_LATE_MS = 320;
+    var BLESS_SIZE = 17;
+    var MIN_BESIDE_LINKS = 13;
+    var MIN_BESIDE_ACTIONS = 10;
+    // The same eighteen stars, by the same recipe, as TDG's SPARKS.
+    var rand = function (i, salt) {
+      var v = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
+      return v - Math.floor(v);
+    };
+    var SPARKS = [];
+    for (var i = 0; i < 18; i++) {
+      SPARKS.push({
+        x: Math.min(0.99, Math.max(0.01, (i + 0.2 + rand(i, 1) * 0.6) / 18)),
+        y: (rand(i, 2) < 0.5 ? -1 : 1) * (0.5 + rand(i, 3) * 0.32),
+        s: 0.24 + rand(i, 4) * 0.36,
+        h: rand(i, 5)
+      });
+    }
+
+    var timing = {};
+    var presses = 0;
+    var pressedAt = 0;
+    var timers = [];
+    var strip = null;
+    var mounted = [];
+
+    var el = function (cls, parent, tag) {
+      var n = document.createElement(tag || "span");
+      if (cls) n.className = cls;
+      if (parent) parent.appendChild(n);
+      return n;
+    };
+    var hidden = function (n) {
+      n.setAttribute("aria-hidden", "true");
+      return n;
+    };
+
+    // A centre across in the line's coordinates, up the offset chain.
+    var lineCentre = function (line, n) {
+      var x = n.offsetWidth / 2;
+      for (var m = n; m && m !== line; m = m.offsetParent) x += m.offsetLeft;
+      return x;
+    };
+    // When the sparkle crosses each of `els`, as the fraction of its
+    // ease-in-out-sine run CSS reads as --t. Reads only.
+    var sparkleTimes = function (s, els) {
+      var line = s.querySelector(".nav__bless-line");
+      var text = s.querySelector(".nav__bless-text");
+      var head = s.querySelector(".nav__bless-head");
+      if (!line || !text || !head) return [];
+      var span = text.offsetWidth;
+      var lead = span - lineCentre(line, head);
+      return els.map(function (n) {
+        var f = Math.min(1, Math.max(0, (lineCentre(line, n) + lead) / span));
+        return (Math.acos(1 - 2 * f) / Math.PI).toFixed(4);
+      });
+    };
+    var joinClock = function (part) {
+      if (!part.getAnimations) return;
+      var turn = mark.getAnimations()[0];
+      var start = turn && turn.startTime != null ? turn.startTime : pressedAt;
+      part.getAnimations({ subtree: true }).forEach(function (a) {
+        a.startTime = start;
+      });
+    };
+    var keep = function (key, times) {
+      if (times.length && (!document.fonts || document.fonts.status === "loaded")) timing[key] = times;
+    };
+
+    function mountSword() {
+      mounted.push(hidden(el("nav__sword-glow", null)));
+      el("nav__sword-glow-light", mounted[0]);
+      mounted.push(hidden(el("nav__sword-flash")));
+      mounted.push(hidden(el("nav__sword-flash nav__sword-flash--home")));
+      mounted.forEach(function (n) {
+        wrap.insertBefore(n, mark);
+      });
+      var cross = hidden(el("nav__mark-cross", body));
+      el("nav__mark-bar", cross, "i");
+      el("nav__mark-bar", cross, "i");
+      var sword = hidden(el("nav__sword", body));
+      var sb = el("nav__sword-body", sword);
+      var blade = el("nav__sword-blade", el("nav__sword-draw", el("nav__sword-well", sb)));
+      el("nav__sword-shine", blade);
+      el("nav__sword-shine nav__sword-shine--hold", blade);
+      el("nav__sword-grip", sb);
+      el("nav__sword-pommel", sb);
+      el("nav__sword-guard", sb);
+      el("nav__sword-pearl", sb);
+      mounted.push(cross, sword);
+      mounted.push(hidden(el("nav__glint", wrap)));
+      mounted.push(hidden(el("nav__glint nav__glint--home", wrap)));
+    }
+
+    function mountWords() {
+      var s = hidden(el("nav__bless"));
+      el("nav__bless-aura-light", el("nav__bless-aura", s));
+      var line = el("nav__bless-line", s);
+      var text = el("nav__bless-text", el("nav__bless-hold", el("nav__bless-window-home", el("nav__bless-window", line))));
+      var k = 0;
+      BLESSING.forEach(function (word) {
+        var w = el("nav__bless-word", text);
+        word.split("").forEach(function (ch) {
+          var letter = el("nav__bless-letter", w);
+          letter.setAttribute("data-ch", ch);
+          letter.style.setProperty("--k", String(k));
+          if (timing.letters) letter.style.setProperty("--t", timing.letters[k]);
+          var glyph = el("nav__bless-glyph", letter);
+          glyph.setAttribute("data-ch", ch);
+          glyph.textContent = ch;
+          k++;
+        });
+      });
+      ["write", "home"].forEach(function (leg) {
+        var head = el("nav__bless-head", el("nav__bless-runner nav__bless-runner--" + leg, line));
+        el("nav__bless-tail", head);
+        el("nav__bless-core", head);
+        el("nav__bless-star", head);
+      });
+      wrap.appendChild(s);
+      strip = s;
+
+      // ALL READS, THEN ALL WRITES; the size reset and the clock are the only
+      // writes the reads may follow.
+      wrap.style.removeProperty("--bless-size");
+      joinClock(s);
+      var letters = [].slice.call(s.querySelectorAll(".nav__bless-letter"));
+      var times = timing.letters ? [] : sparkleTimes(s, letters);
+
+      var nav = bar && bar.querySelector("#siteNav");
+      var toggle = bar && bar.querySelector(".nav-toggle");
+      var drawer = toggle && getComputedStyle(toggle).display !== "none";
+      var beside = drawer ? toggle : nav;
+      var quiet = false;
+      var size = "";
+      if (beside) {
+        var box = wrap.getBoundingClientRect();
+        var point = box.left + box.width / 2 + box.height / 2;
+        var last = letters[letters.length - 1];
+        var wants = line.getBoundingClientRect().left + lineCentre(line, last) + last.offsetWidth / 2 - point;
+        var room = beside.getBoundingClientRect().left - point - 20;
+        if (room < wants) {
+          var fit = (room / wants) * BLESS_SIZE;
+          if (!drawer && fit < MIN_BESIDE_LINKS) quiet = true;
+          else size = Math.max(fit, MIN_BESIDE_ACTIONS).toFixed(1) + "px";
+        }
+      }
+
+      letters.forEach(function (n, j) {
+        if (times[j]) n.style.setProperty("--t", times[j]);
+      });
+      keep("letters", times);
+      if (size) wrap.style.setProperty("--bless-size", size);
+      if (bar) bar.toggleAttribute("data-bless-quiet", quiet);
+    }
+
+    function mountGlitter() {
+      if (!strip) return;
+      var line = strip.querySelector(".nav__bless-line");
+      var g = el("nav__bless-sparks");
+      SPARKS.forEach(function (p, j) {
+        var sp = el("nav__bless-spark", g);
+        sp.style.setProperty("--x", String(p.x));
+        sp.style.setProperty("--y", String(p.y));
+        sp.style.setProperty("--s", String(p.s));
+        sp.style.setProperty("--h", String(p.h));
+        if (timing.sparks) sp.style.setProperty("--t", timing.sparks[j]);
+        el("nav__bless-twinkle nav__bless-twinkle--write", sp);
+        el("nav__bless-twinkle nav__bless-twinkle--hold", sp);
+        el("nav__bless-twinkle nav__bless-twinkle--home", sp);
+      });
+      line.insertBefore(g, line.querySelector(".nav__bless-runner"));
+      joinClock(g);
+      if (timing.sparks) return;
+      var each = [].slice.call(g.querySelectorAll(".nav__bless-spark"));
+      var times = sparkleTimes(strip, each);
+      each.forEach(function (n, j) {
+        if (times[j]) n.style.setProperty("--t", times[j]);
+      });
+      keep("sparks", times);
+    }
+
+    function clear() {
+      timers.forEach(clearTimeout);
+      timers = [];
+      if (strip) strip.remove();
+      strip = null;
+    }
+
+    function end() {
+      clear();
+      mounted.forEach(function (n) {
+        n.remove();
+      });
+      mounted = [];
+      wrap.removeAttribute("data-bless");
+      wrap.style.removeProperty("--bless-size");
+      if (bar) bar.removeAttribute("data-bless-quiet");
+    }
+
+    // Say it. A second press restarts the whole flourish rather than
+    // queueing another: the sword is rewound, the words mounted fresh.
+    function say() {
+      clear();
+      pressedAt = performance.now();
+      var n = ++presses;
+      if (!wrap.hasAttribute("data-bless")) {
+        mountSword();
+        wrap.setAttribute("data-bless", "");
+      }
+      if (wrap.getAnimations) {
+        wrap.getAnimations({ subtree: true }).forEach(function (a) {
+          a.currentTime = 0;
+        });
+      }
+      timers.push(
+        setTimeout(function () {
+          if (n === presses) mountWords();
+        }, WORDS_LATE_MS),
+        setTimeout(function () {
+          if (n === presses) mountGlitter();
+        }, GLITTER_LATE_MS),
+        setTimeout(function () {
+          if (n === presses) end();
+        }, BLESS_MS)
+      );
+    }
+
+    // The link still does its own job — back to the top — and says it too.
+    // Keyboard Enter on a link arrives as a click, so it is covered.
+    brand.addEventListener("click", function (e) {
+      if (plain(e)) say();
+    });
+
+    // Arrived from a subpage's Home button: say it here, once the page and
+    // the words' own face have loaded, so the letters are measured in
+    // Cormorant rather than its fallback.
+    var note = null;
+    try {
+      note = sessionStorage.getItem(FLAG);
+      sessionStorage.removeItem(FLAG);
+    } catch (err) {
+      /* storage off: nothing to read */
+    }
+    if (note && Date.now() - Number(note) < 15000) {
+      var go = function () {
+        var fonts = document.fonts ? document.fonts.ready : Promise.resolve();
+        var late = new Promise(function (r) {
+          setTimeout(r, 1500);
+        });
+        Promise.race([fonts, late]).then(say);
+      };
+      if (document.readyState === "complete") go();
+      else window.addEventListener("load", go, { once: true });
+    }
   })();
 
   // ── the three most recent releases ────────────────────────────────────────

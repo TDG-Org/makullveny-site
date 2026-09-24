@@ -47,6 +47,17 @@ bar's ground, and the download controls that light the first-launch panel. None
 of it is needed to *read* the site: with that file blocked every picture, every
 word and every link still works.
 
+**The Home button** (the cross at the end of the brand, on all three pages) is
+the TDG site's own flourish: pressed, the cross turns into a sword and a
+sparkle writes *Jesus Loves You*, then runs home again. Its look is
+`bless.css`, a byte-for-byte copy of the blessing block in TDG-Site's
+`src/components/Nav.css` behind a short adapter that supplies TDG's dark-theme
+colours and its Cormorant Garamond words; its press logic is section 7 of
+`site.js`. Change it on the TDG side and copy it here, so the two buttons stay
+indistinguishable. Every moving part runs on the compositor (152 animations,
+none on the main thread). On the two subpages the brand is a page load, so the
+press leaves a note and the flourish plays when the front page arrives.
+
 Screenshots live in `assets/site/`, and the scene art they sit on is in
 `assets/scenes/`.
 
