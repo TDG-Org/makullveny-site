@@ -52,6 +52,27 @@
      REPORT_REFUSAL.* and writes its own words, so nothing the server says is
      ever put on screen -- a server-authored string rendered to a reader is a
      server that can write to this page. */
+  /* WHAT THE SCENE IS TOLD, from one reply. Pure, so tests/ pins it.
+     A wrong or malformed code comes back as 401 / 400 `{ error: "bad_code" }`
+     (mak-share's verifyReporter). It used to fall into the non-2xx branch and
+     read "That could not be sent", so the scene's own "That code did not
+     match" was unreachable (2026-09-24). */
+  function reportAnswer(status, text) {
+    if (status === 429) return { ok: false, code: "report_rate_limited" };
+    var answer = null;
+    try { answer = JSON.parse(text || "null"); }
+    catch (error) { answer = null; }
+    if ((status === 400 || status === 401) && answer && answer.error === "bad_code") {
+      return { ok: false, code: "report_bad_code" };
+    }
+    if (status < 200 || status >= 300) return { ok: false, code: "report_transport_failed" };
+    if (answer && answer.ok === true) return { ok: true };
+    /* The ONE server-supplied value that reaches the scene, and it is
+       matched against a fixed list of tokens rather than displayed. */
+    var code = answer && typeof answer.code === "string" ? answer.code : "report_transport_failed";
+    return { ok: false, code: code };
+  }
+
   function post(action, body) {
     var config = window.MAKULLVENY_READER_CONFIG || {};
     var url = String(config.apiUrl || "");
@@ -73,19 +94,7 @@
       request.onerror = function () { resolve({ ok: false, code: "report_transport_failed" }); };
       request.ontimeout = function () { resolve({ ok: false, code: "report_transport_failed" }); };
       request.onload = function () {
-        if (request.status === 429) { resolve({ ok: false, code: "report_rate_limited" }); return; }
-        if (request.status < 200 || request.status >= 300) {
-          resolve({ ok: false, code: "report_transport_failed" });
-          return;
-        }
-        var answer = null;
-        try { answer = JSON.parse(request.responseText || "null"); }
-        catch (error) { answer = null; }
-        if (answer && answer.ok === true) { resolve({ ok: true }); return; }
-        /* The ONE server-supplied value that reaches the scene, and it is
-           matched against a fixed list of tokens rather than displayed. */
-        var code = answer && typeof answer.code === "string" ? answer.code : "report_transport_failed";
-        resolve({ ok: false, code: code });
+        resolve(reportAnswer(request.status, request.responseText));
       };
       try { request.send(JSON.stringify(payload)); }
       catch (error) { resolve({ ok: false, code: "report_transport_failed" }); }
@@ -235,5 +244,5 @@
     return true;
   }
 
-  window.MakullvenyBookReader = { render: render };
+  window.MakullvenyBookReader = { render: render, reportAnswer: reportAnswer };
 })();
