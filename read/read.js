@@ -594,6 +594,13 @@
      place and pure so tests/ can check it. The byline and the avatar digit are
      one decision (see render() below); the token is the one this page was
      opened with, never a fresh read of the address bar. */
+  /* The two PUBLIC counters mak-share returns beside the snapshot (views and
+     likes, 20260924100000). Numbers only; anything else is simply not shown. */
+  var openedCounts = { views: null, likes: null };
+  function countFrom(value) {
+    return typeof value === "number" && isFinite(value) && value >= 0 ? Math.floor(value) : null;
+  }
+
   function bookViewFor(snapshot, token, isPreview) {
     var named = byline(snapshot);
     return {
@@ -601,7 +608,9 @@
       avatarId: named ? snapshot.avatarId : 0,
       openByDefault: !!(snapshot && snapshot.openByDefault === true),
       token: isPreview === true ? "" : String(token || ""),
-      preview: isPreview === true
+      preview: isPreview === true,
+      views: isPreview === true ? null : openedCounts.views,
+      likes: isPreview === true ? null : openedCounts.likes
     };
   }
 
@@ -740,6 +749,10 @@
         return;
       }
       var snapshot = payload && payload.snapshot ? payload.snapshot : payload;
+      openedCounts = {
+        views: countFrom(payload && payload.views),
+        likes: countFrom(payload && payload.likes)
+      };
       if (!snapshot || typeof snapshot !== "object") {
         setState(malformed.message, malformed.tone);
         return;

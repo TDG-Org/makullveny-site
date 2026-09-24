@@ -320,6 +320,12 @@
     var coverFrom = typeof opt.coverFrom === "function" ? opt.coverFrom : null;
     var avatarBase = String(opt.avatarBase == null ? "" : opt.avatarBase);
     var report = opt.report || null;
+    /* THE READER'S SOCIAL ROW (20260924100000): views, a like and "Copy link"
+       beside Report. The transport is injected like the report's -- the site
+       passes one that posts to mak-share and remembers which pages this
+       browser liked; the app's own preview passes none, and the row stays
+       hidden there (a preview has no views and nothing to like). */
+    var social = opt.social || null;
 
     var state = {
       pages: [],
@@ -332,6 +338,10 @@
       avatarId: 0,
       token: "",
       preview: false,
+      views: null,
+      likes: null,
+      liked: false,
+      liking: false,
       camera: { pitch: PITCH_DEFAULT, yaw: YAW_DEFAULT, zoom: 1, panX: 0, panY: 0 },
       /* A TOKEN, NOT A BOOLEAN. Every pitch flight takes the next number and
          checks it is still the current one on each frame, so a second flight
@@ -431,6 +441,16 @@
       els.side = make("div", "pbs-marquee-side");
       els.author = make("div", "pbs-author-slot");
       els.side.appendChild(els.author);
+      els.social = make("div", "pbs-social");
+      els.social.hidden = true;
+      els.views = make("span", "pbs-views");
+      els.likeBtn = button("pbs-like-btn pbs-btn-quiet", "♡ Like", "Like this page");
+      els.likeBtn.setAttribute("aria-pressed", "false");
+      els.copyBtn = button("pbs-copy-btn pbs-btn-quiet", "Copy link", "Copy this page's link");
+      els.social.appendChild(els.views);
+      els.social.appendChild(els.likeBtn);
+      els.social.appendChild(els.copyBtn);
+      els.side.appendChild(els.social);
       els.reportBtn = button("pbs-report-btn pbs-btn-quiet", "⚑ Report", "Report this page");
       els.side.appendChild(els.reportBtn);
       marquee.appendChild(els.side);
@@ -570,6 +590,85 @@
        must leave NO author node behind for anything to un-hide. The identity
        fields are absent from the snapshot; the identity node is absent from
        the DOM. Same rule, both halves. */
+    function countText(n, one, many) {
+      var value = Math.max(0, Math.floor(Number(n) || 0));
+      var shown = value >= 1000000 ? (Math.floor(value / 100000) / 10) + "M"
+        : value >= 10000 ? Math.floor(value / 1000) + "k"
+        : value >= 1000 ? (Math.floor(value / 100) / 10) + "k"
+        : String(value);
+      return shown + " " + (value === 1 ? one : many);
+    }
+
+    /* Views and likes are PUBLIC counters the server returned with the page;
+       a number that did not arrive is simply not drawn. */
+    function paintSocial() {
+      var live = !state.preview && !!state.token;
+      els.social.hidden = !live;
+      if (!live) return;
+      var hasViews = typeof state.views === "number" && isFinite(state.views);
+      els.views.hidden = !hasViews;
+      els.views.textContent = hasViews ? countText(state.views, "view", "views") : "";
+      var canLike = !!(social && typeof social.like === "function");
+      els.likeBtn.hidden = !canLike;
+      var likes = typeof state.likes === "number" && isFinite(state.likes) ? state.likes : null;
+      els.likeBtn.textContent = (state.liked ? "♥ Liked" : "♡ Like") + (likes ? " · " + countText(likes, "", "").trim() : "");
+      els.likeBtn.setAttribute("aria-pressed", state.liked ? "true" : "false");
+      els.likeBtn.classList.toggle("is-liked", state.liked);
+      els.likeBtn.disabled = state.liking;
+    }
+
+    function toggleLike() {
+      if (!social || typeof social.like !== "function" || state.liking || !state.token) return;
+      var want = !state.liked;
+      var token = state.token;
+      /* Drawn at once, put right when the server answers: a like button that
+         waits a round trip to move feels broken. */
+      state.liking = true;
+      state.liked = want;
+      if (typeof state.likes === "number") state.likes = Math.max(0, state.likes + (want ? 1 : -1));
+      paintSocial();
+      Promise.resolve()
+        .then(function () { return social.like({ token: token, like: want }); })
+        .then(function (answer) {
+          if (token !== state.token) return;
+          if (answer && answer.ok === true) {
+            state.liked = answer.liked === true;
+            if (typeof answer.likes === "number") state.likes = answer.likes;
+          } else {
+            state.liked = !want;
+            if (typeof state.likes === "number") state.likes = Math.max(0, state.likes + (want ? -1 : 1));
+          }
+        }, function () {
+          if (token !== state.token) return;
+          state.liked = !want;
+          if (typeof state.likes === "number") state.likes = Math.max(0, state.likes + (want ? -1 : 1));
+        })
+        .then(function () {
+          if (token !== state.token) return;
+          state.liking = false;
+          paintSocial();
+        });
+    }
+
+    /* The link IS the page's address bar. Copied through the clipboard API when
+       the browser allows it; otherwise the button says how to do it by hand. */
+    function copyLink() {
+      var href = win && win.location ? String(win.location.href || "") : "";
+      if (!href) return;
+      var done = function (ok) {
+        els.copyBtn.textContent = ok ? "Link copied" : "Copy the address bar";
+        if (win && typeof win.setTimeout === "function") {
+          win.setTimeout(function () { els.copyBtn.textContent = "Copy link"; }, 2200);
+        }
+      };
+      var clip = win && win.navigator && win.navigator.clipboard;
+      if (clip && typeof clip.writeText === "function") {
+        Promise.resolve().then(function () { return clip.writeText(href); }).then(function () { done(true); }, function () { done(false); });
+      } else {
+        done(false);
+      }
+    }
+
     function paintSide() {
       els.author.textContent = "";
       if (state.byline) {
@@ -1304,6 +1403,8 @@
       on(els.zoomLabel, "click", function () { fitCamera(); });
       on(els.reset, "click", resetCamera);
       on(els.reportBtn, "click", openReport);
+      on(els.likeBtn, "click", toggleLike);
+      on(els.copyBtn, "click", copyLink);
 
       /* Gated on this scene's own root being in the document, so two scenes on
          one page (which the app's preview does not do today and might) cannot
@@ -1700,6 +1801,10 @@
       state.avatarId = state.byline ? normalizeAvatarId(seen.avatarId) : 0;
       state.token = String(seen.token || "");
       state.preview = seen.preview === true;
+      state.views = typeof seen.views === "number" && isFinite(seen.views) && seen.views >= 0 ? Math.floor(seen.views) : null;
+      state.likes = typeof seen.likes === "number" && isFinite(seen.likes) && seen.likes >= 0 ? Math.floor(seen.likes) : null;
+      state.liked = seen.liked === true;
+      state.liking = false;
 
       var cover = coverFrom ? coverFrom(snapshot) : coverPartsFrom(snapshot && snapshot.coverColor);
       els.root.style.setProperty("--pbs-cover-base", safeColor(cover && cover.base, "#5b3a29"));
@@ -1738,6 +1843,7 @@
 
       paintFacts();
       paintSide();
+      paintSocial();
       els.badge.hidden = !state.preview;
 
       /* THE WRITER'S CHOICE, HONOURED EXACTLY. A book published "open" opens

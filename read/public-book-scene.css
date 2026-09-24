@@ -221,6 +221,26 @@
   gap: 12px;
 }
 
+/* ── VIEWS, A LIKE, THE LINK (20260924100000) ─────────────────────────────
+   Quiet, beside Report: the page is the thing, these are its margins. */
+.pbs-social {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.pbs-social[hidden] { display: none; }
+
+.pbs-views {
+  color: var(--pbs-muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pbs-like-btn.is-liked { color: #e0607e; }
+
 /* ── WHOSE NAME IS ON IT ───────────────────────────────────────────────────
    On an anonymous share this whole block is ABSENT from the DOM, not hidden.
    src/shareSnapshot.js omits the identity fields rather than sending them and
@@ -1403,7 +1423,7 @@
     gap: 12px;
     padding: 14px 16px 12px;
   }
-  .pbs-marquee-side { justify-content: space-between; }
+  .pbs-marquee-side { justify-content: space-between; flex-wrap: wrap; }
   .pbs-hud { gap: 5px; padding: 6px 8px; bottom: 10px; }
   .pbs-indicator { min-width: 78px; font-size: 11px; }
   /* THE BADGE AND THE HINT BOTH SAT AT top:14, one from the left edge and one

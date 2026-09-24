@@ -92,6 +92,83 @@
     });
   }
 
+  /* ── views, likes and the link (20260924100000) ────────────────────────
+     A LIKE NAMES A BROWSER, NEVER A PERSON. This page keeps one random id
+     (32 hex characters) in its own storage and sends it with a like; mak-share
+     hashes it before it reaches the database, which keeps one like per id per
+     page. Which pages this browser liked is remembered here too, so a reload
+     draws the heart filled. Storage that throws (private mode, blocked site
+     data) just means no memory -- the like still works. */
+  var READER_ID_KEY = "makullveny-reader-id";
+  var LIKED_KEY = "makullveny-liked";
+
+  function store() {
+    try { return window.localStorage || null; } catch (error) { return null; }
+  }
+
+  function readerId() {
+    var box = store();
+    var id = "";
+    try { id = box ? String(box.getItem(READER_ID_KEY) || "") : ""; } catch (error) { id = ""; }
+    if (/^[a-f0-9]{32}$/.test(id)) return id;
+    var bytes = new Uint8Array(16);
+    (window.crypto || {}).getRandomValues ? window.crypto.getRandomValues(bytes) : bytes.forEach(function (_v, i) { bytes[i] = Math.floor(Math.random() * 256); });
+    id = Array.prototype.map.call(bytes, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+    try { if (box) box.setItem(READER_ID_KEY, id); } catch (error) { /* no memory */ }
+    return id;
+  }
+
+  function likedList() {
+    var box = store();
+    try {
+      var list = JSON.parse(box ? box.getItem(LIKED_KEY) || "[]" : "[]");
+      return Object.prototype.toString.call(list) === "[object Array]" ? list : [];
+    } catch (error) { return []; }
+  }
+
+  function rememberLiked(token, liked) {
+    var box = store();
+    if (!box || !token) return;
+    var list = likedList().filter(function (entry) { return entry !== token; });
+    if (liked) list.unshift(token);
+    try { box.setItem(LIKED_KEY, JSON.stringify(list.slice(0, 500))); } catch (error) { /* no memory */ }
+  }
+
+  function postLike(token, like) {
+    var config = window.MAKULLVENY_READER_CONFIG || {};
+    var url = String(config.apiUrl || "");
+    var api = reader();
+    if (!url || !api || !api.apiOriginAllowed(url)) return Promise.resolve({ ok: false });
+    return new Promise(function (resolve) {
+      var request = new XMLHttpRequest();
+      try { request.open("POST", url, true); } catch (error) { resolve({ ok: false }); return; }
+      request.setRequestHeader("Content-Type", "application/json");
+      request.timeout = 15000;
+      request.onerror = function () { resolve({ ok: false }); };
+      request.ontimeout = function () { resolve({ ok: false }); };
+      request.onload = function () {
+        if (request.status < 200 || request.status >= 300) { resolve({ ok: false }); return; }
+        var answer = null;
+        try { answer = JSON.parse(request.responseText || "null"); } catch (error) { answer = null; }
+        if (!answer || answer.ok !== true) { resolve({ ok: false }); return; }
+        /* Two values only, and both are checked for shape. */
+        var likes = typeof answer.likes === "number" && isFinite(answer.likes) && answer.likes >= 0 ? Math.floor(answer.likes) : null;
+        resolve({ ok: true, likes: likes, liked: answer.liked === true });
+      };
+      try { request.send(JSON.stringify({ action: "like", token: token, reader: readerId(), like: like !== false })); }
+      catch (error) { resolve({ ok: false }); }
+    });
+  }
+
+  var social = {
+    like: function (input) {
+      return postLike(input.token, input.like).then(function (answer) {
+        if (answer && answer.ok === true) rememberLiked(input.token, answer.liked === true);
+        return answer;
+      });
+    }
+  };
+
   var report = {
     requestCode: function (input) {
       return post("report_otp", { token: input.token, email: input.email });
@@ -127,7 +204,8 @@
          to its own copy if this is missing; passing it keeps ONE answer. */
       coverFrom: reader() ? reader().coverFromSnapshot : null,
       avatarBase: AVATAR_BASE,
-      report: report
+      report: report,
+      social: social
     });
     scene.mount(host);
     return scene;
@@ -150,7 +228,10 @@
       return false;
     }
     host.hidden = false;
-    ensureScene(api, host).render(snapshot, view || {});
+    var seen = view || {};
+    /* Whether THIS browser liked the page, from its own memory. */
+    if (seen.token && !seen.preview) seen.liked = likedList().indexOf(seen.token) !== -1;
+    ensureScene(api, host).render(snapshot, seen);
     return true;
   }
 
