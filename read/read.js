@@ -1,6 +1,6 @@
 /*
   THE READ-ONLY VIEWER's core: config, the fetch, the state machine, and the
-  shared utilities book.js and blueprint.js both use. No build step, no
+  shared utilities book-scene.js and blueprint.js both use. No build step, no
   framework, no dependency. ES5-compatible: this repository has no
   package.json and the README says it must never gain one.
 
@@ -637,7 +637,7 @@
     window.addEventListener("hashchange", function () { window.location.reload(); });
   }
 
-  /* Exposed for book.js / blueprint.js and for the pure-logic tests in
+  /* Exposed for book-scene.js / blueprint.js and for the pure-logic tests in
      tests/, which require this file under Node and exercise the DOM-free
      functions directly (see tests/README.md). Harmless to expose in the
      browser: none of it is a capability, only pure computation. */
