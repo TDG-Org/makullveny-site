@@ -12,7 +12,9 @@
 */
 (function () {
   "use strict";
-  /* Looked up lazily — see book.js's header comment for why. */
+  /* Looked up lazily: this file loads BEFORE read.js, which sets
+     window.MakullvenyReader, and read.js always does so before it calls
+     render() below, so the load order is safe. */
   var R;
 
   var MAX_SHEETS = 24;
@@ -39,10 +41,10 @@
 
   /*
     ── LISTENER BOOKKEEPING ────────────────────────────────────────────────
-    Same contract as book.js: every listener this file installs is recorded
+    Same contract as the book scene's on(): every listener this file installs is recorded
     and teardown() removes exactly those. bindOnce() already guarded the
     installation correctly (attachPanning is called from INSIDE it, which is
-    the bug book.js had); what was missing was the way back out.
+    the bug the old book.js had); what was missing was the way back out.
   */
   var listeners = [];
 
@@ -227,7 +229,7 @@
     on(el("bpZoomReset"), "click", function () { applyZoom(1); });
     on(el("bpZoomFit"), "click", fitZoom);
     /* Gated on this renderer's own top-level scene node — the mirror of the
-       #bookScene check in book.js. */
+       #bookScene the book scene mounts into. */
     on(document, "keydown", function (e) {
       if (el("blueprintScene").hidden) return;
       if (e.key === "ArrowLeft" && state.index > 0) { state.index -= 1; paintCurrent(); }

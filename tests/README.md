@@ -49,8 +49,15 @@ testing passes even when the formula is wrong.
 **What a server may not tell a visitor.** No `stateForStatus` message names
 an internal cause; a snapshot carrying `reason`, `code`, `plan`, `quota`,
 `egress` and `delivery` gets none of them into any rendered string; and a
-source scan fails the moment any viewer file so much as *reads* one of those
-properties — which covers the fields nothing renders yet.
+source scan fails the moment any viewer file — `read.js`, `book-scene.js`,
+`public-book-scene.js`, `blueprint.js` — so much as *reads* one of those
+properties, which covers the fields nothing renders yet. Four exact shapes are
+exempt, each pinned to its one file: the reader's own report form going out
+(`input.code`, `input.reason`), the scene's own code `<input>` (`els.code`),
+and the report endpoint's refusal token (`answer.code`). That last one is only
+safe because `refusalSentence()` turns it into one of the scene's own fixed
+sentences, and the same test fails if that function ever returns anything but
+a string literal.
 
 **Clamping.** `displayName` is bounded at 200 characters on the way into the
 `article:author` meta tag (it used to go in unbounded) and in the on-page
@@ -61,19 +68,23 @@ never throws.
 of defect that leaves no runtime trace: the malformed-body path takes its
 tone from the status map instead of a hardcoded one; the Print button is
 actually unhidden somewhere, so `read.css`'s `@media print` block is
-reachable; the reader logs nothing at all and never puts the token in a query
-string, a text node or a link; every `sessionStorage` and `replaceState`
-access sits inside a `try`; both renderers export a `teardown()` and install
-no listener outside their tracked `on()` helper; `scene.css` answers
+reachable; no viewer file logs anything or puts the token in a query string, a text
+node or a link, and none but `read.js` touches storage or `postMessage`; every `sessionStorage` and `replaceState`
+access sits inside a `try`; both renderers export their teardown (`blueprint.js`'s
+`teardown()`, the scene's `destroy()`) and install no listener outside their
+tracked `on()` helper, while `book-scene.js` installs none and mounts the
+scene only once; `scene.css` answers
 `prefers-reduced-transparency` with no `rgba()` or `backdrop-filter` left in
 that block; and the home page actually links `/updates/`.
 
 **Two cross-file consistency checks**, which no single-module test could see:
 the CSP `connect-src` directive in `read/index.html` must list exactly the
 origins `ALLOWED_API_ORIGINS` permits (change one, the other fails), and the
-committed `read/config.js` must still declare an empty `apiUrl` and an empty
-`publishableKey` — this repository is public, and that file is filled in at
-deploy time, never in git.
+committed `read/config.js` must carry an empty `publishableKey` and no key of
+any kind, and its `apiUrl` must be empty or on an origin `ALLOWED_API_ORIGINS`
+permits. The URL is committed on purpose: this is GitHub Pages with no deploy
+step to fill it in, and the same origin is already pinned in `read.js` and the
+CSP. A key never is, because this repository is public.
 
 ## What's covered elsewhere, and why
 
@@ -90,7 +101,8 @@ that already have what they need:
 2. **Manual verification in a real browser**, done as part of building this
    feature: a fixture snapshot containing
    `<script>window.hacked=true</script><img src=x onerror=alert(1)>` was
-   rendered through the actual `read/index.html` + `book.js`, and neither the
+   rendered through the actual `read/index.html` + `book.js` (the flat viewer
+the book scene replaced on 2026-09-08), and neither the
    script nor the `onerror` executed — the script's text became inert page
    text (the sanitizer's documented "keep the words, drop the wrapper"
    behavior) and the image vanished entirely. Both book and blueprint

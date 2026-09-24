@@ -8,7 +8,7 @@
   Three of these are CROSS-FILE tests — they read read/index.html and
   read/config.js off disk and compare them against read/read.js. That is
   deliberate. The facts they check ("the CSP names the same origin the code
-  allows", "the committed config declares nothing") are exactly the kind that
+  allows", "the committed config carries no key") are exactly the kind that
   drift when someone edits one file and not the other, and no amount of
   testing a single module can see it.
 
@@ -41,6 +41,36 @@ function code(name) {
     .map(function (line) { return /^\s*\/\//.test(line) ? "" : line; })
     .join("\n");
 }
+
+/*
+  Every file that runs on /read/. book-scene.js is the site's thin adapter;
+  public-book-scene.js is the app's scene, copied here byte for byte (edit it
+  in the app, never here) — but it runs on this page, so this page's rules
+  are checked against it too. They replaced book.js on 2026-09-08.
+*/
+var VIEWER_FILES = ["read.js", "book-scene.js", "public-book-scene.js", "blueprint.js"];
+
+/*
+  The only property reads spelled like a forbidden field that are NOT a
+  server's internal cause reaching a visitor. Each is pinned to the one file
+  it lives in, and to its exact shape, so the same spelling anywhere else —
+  `snapshot.reason`, `answer.reason`, `answer.code` in read.js — still fails.
+*/
+var NOT_A_RESPONSE_READ = {
+  "book-scene.js": [
+    /* The reader's own report form, on its way OUT to the endpoint. */
+    /\binput\.(?:code|reason)\b/g,
+    /* The report endpoint's refusal token, passed to the scene untouched. */
+    /typeof answer\.code === "string" \? answer\.code :/g
+  ],
+  "public-book-scene.js": [
+    /* The scene's own one-time-code <input>. */
+    /\bels\.code\b/g,
+    /* The refusal token, matched against REPORT_REFUSAL and never shown.
+       The test below holds refusalSentence() to that. */
+    /refusalSentence\(answer && answer\.code\)/g
+  ]
+};
 
 var ALLOWED_ORIGIN = "https://ddbksawvchsauiuiwvrl.supabase.co";
 
@@ -96,15 +126,21 @@ test("ALLOWED_API_ORIGINS and the page's CSP connect-src name the SAME origin", 
   assert.ok(sources.indexOf("https:") === -1, "connect-src must never be the wide-open `https:` again");
 });
 
-test("the committed read/config.js declares nothing — no URL, no key", function () {
-  /* This repository is public. The deploy fills this file in; git must not. */
-  /* Code only — the file's own doc comment shows a filled-in EXAMPLE. */
+test("the committed read/config.js holds no key, and no URL the reader would refuse", function () {
+  /* This repository is public. It is GitHub Pages served straight from the
+     branch, with no deploy step to fill config.js in, so the URL is committed
+     (2026-09-07). It may only name the origin read.js already pins in
+     ALLOWED_API_ORIGINS and the CSP; empty switches sharing off. A key never
+     belongs here. Code only, so a value quoted in a comment cannot pass. */
   var config = code("config.js");
   var apiUrl = /apiUrl:\s*"([^"]*)"/.exec(config);
   var key = /publishableKey:\s*"([^"]*)"/.exec(config);
   assert.ok(apiUrl && key, "config.js must still declare both fields");
-  assert.equal(apiUrl[1], "", "a committed apiUrl ties this public repo to one project");
+  assert.ok(apiUrl[1] === "" || R.apiOriginAllowed(apiUrl[1]),
+    "a committed apiUrl must be on an origin in ALLOWED_API_ORIGINS: " + apiUrl[1]);
   assert.equal(key[1], "", "no key of any kind belongs in git here");
+  assert.ok(!/\beyJ[\w-]{10,}|sb_(?:publishable|secret)_|service_role/.test(config),
+    "no JWT, Supabase key or service-role reference may appear in config.js code");
 });
 
 /* ────────────────────────────────────── the exact cover colour ─────────── */
@@ -294,14 +330,28 @@ test("no viewer source file READS one of those fields off a response", function 
      This one covers the fields nothing renders YET — it fails the moment
      someone writes `snapshot.reason` anywhere in the viewer. Property access
      only, so the prose above (which names all six) does not trip it. */
-  ["read.js", "book.js", "blueprint.js"].forEach(function (name) {
+  VIEWER_FILES.forEach(function (name) {
     var text = code(name);
+    (NOT_A_RESPONSE_READ[name] || []).forEach(function (shape) { text = text.replace(shape, ""); });
     FORBIDDEN_FIELDS.forEach(function (field) {
       assert.ok(!new RegExp("\\.\\s*" + field + "\\b").test(text),
         name + " must not read a `." + field + "` property off a response");
       assert.ok(!new RegExp("\\[\\s*[\"']" + field + "[\"']").test(text),
         name + " must not read a [\"" + field + "\"] property off a response");
     });
+  });
+
+  /* The one exemption above that IS a server value — the report endpoint's
+     refusal code — is only safe while refusalSentence() picks one of the
+     scene's own sentences and never hands the code itself back to the page. */
+  var scene = code("public-book-scene.js");
+  var body = /function refusalSentence\(code\)\s*\{([\s\S]*?)\n\s*\}/.exec(scene);
+  assert.ok(body, "public-book-scene.js must still turn a refusal code into a sentence in refusalSentence()");
+  var returns = body[1].match(/return\s+[^;]*;/g) || [];
+  assert.ok(returns.length >= 2, "refusalSentence() must still have its matched sentences and a fallback");
+  returns.forEach(function (ret) {
+    assert.ok(/^return\s+"[^"]*";$/.test(ret),
+      "refusalSentence() must return a fixed sentence, never the server's code: " + ret);
   });
 });
 
@@ -370,13 +420,20 @@ test("the token is never written anywhere a person or another origin could read 
   var text = code("read.js");
   assert.ok(/TOKEN_STORAGE_KEY\s*=\s*"mak\.read\.token"/.test(text),
     "the per-tab storage key must be the documented one");
-  ["read.js", "book.js", "blueprint.js"].forEach(function (name) {
-    assert.ok(!/console\s*\./.test(code(name)), name + " must log nothing at all");
+  VIEWER_FILES.forEach(function (name) {
+    var file = code(name);
+    assert.ok(!/console\s*\./.test(file), name + " must log nothing at all");
+    /* No query-string carrier, and no link built out of the token. */
+    assert.ok(!/[?&]\w*token/i.test(file), name + ": the token must never travel in a query string");
+    assert.ok(!/textContent\s*=\s*[\w.]*\btoken\b/.test(file), name + ": the token must never become page text");
+    assert.ok(!/href[^\n]*\btoken\b/.test(file), name + ": the token must never become a link");
+    /* read.js's one per-tab sessionStorage entry is the token's only home.
+       Nothing else on the page may store it or hand it to another window. */
+    if (name !== "read.js") {
+      assert.ok(!/sessionStorage|localStorage|document\s*\.\s*cookie|indexedDB|postMessage/.test(file),
+        name + " must not store anything or post to another window");
+    }
   });
-  /* No query-string carrier, and no link built out of the token. */
-  assert.ok(!/[?&]\w*token/i.test(text), "the token must never travel in a query string");
-  assert.ok(!/textContent\s*=\s*token\b/.test(text), "the token must never become page text");
-  assert.ok(!/href[^\n]*\btoken\b/.test(text), "the token must never become a link");
 });
 
 test("every sessionStorage and history access sits inside a try block", function () {
@@ -402,9 +459,15 @@ test("every sessionStorage and history access sits inside a try block", function
 });
 
 test("both renderers expose a teardown, and neither adds a listener it cannot remove", function () {
-  ["book.js", "blueprint.js"].forEach(function (name) {
+  /* The book renderer is the copied scene now, and its teardown is named
+     destroy() — the app's name for it, which this repo may not change. */
+  [
+    { name: "blueprint.js", teardown: /teardown:\s*teardown/, called: "teardown()" },
+    { name: "public-book-scene.js", teardown: /destroy:\s*destroy/, called: "destroy()" }
+  ].forEach(function (renderer) {
+    var name = renderer.name;
     var text = code(name);
-    assert.ok(/teardown:\s*teardown/.test(text), name + " must export teardown()");
+    assert.ok(renderer.teardown.test(text), name + " must export " + renderer.called);
     assert.ok(/removeEventListener/.test(text), name + " must remove what it adds");
     /* Every installation goes through the tracked on() helper. The only
        literal addEventListener calls left are inside that helper and the
@@ -413,6 +476,13 @@ test("both renderers expose a teardown, and neither adds a listener it cannot re
     assert.ok(direct.length <= 1,
       name + " installs a listener outside on(): " + direct.length + " direct calls");
   });
+
+  /* The site's adapter has nothing to tear down: it installs no listener of
+     its own and builds ONE scene for the life of the page, so a second
+     render() re-renders it instead of stacking a second pointer set. */
+  var adapter = code("book-scene.js");
+  assert.ok(!/addEventListener/.test(adapter), "book-scene.js must leave every listener to the scene");
+  assert.ok(/if \(scene\) return scene;/.test(adapter), "book-scene.js must mount the scene only once");
 });
 
 test("scene.css answers prefers-reduced-transparency as well as prefers-reduced-motion", function () {

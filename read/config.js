@@ -1,31 +1,25 @@
 /*
-  DEPLOY-TIME VIEWER CONFIG — THE COMMITTED COPY DECLARES NOTHING.
+  THE VIEWER'S CONFIG — COMMITTED, BECAUSE NOTHING ELSE WOULD FILL IT IN.
 
-  read.js looks for `window.MAKULLVENY_READER_CONFIG` and, finding no apiUrl,
-  shows "Shared reading is not open yet." That is the correct state for this
-  repository: the server half of sharing lives in tdg-core and does not exist
-  yet.
+  read.js reads `window.MAKULLVENY_READER_CONFIG`. With no apiUrl it shows
+  "Shared reading is not open yet."; with one, it posts the link's token to it
+  — but only after checking the URL against its own ALLOWED_API_ORIGINS, so
+  this file can never point the page anywhere else.
 
-  WHY THIS FILE IS COMMITTED AT ALL, rather than left to the deploy. read/
-  index.html loads it with a <script src>, and a tag pointing at a path that is
-  not in the repository is a 404 in every reader's console on every page load.
-  Shipping an empty, honest config costs one request that is already cached and
-  makes the injection point REAL rather than described in a comment.
+  WHY THE URL IS IN GIT. This site is GitHub Pages served straight from the
+  branch: no .github/workflows, no deploy step, nothing that could overwrite
+  this file at publish time. The first plan (an empty copy a deploy fills in)
+  therefore meant sharing was permanently off. The URL is not a secret — it is
+  the address in every request a reader's browser makes — and the one project
+  it names is already pinned in read.js's ALLOWED_API_ORIGINS and in
+  read/index.html's CSP, so committing it ties this repo to nothing new.
+  Pointing sharing at a different project means changing all three together.
 
-  A DEPLOY OVERWRITES THIS FILE. Fill in both fields:
-
-      window.MAKULLVENY_READER_CONFIG = {
-        apiUrl: "https://<project>.supabase.co/rest/v1/rpc/tdg_share_read",
-        publishableKey: "<the anon/publishable key>"
-      };
-
-  NEITHER VALUE IS A SECRET — a publishable key is public by definition and the
-  URL is in every request — but neither belongs in git either: committing them
-  would tie this public repository to one project and make rotating a key a code
-  change. That is why the file exists here EMPTY and is filled in at deploy.
-
-  NEVER put a service-role key, a user token, or anything about a reader or a
-  writer in this file. This repository is public and holds viewer code only.
+  WHAT STILL NEVER GOES IN: a key of any kind. publishableKey stays "" (see
+  below), and tests/reader-hardening.test.js fails if it is ever filled, or if
+  apiUrl names any origin read.js would refuse. NEVER put a service-role key,
+  a user token, or anything about a reader or a writer in this file. This
+  repository is public and holds viewer code only.
 */
 /*
   FILLED IN 2026-09-07. Sharing is live.

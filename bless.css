@@ -1,0 +1,1197 @@
+/* ════════════════════════════════════════════════════════════════════════
+   THE HOME MARK — the cross that turns into a sword and says Jesus Loves You.
+
+   This is the SAME flourish as the TDG site's home mark, not a look-alike:
+   everything between the two "copied" rules below is TDG-Site's
+   src/components/Nav.css blessing block (its v2.69.0, commit 85ffa33),
+   byte for byte, class names and comments included. Pressing the Home
+   button here and on tdg-org.github.io/TDG-Site must be indistinguishable,
+   and a copy that is edited in one place and not the other is how that
+   stops being true — so change it THERE and copy it here, never the reverse.
+   Its comments name TDG's files (Nav.tsx, AGENTS.md); on this site the
+   press logic that plays the part of Nav.tsx is section 7 of site.js.
+
+   What this site has to supply, it supplies in the adapter below, and only
+   for the mark's own subtree: the TDG tokens the block reads, set to TDG's
+   dark theme — this page never leaves the dark — so the gold, the steel
+   and the words are TDG's exactly, without touching this page's own
+   palette (whose --accent-2 is a teal and whose --text is cream).
+
+   Why a shared stylesheet when every other rule on this site is inline in
+   its page: all three pages carry the Home button, and three copies of a
+   thousand lines is three chances to drift.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* ── the adapter: TDG's dark-theme tokens, for the mark's subtree only ─── */
+.nav__markwrap {
+  --warm: #f5c98a;
+  --accent-2: #b9b9c4;
+  --bg: #07070a;
+  --text: #f2f2f5;
+  --cross-glow: rgba(255, 255, 255, 0.82);
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --t-theme: background-color 0.3s ease;
+}
+
+/* ── copied from TDG-Site src/components/Nav.css — do not edit here ────── */
+
+/* ── wordmark ──────────────────────────────────────────────────────────── */
+
+/* The mark's geometry is written down once, here, because everything else in
+   this file is read off it: the cross, the sword that cross turns a quarter
+   turn into, how far that blade runs out, where its point lands, and where the
+   words line up with the point. Change a number here and all of them move.
+
+   `--bless-size` lives here rather than on the strip because the blade's reach
+   is measured in it too — the phrase and the sword that points at it shrink
+   together on a narrow bar, or the sword would still be aiming at where the
+   words used to start. Nav.tsx writes it to this element.
+
+   So does the flourish's CLOCK. Every animation in the blessing is written as
+   one of these phases — a start and a length, in seconds from the press — so
+   the sword, the sparkle and the words read the same numbers, and a phase
+   moved here moves everything that has to happen with it. They end at
+   `--bless-life`, which Nav.tsx's BLESS_MS outlasts. */
+.nav__markwrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: none;
+  --mark-w: 15px;
+  --mark-h: 24px;
+  --mark-thick: 4px;
+  --mark-crossbar: 7px;
+  --bless-size: 17px;
+  /* how much longer than the cross's stem the drawn blade runs */
+  --blade-extra: calc(var(--bless-size) * 1.5);
+  /* the drawn blade's width, a shade under the stem's, and its point */
+  --blade-w: calc(var(--mark-thick) * 0.9);
+  --blade-point: calc(var(--mark-h) * 0.26);
+
+  --bless-life: 5.4s;
+  --b-turn: 0.62s; /* the cross swings a quarter turn and becomes a sword */
+  --b-draw-at: 0.46s; /* the blade runs out to its full reach */
+  --b-draw: 0.46s;
+  --b-write-at: 0.86s; /* the sparkle leaves the point and writes the words */
+  --b-write: 1.2s;
+  --b-shimmer-at: 2.5s; /* a light passes along the words while they hold */
+  --b-shimmer: 0.8s;
+  --b-unwrite-at: 3.4s; /* the sparkle runs home and the words fold away */
+  --b-unwrite: 1s;
+  --b-sheathe-at: 4.34s; /* the blade slides back under the guard */
+  --b-sheathe: 0.4s;
+  --b-return-at: 4.62s; /* and the sword turns back into the cross */
+  --b-return: 0.74s;
+
+  /* The metals. Steel from the page's own silver on the dark theme and from
+     its ink on the light one, so the blade reads against either ground; gold
+     from --warm, the same gold the words are gilded with. */
+  --steel-edge: #fff;
+  --steel: color-mix(in srgb, var(--accent-2) 62%, #fff);
+  --steel-fuller: color-mix(in srgb, var(--accent-2) 70%, var(--bg));
+  --gold-hi: color-mix(in srgb, var(--warm) 45%, #fff);
+  --gold: var(--warm);
+  --gold-lo: color-mix(in srgb, var(--warm) 55%, #000);
+  --leather: color-mix(in srgb, var(--warm) 28%, #000);
+}
+[data-theme='light'] .nav__markwrap {
+  --steel-edge: color-mix(in srgb, var(--text) 16%, #fff);
+  --steel: color-mix(in srgb, var(--text) 46%, #fff);
+  --steel-fuller: var(--text);
+  --gold-lo: color-mix(in srgb, var(--warm) 45%, #000);
+}
+
+/* ── the mark carries its two shadows at ALL times, transparent at rest ────
+   Every state of the mark — rest and hover — is written as the same two
+   drop-shadows at the same two radii, 8px and 14px, and only their COLOUR
+   ever moves. `filter: none` at rest with a radius that grows on hover is the
+   obvious way to write it, and it is the one that stutters: a blur or
+   drop-shadow radius passing through tens of values is tens of distinct GPU
+   kernels, and each first-seen radius is a shader compiled on the spot.
+   Measured on the flourish, with a Chrome trace: 19-20ms raster stalls on a
+   cold shader cache and 58-170ms presents on a warm one, at exactly the two
+   moments the radii were moving. The same radius with a different colour is
+   the same shader, so two fixed radii are two kernels, compiled once per
+   machine. What it costs at rest is a render surface the size of a 15x24
+   mark, redrawn only when the mark itself changes.
+
+   The flourish no longer animates this filter at all — see "the sword" below
+   for why that was the lag that was left.                                    */
+.nav__mark {
+  position: relative;
+  display: block;
+  width: var(--mark-w);
+  height: var(--mark-h);
+  flex: none;
+  filter: drop-shadow(0 0 8px transparent) drop-shadow(0 0 14px transparent);
+  transition:
+    transform 1.6s cubic-bezier(0.16, 0.84, 0.24, 1),
+    filter 1.6s ease;
+}
+.nav__mark:hover {
+  transform: scale(1.09);
+  filter: drop-shadow(0 0 8px var(--cross-glow)) drop-shadow(0 0 14px transparent);
+}
+.nav__mark-bar {
+  position: absolute;
+  background: var(--text);
+  transition: var(--t-theme);
+}
+/* The stem, then the crossbar. Named by position rather than :first-child /
+   :last-child, because the body also holds the cross's twin and the drawn
+   sword while the flourish plays, and :last-child would stop meaning the
+   crossbar the moment they mounted. */
+.nav__mark-bar:nth-child(1) {
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: var(--mark-thick);
+  height: var(--mark-h);
+}
+.nav__mark-bar:nth-child(2) {
+  left: 0;
+  top: var(--mark-crossbar);
+  width: var(--mark-w);
+  height: var(--mark-thick);
+}
+.nav[data-over-dark='true'] .nav__mark-bar {
+  background: #fff;
+}
+/* The body is the mark's own box again, one level in: the turn home is its
+   rotation, the turn out is the link's, so each element carries one rotate
+   animation (see "one animation per property" below). The cross twin is the
+   bars again, for the fade back in. */
+.nav__mark-body,
+.nav__mark-cross {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── the blessing ──────────────────────────────────────────────────────────
+   Press the mark and it says who the site is for. The cross swings a quarter
+   turn and, as it swings, becomes a sword — a flash, and the flat bars are a
+   gold hilt and a steel blade. The blade is drawn out to its full reach with
+   a light running down it, a star is struck on the point, and a sparkle
+   leaves the point and writes the words: each letter unfolds as it passes,
+   flashes gold, and a scatter of glitter twinkles in its wake. The words
+   hold, a light passes along them, and then it all runs home — the sparkle
+   races back, the letters fold away behind it, the star is struck again as
+   it reaches the point, the blade slides back under the guard, and the sword
+   turns back into the cross. Five and a half seconds, once per press, and the
+   mark still goes home.
+
+   THE QUARTER TURN IS STILL WHERE EVERYTHING IS AIMED FROM. A cross is a
+   sword lying on its side: rotate this one -90deg about its own centre and
+   the long stem lies along the line running right, the crossbar stands across
+   it as a guard, and the 7px of stem above the crossbar is the grip. So the
+   sword is drawn STANDING UP in the cross's own box, hilt over the crossbar
+   and blade down the stem, and the turn lays it down pointing at the words.
+
+   ALIGNMENT IS DERIVED, NOT TYPED. Rotating about the mark's centre sends
+   the stem's far end to `50% + var(--mark-h) / 2` across, plus however far
+   the blade has run out, and to the mark's own middle down — so that is where
+   the strip starts, what line it sits on, and where the star is struck, all
+   written as that expression rather than as the pixels it works out to. The
+   strip is `var(--mark-thick)` tall and centres its children on that line,
+   so the words share the blade's centre line by construction. Under
+   `prefers-reduced-motion` there is no turn and no blade, so the strip goes
+   back to the crossbar's own line — the last rule in this block, and the
+   only place two placements exist.
+
+   EVERYTHING THAT MOVES IS TRANSFORM OR OPACITY, and that is the fix for the
+   lag, not a style preference. The version before this one swung the cross
+   in the same keyframes that faded its drop-shadow glow in and out. A
+   drop-shadow is a filter that moves pixels, so Chrome refuses to run that
+   animation on the compositor (trace: `compositeFailed` on nav-bless-mark),
+   and the swing — rotation and all — ran on the main thread, where the hero's
+   WebGL is. At a 4x CPU throttle, the laptop this page is tuned for, that
+   thread had 38 frames over 33ms during the flourish, and the sword stuttered
+   on every one. Its outline morph and the words' wipe were `clip-path`
+   animations, main-thread work of the same kind. Now: the glow is its own
+   element whose opacity moves, the blade is drawn at full length and SLID
+   out of a clipped well, and the words are revealed by a window that slides
+   one way while the text inside slides the other. The whole flourish runs on
+   the compositor, whatever the page is doing, at the display's own rate.
+
+   ONE ANIMATION PER PROPERTY PER ELEMENT, and that rule is why this markup
+   nests. Measured with a trace on a bare test page: an element with a
+   rotate and a scale animation, or a transform and an opacity one, runs both
+   on the compositor; an element with TWO transform animations — a way out
+   and a way back, say — runs neither there (`compositeFailed: 64`, "target
+   has incompatible animations"). The first rebuild of this flourish gave
+   nearly every piece an in and an out and all 150 of them fell back to the
+   main thread. So each in and its out are on two elements, one inside the
+   other: opacities multiply and translates and rotations add, which makes
+   any "appear, then go" out of a pair. The one shape a pair cannot make is
+   "go, then come back", and the cross is the only thing that needs it — so
+   the resting bars fade out and a twin of them fades back in.
+
+   And the swing was split into two keyframe segments (a lift to -52deg, then
+   the rest of the turn), each eased to a near-stop — so it moved, stopped,
+   and moved again, which reads as a hitch at any frame rate. It is one
+   segment now, on a spring curve that overshoots a few degrees and settles,
+   with the lift on the separate `scale` property so it cannot split the turn.
+
+   The pieces are mounted only while the flourish plays, so a mark nobody has
+   pressed costs exactly what it cost before.                                */
+
+/* ── the sword ─────────────────────────────────────────────────────────── */
+
+/* Standing up in the cross's 15x24 box: pommel, grip, guard across the
+   crossbar, and the blade down the stem. Hidden until the turn crossfades the
+   bars into it. */
+.nav__sword,
+.nav__sword-body,
+.nav__sword-draw {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* The well is the blade's scabbard: a window from the underside of the guard
+   to the point's full reach. The blade inside it is drawn at full length and
+   starts pushed up under the guard by exactly `--blade-extra`, so what shows
+   is the cross's own stem length; drawing it is one translate (on
+   `.nav__sword-draw`) and sheathing it another (on the blade inside it). The
+   old way — a clip-path that grew — was paint on the main thread every
+   frame. */
+.nav__sword-well {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--mark-crossbar) + var(--mark-thick));
+  width: var(--blade-w);
+  height: calc(var(--mark-h) - var(--mark-crossbar) - var(--mark-thick) + var(--blade-extra));
+  margin-left: calc(var(--blade-w) / -2);
+  overflow: hidden;
+}
+/* A blade that tapers to its point, with a fuller: the dark line down the
+   middle of the gradient, between two edges that catch the light unevenly —
+   which is what turns a 4px strip into a bevelled blade. The outline is a
+   STATIC clip-path; only the translate moves. */
+.nav__sword-blade {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    86% calc(100% - var(--blade-point)),
+    50% 100%,
+    14% calc(100% - var(--blade-point))
+  );
+  background: linear-gradient(
+    90deg,
+    var(--steel-edge) 0%,
+    var(--steel) 26%,
+    var(--steel-fuller) 46%,
+    var(--steel) 60%,
+    var(--steel-edge) 80%,
+    var(--steel) 100%
+  );
+}
+/* The light that runs down the steel as it is drawn, and once more while the
+   words hold, just before the same light runs along them. Inside the blade,
+   so the blade's own outline clips it. */
+.nav__sword-shine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, #fff 92%, transparent) 50%, transparent);
+  transform: translateY(-110%);
+}
+.nav__sword-grip {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--mark-crossbar) * 0.3);
+  width: calc(var(--mark-thick) * 0.62);
+  height: calc(var(--mark-crossbar) * 0.76);
+  margin-left: calc(var(--mark-thick) * -0.31);
+  border-radius: 1px;
+  /* leather, wound with gold wire */
+  background: repeating-linear-gradient(
+    155deg,
+    var(--leather) 0 0.9px,
+    var(--gold-lo) 0.9px 1.5px
+  );
+}
+.nav__sword-pommel {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: calc(var(--mark-thick) * 0.92);
+  height: calc(var(--mark-thick) * 0.92);
+  margin-left: calc(var(--mark-thick) * -0.46);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--gold-hi), var(--gold) 55%, var(--gold-lo));
+}
+/* The crossguard sits where the crossbar was, a little finer than it, with a
+   bead at each end of the quillons and a pearl where it crosses the blade. */
+.nav__sword-guard {
+  position: absolute;
+  left: 0;
+  top: calc(var(--mark-crossbar) + var(--mark-thick) * 0.125);
+  width: var(--mark-w);
+  height: calc(var(--mark-thick) * 0.75);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold) 45%, var(--gold-lo));
+}
+.nav__sword-guard::before,
+.nav__sword-guard::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: var(--mark-thick);
+  height: var(--mark-thick);
+  margin-top: calc(var(--mark-thick) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, var(--gold-hi), var(--gold) 55%, var(--gold-lo));
+}
+.nav__sword-guard::before {
+  left: calc(var(--mark-thick) * -0.35);
+}
+.nav__sword-guard::after {
+  right: calc(var(--mark-thick) * -0.35);
+}
+.nav__sword-pearl {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--mark-crossbar) + var(--mark-thick) / 2);
+  width: calc(var(--mark-thick) * 0.8);
+  height: calc(var(--mark-thick) * 0.8);
+  margin: calc(var(--mark-thick) * -0.4) 0 0 calc(var(--mark-thick) * -0.4);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fff,
+    color-mix(in srgb, var(--warm) 25%, #fff) 45%,
+    var(--gold-lo)
+  );
+}
+
+/* The light the drawn blade stands in, lying along it from the guard to the
+   point. On the wrapper, which never turns, and only its opacity moves. */
+.nav__sword-glow {
+  position: absolute;
+  left: calc(50% - var(--mark-h) * 0.2);
+  top: 50%;
+  width: calc(var(--mark-h) * 0.7 + var(--blade-extra));
+  height: calc(var(--mark-h) * 0.9);
+  margin-top: calc(var(--mark-h) * -0.45);
+  pointer-events: none;
+}
+.nav__sword-glow-light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--warm) 42%, transparent), transparent);
+}
+/* The flash the cross becomes a sword behind — and, on the way home, the
+   sword a cross. */
+.nav__sword-flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--mark-h) * 1.7);
+  height: calc(var(--mark-h) * 1.7);
+  margin: calc(var(--mark-h) * -0.85) 0 0 calc(var(--mark-h) * -0.85);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--warm) 25%, #fff),
+    color-mix(in srgb, var(--warm) 55%, transparent) 40%,
+    transparent
+  );
+  opacity: 0;
+  transform: scale(0.3);
+  pointer-events: none;
+}
+
+/* The turn. `rotate` and `scale` are their own properties, not `transform`,
+   so the lift cannot split the swing into segments and neither of them fights
+   the hover's `transform: scale(1.09)`. The spring curve overshoots the
+   quarter turn by a few degrees and settles back onto it, and it ends at
+   exactly -90deg and scale 1 — the point is where the words are aimed, and a
+   sword left 6% long would put the two of them apart. The hover glow stands
+   down while the sword is out: white light round a 4px blade hides the steel,
+   and on the light theme it is a navy smudge. */
+/* Each pair below is an "in" on the outer element and its "out" on the
+   inner one; see "one animation per property" above. */
+.nav__markwrap[data-bless] .nav__mark {
+  filter: drop-shadow(0 0 8px transparent) drop-shadow(0 0 14px transparent);
+  transition: none;
+  animation:
+    nav-bless-turn var(--b-turn) cubic-bezier(0.34, 1.42, 0.64, 1) both,
+    nav-bless-lift var(--b-turn) both;
+}
+.nav__markwrap[data-bless] .nav__mark-body {
+  animation:
+    nav-bless-unturn var(--b-return) cubic-bezier(0.34, 1.32, 0.64, 1) var(--b-return-at) both,
+    nav-bless-lift var(--b-return) var(--b-return-at) both;
+}
+.nav__markwrap[data-bless] .nav__mark-body > .nav__mark-bar {
+  animation: nav-bless-fade-out 0.22s ease-in 0.2s both;
+}
+.nav__mark-cross {
+  animation: nav-bless-fade-in 0.24s ease-out calc(var(--b-return-at) + 0.12s) both;
+}
+.nav__sword {
+  animation: nav-bless-fade-in 0.2s ease-out 0.12s both;
+}
+.nav__sword-body {
+  animation: nav-bless-fade-out 0.24s ease-in calc(var(--b-return-at) + 0.14s) both;
+}
+.nav__sword-draw {
+  animation: nav-bless-draw var(--b-draw) cubic-bezier(0.22, 1, 0.36, 1) var(--b-draw-at) both;
+}
+.nav__sword-blade {
+  animation: nav-bless-sheathe var(--b-sheathe) cubic-bezier(0.65, 0, 0.35, 1) var(--b-sheathe-at) both;
+}
+.nav__sword-shine {
+  animation: nav-bless-gleam 0.6s cubic-bezier(0.4, 0, 0.6, 1) calc(var(--b-draw-at) + 0.12s) both;
+}
+.nav__sword-shine--hold {
+  animation: nav-bless-gleam 0.7s cubic-bezier(0.4, 0, 0.6, 1) calc(var(--b-shimmer-at) - 0.3s) both;
+}
+.nav__sword-glow {
+  animation: nav-bless-fade-in 0.5s ease-out var(--b-draw-at) both;
+}
+.nav__sword-glow-light {
+  animation: nav-bless-fade-out 0.5s ease-in var(--b-sheathe-at) both;
+}
+.nav__sword-flash {
+  animation: nav-bless-burst 0.5s cubic-bezier(0.2, 0.7, 0.4, 1) 0.12s both;
+}
+.nav__sword-flash--home {
+  animation: nav-bless-burst 0.5s cubic-bezier(0.2, 0.7, 0.4, 1) calc(var(--b-return-at) + 0.08s) both;
+}
+
+/* The star struck on the point as the blade reaches its length, and again
+   when the sparkle comes home to it, with a soft round light behind it. On
+   the wrapper rather than inside the mark, so the turn does not spin it, and
+   placed by the same expression the strip is — the sword's point is one
+   place, named once. */
+.nav__glint {
+  position: absolute;
+  left: calc(50% + var(--mark-h) / 2 + var(--blade-extra));
+  top: 50%;
+  width: calc(var(--mark-h) * 1.1);
+  height: calc(var(--mark-h) * 1.1);
+  margin: calc(var(--mark-h) * -0.55) 0 0 calc(var(--mark-h) * -0.55);
+  pointer-events: none;
+  animation: nav-bless-glint 0.6s var(--b-draw-at) both;
+}
+.nav__glint--home {
+  animation: nav-bless-glint 0.6s calc(var(--b-unwrite-at) + var(--b-unwrite) - 0.12s) both;
+}
+.nav__glint::before,
+.nav__glint::after {
+  content: '';
+  position: absolute;
+}
+.nav__glint::before {
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--warm) 50%, transparent), transparent);
+}
+.nav__glint::after {
+  inset: 18%;
+  clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--warm) 30%, #fff) 0%,
+    var(--warm) 44%,
+    transparent 78%
+  );
+}
+.nav[data-over-dark='true'] .nav__glint::after {
+  background: radial-gradient(closest-side, #fff 0%, #f5c98a 44%, transparent 78%);
+}
+
+/* ── the words ─────────────────────────────────────────────────────────── */
+
+.nav__bless {
+  position: absolute;
+  /* the point of the fully drawn sword, and the line it points along */
+  left: calc(50% + var(--mark-h) / 2 + var(--blade-extra));
+  top: calc(50% - var(--mark-thick) / 2);
+  height: var(--mark-thick);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  /* It hangs over the link row's side of the bar and must never eat a click
+     meant for a link, or for the mark it grew out of. */
+  pointer-events: none;
+  --bless-slack: calc(var(--bless-size) * 0.8);
+  /* ── the gilding ──────────────────────────────────────────────────────────
+     One set of numbers for the light on the words, the aura behind them, the
+     sparkle that writes them and the glitter it leaves, so all of it is one
+     gold. The rim is the innermost shadow and the only one that has to carry
+     white letters on a light ground: on the dark theme it is --warm lifted
+     toward white, a pale gold rim on a page that already gives white its
+     contrast; on the light theme it is --warm taken toward black, a bronze
+     that a white letter reads against on the cream veil. Rendered at 2x on
+     both themes, over the hero and over the veil, and compared against three
+     weaker and one heavier candidate before these were picked.             */
+  --gild-rim: color-mix(in srgb, var(--warm) 85%, #fff);
+  --gild-near: var(--warm);
+  --gild-aura: 46%;
+}
+[data-theme='light'] .nav__bless {
+  --gild-rim: color-mix(in srgb, var(--warm) 72%, #000);
+  --gild-near: color-mix(in srgb, var(--warm) 80%, #000);
+  --gild-aura: 52%;
+}
+
+/* One box, three layers: the window the words are seen through, the glitter,
+   and the runner that carries the sparkle. The line's vertical slack is taken
+   straight back off as margin, so the strip is still the blade's height; it
+   is what lets a letter unfold and a glyph's halo spread without being cut.
+   The air between the point and the J is 0.62em, as it always was — the
+   first `--bless-halo` of it is inside the window, as room for the J's glow,
+   which a window starting at the J would have sheared off flat. */
+.nav__bless-line {
+  position: relative;
+  font-size: var(--bless-size);
+  margin: calc(var(--bless-slack) * -1) 0 calc(var(--bless-slack) * -1) calc(0.62em - var(--bless-halo));
+  --bless-halo: 0.34em;
+  /* the soft leading edge of the wipe; the sparkle rides in its middle */
+  --bless-feather: 1.1em;
+  /* room past the last letter for its halo, before the feather starts */
+  --bless-tailroom: 0.4em;
+}
+
+/* The wipe, and why it is two transforms. The window slides out from the
+   point and the text inside it slides back by exactly as much, on the same
+   curve, so the words stand still while the window's soft right edge passes
+   over them. Masks, clips and gradients that MOVE are paint; a static mask
+   carried by a moving layer is not. `ease-in-out-sine` throughout, because
+   Nav.tsx inverts exactly that curve to time the letters.
+
+   Four elements, one move each: the window opens (and the one inside it
+   carries the mask and closes it), and the text is held still by the
+   opposite pair. The mask sits on the inner of the two movers so it rides
+   along with both. */
+.nav__bless-window,
+.nav__bless-window-home,
+.nav__bless-hold {
+  display: block;
+}
+.nav__bless-window {
+  animation: nav-bless-open var(--b-write) cubic-bezier(0.37, 0, 0.63, 1) var(--b-write-at) both;
+}
+.nav__bless-window-home {
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - var(--bless-feather)), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - var(--bless-feather)), transparent);
+  animation: nav-bless-close var(--b-unwrite) cubic-bezier(0.37, 0, 0.63, 1) var(--b-unwrite-at) both;
+}
+.nav__bless-hold {
+  animation: nav-bless-open-counter var(--b-write) cubic-bezier(0.37, 0, 0.63, 1) var(--b-write-at) both;
+}
+.nav__bless-text {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 0.34em;
+  padding: var(--bless-slack) calc(var(--bless-tailroom) + var(--bless-feather)) var(--bless-slack)
+    var(--bless-halo);
+  animation: nav-bless-close-counter var(--b-unwrite) cubic-bezier(0.37, 0, 0.63, 1) var(--b-unwrite-at)
+    both;
+}
+
+.nav__bless-word {
+  display: inline-block;
+  /* line-height 1 is what puts the phrase on the blade's line and keeps it
+     there at every size. Cormorant's own metrics are ascent 16 / descent 5 per
+     17px em, so with a 17px line box the baseline sits 0.8235em down and the
+     cap height reaches 0.647em up from it: the cap band's top is 0.1765em below
+     the box top and its baseline is 0.1765em above the box bottom. Those two
+     are equal, and they stay equal at any size — so centring the LINE BOX on
+     the blade centres the letters on it. Measured at 1280px: blade centre 35.0,
+     word box centre 35.0, cap band centre 35.0. */
+  /* 500, which is the Cormorant weight index.html actually loads. 600 asked
+     for a face the page never fetches, so the browser synthesised a bold by
+     smearing the 500 — the exact thing KeyArt.css says a high-contrast serif
+     wears badly, on the one line of it that is meant to be read as a gift. */
+  font: 500 1em/1 var(--font-serif);
+  letter-spacing: 0.055em;
+  /* White in BOTH themes, and gilded in both — the owner's ask, made on the
+     light theme, where the words were set in --text (a navy) and were lost
+     against the palms over the hero, with a warm shadow under them too faint
+     to read as gold at all. This is not a theme colour, for the same reason
+     .nav__mark-bar's over-the-hero white is not: the phrase is one object,
+     white with gold light on it, whatever the page behind it is. What carries
+     it on a light ground is the gilding, not the fill — the rim is the only
+     one of these five shadows the two themes set differently. */
+  color: #fff;
+  text-shadow:
+    0 0 0.04em var(--gild-rim),
+    0 0 0.04em var(--gild-rim),
+    0 0 0.2em var(--gild-near),
+    0 0 0.5em var(--warm),
+    0 0 1em color-mix(in srgb, var(--warm) 60%, transparent);
+}
+
+/* ── one letter, and it is the letter that unfolds ────────────────────────
+   Each letter stands up out of the line as the sparkle crosses it — tipped
+   back past edge-on, it rises and turns to face you — and on the way home it
+   folds back down the same way, the same beat in reverse. `--t` is when the
+   sparkle crosses it, as a fraction of the run, measured by Nav.tsx; the way
+   back reads it as `1 - --t` because the sparkle runs the other way. The
+   perspective is in the transform itself: a `perspective` property on a
+   grandparent does nothing for a letter, which is why the old rotateX read as
+   a flat squash. */
+.nav__bless-letter,
+.nav__bless-glyph {
+  display: inline-block;
+  position: relative;
+  transform-origin: 50% 80%;
+  backface-visibility: hidden;
+}
+.nav__bless-letter {
+  animation: nav-bless-unfold 0.62s cubic-bezier(0.2, 0.8, 0.25, 1)
+    calc(var(--b-write-at) + var(--t, 0.5) * var(--b-write) - 0.06s) both;
+}
+.nav__bless-glyph {
+  animation: nav-bless-fold 0.46s cubic-bezier(0.55, 0, 0.8, 0.35)
+    calc(var(--b-unwrite-at) + (1 - var(--t, 0.5)) * var(--b-unwrite) - 0.16s) both;
+}
+
+/* ── the gold on each letter ──────────────────────────────────────────────
+   A second glyph over each letter — the same character, from `data-ch`, in
+   gold-white with its own halo — whose OPACITY flashes: as the letter lands
+   (the letter's ::after), as the light passes along the words while they
+   hold (the glyph's ::before), and as the letter folds away (the glyph's
+   ::after). Three pseudo-elements rather than one with three animations, for
+   the compositor's sake. Composited fades on the sparkle's own timing, so
+   the light runs along the phrase with nothing painted per frame, and each
+   rides inside the transform of the glyph it gilds. */
+.nav__bless-letter::after,
+.nav__bless-glyph::before,
+.nav__bless-glyph::after {
+  content: attr(data-ch);
+  position: absolute;
+  inset: 0;
+  color: color-mix(in srgb, var(--warm) 55%, #fff);
+  text-shadow:
+    0 0 0.25em color-mix(in srgb, var(--warm) 90%, #fff),
+    0 0 0.6em var(--warm);
+  opacity: 0;
+  pointer-events: none;
+}
+.nav__bless-letter::after {
+  animation: nav-bless-flash 0.7s ease-out calc(var(--b-write-at) + var(--t, 0.5) * var(--b-write) + 0.02s);
+}
+.nav__bless-glyph::before {
+  animation: nav-bless-flash 0.7s ease-in-out calc(var(--b-shimmer-at) + var(--t, 0.5) * var(--b-shimmer));
+}
+.nav__bless-glyph::after {
+  animation: nav-bless-flash 0.5s ease-out
+    calc(var(--b-unwrite-at) + (1 - var(--t, 0.5)) * var(--b-unwrite) - 0.2s);
+}
+
+/* The light the words arrive in, growing out from the point behind the
+   sparkle and drawing back into it. Sized off the strip it sits behind rather
+   than a width typed here, so it grows with the words if the phrase changes. */
+.nav__bless-aura {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--bless-size) * -0.8);
+  right: calc(var(--bless-size) * -1);
+  height: calc(var(--bless-size) * 2.7);
+  margin-top: calc(var(--bless-size) * -1.35);
+  transform-origin: 0 50%;
+  animation: nav-bless-aura-out var(--b-unwrite) cubic-bezier(0.37, 0, 0.63, 1) var(--b-unwrite-at) both;
+}
+.nav__bless-aura-light {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  transform-origin: 0 50%;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--warm) var(--gild-aura), transparent),
+    transparent 100%
+  );
+  filter: blur(7px);
+  animation: nav-bless-aura-in var(--b-write) cubic-bezier(0.37, 0, 0.63, 1) var(--b-write-at) both;
+}
+
+/* ── the sparkle ──────────────────────────────────────────────────────────
+   The runner is the window's twin — the same box, the same two moves on the
+   same curve — without the mask, so what it carries rides exactly on the
+   window's soft edge. What it carries is a point: a spinning four-pointed
+   star in a white-gold core, with a comet's tail streaming behind it that is
+   longest where the sparkle is fastest (mid-run) and shrinks to nothing as
+   it slows at either end. The run home is a second runner with its own
+   sparkle and a tail pointing the other way. */
+.nav__bless-runner {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.nav__bless-runner--write {
+  animation: nav-bless-open var(--b-write) cubic-bezier(0.37, 0, 0.63, 1) var(--b-write-at) both;
+}
+.nav__bless-runner--home {
+  animation: nav-bless-close var(--b-unwrite) cubic-bezier(0.37, 0, 0.63, 1) var(--b-unwrite-at) both;
+}
+/* Zero-size, so its box IS the sparkle's centre — which is what Nav.tsx
+   measures to time the letters. Half a feather in from the window's edge:
+   the middle of the soft band the letters are appearing in. It lingers a
+   quarter second past its run, fading where it stopped. */
+.nav__bless-head {
+  position: absolute;
+  top: 50%;
+  right: calc(var(--bless-feather) / 2);
+  width: 0;
+  height: 0;
+}
+.nav__bless-runner--write .nav__bless-head {
+  animation: nav-bless-visit calc(var(--b-write) + 0.25s) var(--b-write-at) both;
+}
+.nav__bless-runner--home .nav__bless-head {
+  animation: nav-bless-visit calc(var(--b-unwrite) + 0.2s) var(--b-unwrite-at) both;
+}
+.nav__bless-core {
+  position: absolute;
+  left: -0.8em;
+  top: -0.8em;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    #fff 0%,
+    color-mix(in srgb, var(--gild-near) 55%, #fff) 20%,
+    color-mix(in srgb, var(--warm) 45%, transparent) 48%,
+    transparent
+  );
+}
+.nav__bless-star {
+  position: absolute;
+  left: -0.65em;
+  top: -0.65em;
+  width: 1.3em;
+  height: 1.3em;
+  clip-path: polygon(50% 0%, 57% 43%, 100% 50%, 57% 57%, 50% 100%, 43% 57%, 0% 50%, 43% 43%);
+  background: radial-gradient(closest-side, #fff 28%, var(--gild-near) 70%, transparent);
+  animation: nav-bless-spin 1.3s linear 5;
+}
+.nav__bless-tail {
+  position: absolute;
+  top: -0.06em;
+  width: 2.8em;
+  height: 0.12em;
+  border-radius: 999px;
+  transform: scaleX(0);
+}
+.nav__bless-runner--write .nav__bless-tail {
+  right: 0;
+  transform-origin: 100% 50%;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--gild-near) 75%, transparent) 60%, #fff);
+  animation: nav-bless-streak var(--b-write) linear var(--b-write-at) both;
+}
+.nav__bless-runner--home .nav__bless-tail {
+  left: 0;
+  transform-origin: 0 50%;
+  background: linear-gradient(270deg, transparent, color-mix(in srgb, var(--gild-near) 75%, transparent) 60%, #fff);
+  animation: nav-bless-streak var(--b-unwrite) linear var(--b-unwrite-at) both;
+}
+
+/* The glitter it sheds: eighteen small stars scattered along the words by a
+   fixed recipe in Nav.tsx (`SPARKS`), each twinkling once as the sparkle
+   passes it, once at its own moment while the words hold, and once as the
+   sparkle runs home — rising a little as it goes out, like a spark does. The
+   track spans the words themselves, not the window's feather. */
+.nav__bless-sparks {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--bless-halo);
+  right: calc(var(--bless-tailroom) + var(--bless-feather));
+  pointer-events: none;
+}
+.nav__bless-spark {
+  position: absolute;
+  left: calc(var(--x) * 100%);
+  top: calc(50% + var(--y) * 1em);
+  width: calc(var(--s) * 1em);
+  height: calc(var(--s) * 1em);
+  margin: calc(var(--s) * -0.5em) 0 0 calc(var(--s) * -0.5em);
+}
+/* The same star three times over, one per twinkle, for the compositor. */
+.nav__bless-twinkle {
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);
+  background: radial-gradient(closest-side, #fff 25%, var(--gild-near) 65%, transparent);
+  opacity: 0;
+}
+.nav__bless-twinkle--write {
+  animation: nav-bless-twinkle 0.8s calc(var(--b-write-at) + var(--t, 0.5) * var(--b-write) + 0.02s);
+}
+.nav__bless-twinkle--hold {
+  animation: nav-bless-twinkle 1s calc(var(--b-write-at) + var(--b-write) + var(--h) * 1.1s);
+}
+.nav__bless-twinkle--home {
+  animation: nav-bless-twinkle 0.7s calc(var(--b-unwrite-at) + (1 - var(--t, 0.5)) * var(--b-unwrite));
+}
+
+/* ── the keyframes ─────────────────────────────────────────────────────── */
+
+@keyframes nav-bless-turn {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: -90deg;
+  }
+}
+/* On the body, inside the link that is still at -90deg: the two add up. */
+@keyframes nav-bless-unturn {
+  from {
+    rotate: 0deg;
+  }
+  to {
+    rotate: 90deg;
+  }
+}
+/* Up and back down with no stop in between: the easing is per keyframe, so
+   the rise decelerates into the top and the fall accelerates out of it. */
+@keyframes nav-bless-lift {
+  0% {
+    scale: 1;
+    animation-timing-function: cubic-bezier(0.3, 0, 0.5, 1);
+  }
+  42% {
+    scale: 1.18;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.3, 1);
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes nav-bless-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes nav-bless-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes nav-bless-burst {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+@keyframes nav-bless-draw {
+  from {
+    transform: translateY(calc(var(--blade-extra) * -1));
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes nav-bless-sheathe {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--blade-extra) * -1));
+  }
+}
+@keyframes nav-bless-gleam {
+  from {
+    transform: translateY(-110%);
+  }
+  to {
+    transform: translateY(260%);
+  }
+}
+/* Struck, and fading: a fast swell to its peak, which it leaves at rest, and
+   a slower fall away while it keeps turning. */
+@keyframes nav-bless-glint {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-40deg);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  28% {
+    opacity: 1;
+    transform: scale(1.2) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.3) rotate(40deg);
+  }
+}
+@keyframes nav-bless-open {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes nav-bless-close {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+@keyframes nav-bless-open-counter {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes nav-bless-close-counter {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+@keyframes nav-bless-unfold {
+  0% {
+    opacity: 0;
+    transform: perspective(12em) translateY(0.5em) rotateX(-95deg) scale(0.85);
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(12em) translateY(0) rotateX(0deg) scale(1);
+  }
+}
+@keyframes nav-bless-fold {
+  0% {
+    opacity: 1;
+    transform: perspective(12em) translateY(0) rotateX(0deg) scale(1);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: perspective(12em) translateY(0.5em) rotateX(-95deg) scale(0.85);
+  }
+}
+@keyframes nav-bless-flash {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes nav-bless-aura-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.05);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+@keyframes nav-bless-aura-out {
+  from {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+  to {
+    opacity: 0;
+    transform: scaleX(0.05);
+  }
+}
+/* A sparkle's one appearance: it pops in at the point it leaves from, rides
+   the run, and fades where the run ends. */
+@keyframes nav-bless-visit {
+  0% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  12% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+@keyframes nav-bless-spin {
+  from {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(180deg) scale(0.8);
+  }
+  to {
+    transform: rotate(360deg) scale(1);
+  }
+}
+/* The tail's length follows the sparkle's speed. The run is ease-in-out-sine,
+   whose speed is a half sine — so the tail grows on ease-out-sine to full
+   length at mid-run and shrinks on ease-in-sine, which is that half sine. */
+@keyframes nav-bless-streak {
+  0% {
+    transform: scaleX(0);
+    animation-timing-function: cubic-bezier(0.61, 1, 0.88, 1);
+  }
+  50% {
+    transform: scaleX(1);
+    animation-timing-function: cubic-bezier(0.12, 0, 0.39, 0);
+  }
+  100% {
+    transform: scaleX(0);
+  }
+}
+@keyframes nav-bless-twinkle {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-0.08em) scale(1) rotate(50deg);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-0.5em) scale(0.15) rotate(160deg);
+  }
+}
+
+/* Asked for less motion, you still get the message — it simply arrives and
+   leaves rather than being written, and the cross stays a cross, because a
+   quarter turn, a blade running out, a sparkle and glitter are exactly the
+   things that request is about. With no blade there is no point to aim at,
+   so the strip goes back to where the crossbar's own arm ends: same
+   derivation, the other landmark.
+
+   Every animation here is `none` with its resting value written out, not
+   left to base.css — which PAUSES every animation under this query, and a
+   paused animation with a delay sits in its before-phase, i.e. invisible.
+   That is the bug an earlier version of this block had: the phrase never
+   appeared. The strip is mounted for BLESS_MS and unmounted by Nav.tsx,
+   which is what "arrives and leaves" means here. */
+@media (prefers-reduced-motion: reduce) {
+  .nav__bless {
+    left: 100%;
+    top: var(--mark-crossbar);
+  }
+  .nav__bless-window,
+  .nav__bless-window-home,
+  .nav__bless-hold,
+  .nav__bless-text {
+    animation: none;
+    transform: none;
+  }
+  .nav__bless-letter,
+  .nav__bless-glyph,
+  .nav__bless-aura,
+  .nav__bless-aura-light {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+  /* The flashes are light moving along the words, which is motion; the
+     gilding on the letters themselves is not, and stays. */
+  .nav__bless-letter::after,
+  .nav__bless-glyph::before,
+  .nav__bless-glyph::after {
+    animation: none;
+    opacity: 0;
+  }
+  .nav__bless-runner,
+  .nav__bless-sparks,
+  .nav__mark-cross,
+  .nav__sword,
+  .nav__sword-glow,
+  .nav__sword-flash,
+  .nav__glint {
+    display: none;
+  }
+  .nav__markwrap[data-bless] .nav__mark,
+  .nav__markwrap[data-bless] .nav__mark-body,
+  .nav__markwrap[data-bless] .nav__mark-body > .nav__mark-bar {
+    animation: none;
+  }
+}
+
+/* ── end of the copy ─────────────────────────────────────────────────────── */
+
+/* ── what this site's bar is, that TDG's is not ──────────────────────────
+   The mark is not the link on its own here: it rides at the end of the
+   brand (icon, name, cross), and the whole brand is the Home button — so
+   the whole brand is what a press and a hover answer to. The cross at rest
+   keeps this site's own cream rather than TDG's white; the twin that fades
+   back in at the end of the flourish is the same bars, so it lands on the
+   same cream. */
+.brand .nav__markwrap {
+  margin-left: 9px;
+}
+.nav__mark-bar {
+  background: rgba(247, 234, 214, 0.82);
+}
+.brand:hover .nav__mark {
+  transform: scale(1.09);
+  filter: drop-shadow(0 0 8px var(--cross-glow)) drop-shadow(0 0 14px transparent);
+}
+/* The link row standing down for the words, on the widths where the bar is
+   too full for the phrase to fit at a readable size beside it — measured by
+   site.js, never guessed with a breakpoint, exactly as TDG's bar does it.
+   Only above 980px: below that the row is a drawer, and the words shrink to
+   fit before the menu button instead (a control somebody may be reaching
+   for is never dimmed). Opacity only: every link keeps its hit area, its
+   tab stop and its focus ring. */
+@media (min-width: 981px) {
+  .topbar #siteNav {
+    transition: opacity 0.45s ease;
+  }
+  .topbar[data-bless-quiet] #siteNav {
+    opacity: 0.07;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav__mark {
+    transition: none;
+  }
+  .nav__mark:hover,
+  .brand:hover .nav__mark {
+    transform: none;
+  }
+}

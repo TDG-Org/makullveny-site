@@ -253,56 +253,9 @@
     .brand-mark img { display:block; width:100%; height:100%; object-fit:cover; }
     .brand:hover .brand-mark { box-shadow:inset 0 1px 0 rgba(255,220,170,.2), 0 0 26px rgba(213,140,75,.4); }
     .brand-name { font:700 16px/1 var(--display); }
-    /* ── the cross that draws into a sword, on hover ──────────────────────
-       Geometry written once; the blade, the guard, the point and the glint
-       are all read off it. Ported from the TDG site's nav mark. */
-    .markwrap { position:relative; display:flex; align-items:center; flex:none; margin-left:9px; cursor:pointer;
-      --mark-w:11px; --mark-h:17px; --mark-thick:3px; --mark-crossbar:5px;
-      --blade-extra:13px;
-      --blade-grip:calc(var(--mark-h) * .3);
-      --blade-flare:calc(var(--mark-h) * .38);
-      --blade-point:calc(var(--mark-h) * .26); }
-    .mark { position:relative; display:block; width:var(--mark-w); height:var(--mark-h); flex:none;
-      transition:transform 1.1s cubic-bezier(.16,.84,.24,1), filter 1.1s ease; }
-    .mark-bar { position:absolute; background:rgba(247,234,214,.82); transition:background .3s ease; }
-    /* the stem is drawn longer than the cross and clipped back to it at rest,
-       so the blade grows by revealing length rather than animating a height */
-    .mark-bar:first-child { left:50%; top:0; transform:translateX(-50%);
-      width:var(--mark-thick); height:calc(var(--mark-h) + var(--blade-extra));
-      clip-path:polygon(0 0, 100% 0, 100% var(--blade-grip), 100% var(--blade-flare),
-        100% calc(100% - var(--blade-extra)), 50% calc(100% - var(--blade-extra)),
-        0 calc(100% - var(--blade-extra)), 0 var(--blade-flare), 0 var(--blade-grip));
-      transition:clip-path 1.1s cubic-bezier(.16,.84,.24,1); }
-    .mark-bar:last-child { left:0; top:var(--mark-crossbar); width:var(--mark-w); height:var(--mark-thick);
-      transition:transform 1.1s cubic-bezier(.16,.84,.24,1); }
-    .markwrap:hover .mark { transform:rotate(-90deg) scale(1.06);
-      filter:drop-shadow(0 0 6px rgba(240,200,143,.6)) drop-shadow(0 0 12px rgba(213,140,75,.45)); }
-    .markwrap:hover .mark-bar { background:#f6dcae; }
-    /* half-width grip, a flare behind the guard, a blade that narrows to a point */
-    .markwrap:hover .mark-bar:first-child {
-      clip-path:polygon(25% 0, 75% 0, 75% var(--blade-grip), 100% var(--blade-flare),
-        88% calc(100% - var(--blade-point)), 50% 100%, 12% calc(100% - var(--blade-point)),
-        0 var(--blade-flare), 25% var(--blade-grip)); }
-    /* the crossbar shortens into a guard */
-    .markwrap:hover .mark-bar:last-child { transform:scale(.7,.75); }
-    /* the glint, struck on the point once the blade has run out */
-    .markwrap::after { content:""; position:absolute;
-      left:calc(50% + var(--mark-h) / 2 + var(--blade-extra)); top:50%;
-      width:calc(var(--mark-h) * .62); height:calc(var(--mark-h) * .62);
-      margin:calc(var(--mark-h) * -.31) 0 0 calc(var(--mark-h) * -.31);
-      clip-path:polygon(50% 0%, 59% 41%, 100% 50%, 59% 59%, 50% 100%, 41% 59%, 0% 50%, 41% 41%);
-      background:radial-gradient(closest-side, #fff 0%, #f5c98a 44%, transparent 78%);
-      opacity:0; pointer-events:none; }
-    .markwrap:hover::after { animation:mark-glint 1.1s ease .42s 1 both; }
-    @keyframes mark-glint {
-      0% { opacity:0; transform:scale(.2) rotate(-30deg); }
-      38% { opacity:1; transform:scale(1.15) rotate(0deg); }
-      100% { opacity:0; transform:scale(.4) rotate(18deg); } }
-    @media (prefers-reduced-motion:reduce) {
-      .mark, .mark-bar, .mark-bar:first-child, .mark-bar:last-child { transition:none; }
-      .markwrap:hover .mark { transform:none; filter:none; }
-      .markwrap:hover .mark-bar:first-child, .markwrap:hover .mark-bar:last-child { clip-path:none; transform:none; }
-      .markwrap:hover::after { animation:none; } }
+    /* The cross at the end of the brand, and the sword it turns into when the
+       brand is pressed, are in bless.css: the TDG site's own flourish, shared
+       by all three pages. */
     .topbar nav { display:flex; align-items:center; gap:27px; }
     .topbar nav a { position:relative; font:600 13.5px/1 var(--ui); color:rgba(247,234,214,.7); transition:color .22s ease; }
     .topbar nav a:not(.btn)::after { content:""; position:absolute; left:0; right:0; bottom:-7px; height:1px; background:var(--accent); transform:scaleX(0); transform-origin:left; transition:transform .3s cubic-bezier(.2,.8,.3,1); }
@@ -1370,8 +1323,8 @@
     <a class="brand" href="#top" aria-label="Makullveny — back to the top of this page">
       <span class="brand-mark"><img src="mark.webp" alt="" width="30" height="30"></span>
       <span class="brand-name">Makullveny</span>
-      <span class="markwrap" aria-label="The Disciples of God" role="img" title="TDG">
-        <span class="mark"><i class="mark-bar"></i><i class="mark-bar"></i></span>
+      <span class="nav__markwrap" aria-label="The Disciples of God" role="img" title="TDG">
+        <span class="nav__mark"><span class="nav__mark-body"><i class="nav__mark-bar"></i><i class="nav__mark-bar"></i></span></span>
       </span>
     </a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
