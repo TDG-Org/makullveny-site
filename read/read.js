@@ -295,10 +295,10 @@
 
   var STYLE_RULES = {
     "text-align": keywordRule(["left", "right", "center", "justify", "start", "end"]),
-    "text-indent": lengthRule(true, 0, 800),
-    "margin-left": lengthRule(false, 0, 800),
-    "margin-right": lengthRule(false, 0, 800),
-    "padding-left": lengthRule(false, 0, 800),
+    "text-indent": lengthRule(true, 0, 1200),
+    "margin-left": lengthRule(false, 0, 1200),
+    "margin-right": lengthRule(false, 0, 1200),
+    "padding-left": lengthRule(false, 0, 1200),
     "color": colourRule,
     "background-color": colourRule,
     "font-weight": keywordRule(["normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"]),
