@@ -527,9 +527,13 @@
     /* ── THE LIBRARY, STAGE BY STAGE ───────────────────────────────────────
        The five sprites are the app's own art (src/game/assets/library in the
        app repo), each on the SAME square canvas at the same scale -- which is
-       the whole point: shown at one size, the building visibly grows from a
-       shack to a hall. Do not crop them to their contents; that would make
-       every stage look the same size. The hours are the app's own ladder
+       the whole point: the building visibly grows from a shack to a hall.
+       Since the v2.45.0 redraw the sprites are no longer drawn at one scale,
+       so each is cropped to its edges and sized by its footprint in the app
+       (selahAssets.js: 3/4/5/5/6 tiles), standing on one ground line at 96%
+       of a 640px square. Re-export them from the app whenever
+       it redraws the library (last: app v2.45.0, 2026-09-24 -- timber, then
+       bronze, gold, ruby, diamond). The hours are the app's own ladder
        (selah-state.js STAGE_THRESHOLDS at ~2000 coins an hour), as the in-app
        guide words it: roughly 3, 20, 60 and 150 hours of studying. */
     .grow { position:relative; margin-top:92px; padding:46px 40px 40px; border-radius:28px;
@@ -549,7 +553,7 @@
     .grow-step { position:relative; display:flex; flex-direction:column; align-items:center; text-align:center; }
     .grow-plate { position:relative; width:100%; max-width:var(--plate); aspect-ratio:1; }
     /* painted ground under each building, and the lamplight it gives off */
-    .grow-plate::before { content:""; position:absolute; left:6%; right:6%; bottom:8%; height:24%; border-radius:50%;
+    .grow-plate::before { content:""; position:absolute; left:4%; right:4%; bottom:-2%; height:20%; border-radius:50%;
       background:radial-gradient(ellipse at 50% 45%, rgba(126,166,86,.55), rgba(64,98,52,.28) 55%, transparent 72%); }
     .grow-plate::after { content:""; position:absolute; inset:18% 14% 16%; border-radius:50%; filter:blur(26px); z-index:0;
       background:radial-gradient(circle, rgba(255,186,98,calc(.08 + var(--g) * .05)), transparent 70%); }
@@ -1448,8 +1452,8 @@
         <div class="rotator">
           <img class="rot" data-slide="1" src="./assets/site/hero-dash.jpg" alt="The Makullveny Today dashboard: the Ready desk naming the next assignment, a candle focus timer, the month, courses, what is due, the Quick shelf and Selah" width="2120" height="1340" decoding="async" fetchpriority="high">
           <img class="rot" data-slide="2" src="./assets/site/hero-book.jpg" alt="The Library Desk with a page of lecture notes on lined paper, and the bookshelf holding a book, a scroll, a journal, a card box and a blueprint" width="1900" height="1214" loading="lazy" decoding="async">
-          <img class="rot" data-slide="3" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow under a pink and orange sky, a book shack in the middle, and a focus timer at 25:00" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="4" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over snow-capped peaks, the book shack lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="3" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow under a pink and orange sky, a gold-trimmed library with a royal-blue roof in the middle, and a focus timer at 25:00" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="4" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over snow-capped peaks, the library lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async">
           <img class="rot" data-slide="5" src="./assets/site/hero-blueprint.jpg" alt="The blueprint sheet: a floor plan drawn on the drafting grid, with the line-type and shape menus open" width="1900" height="1214" loading="lazy" decoding="async">
           <img class="rot" data-slide="6" src="./assets/site/sh-overview.jpg" alt="Study Hall Overview: how much is due today, what is left this week, a homework progress ring, and the next tasks from the board" width="2120" height="1340" loading="lazy" decoding="async">
           <img class="rot" data-slide="7" src="./assets/site/sh-courses.jpg" alt="Study Hall Courses: every class of the term with its meeting days, its room, what is due next and how much is still open" width="2120" height="1340" loading="lazy" decoding="async">
@@ -1599,10 +1603,10 @@
         </p>
       </div>
       <div class="selah-shot rv rv-p" style="--d:.24s">
-        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow with pine forest and mountains, a book shack in the middle, a focus timer at 25:00, and a coin purse, shop and mail at the edges" width="2120" height="1340" loading="lazy" decoding="async"></div>
+        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow with pine forest and mountains, a gold-trimmed library with a royal-blue roof in the middle, a focus timer at 25:00, and a coin purse, shop and mail at the edges" width="2120" height="1340" loading="lazy" decoding="async"></div>
         <span class="selah-glow" aria-hidden="true"></span>
         <figure class="selah-night rv rv-r" style="--d:.42s">
-          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same meadow at night, stars over snow-capped peaks and the book shack lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async"></div>
+          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same meadow at night, stars over snow-capped peaks and the library lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async"></div>
           <figcaption>It turns with the day. Golden hour, midday, dusk, night &mdash; the grounds are lit by the hour you are actually studying in.</figcaption>
         </figure>
       </div>
@@ -1621,37 +1625,37 @@
         </div>
         <ol class="grow-track">
           <li class="grow-step rv rv-p" style="--d:0.10s;--g:1">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-1.webp" alt="Stage 1: a one-room book shack, timber and stone, one lamp lit over the door" width="640" height="640" loading="lazy" decoding="async"></div>
+            <div class="grow-plate"><img src="./assets/site/lib-stage-1.webp" alt="Stage 1: a one-room book shack of timber and stone, one lamp lit over the door" width="640" height="640" loading="lazy" decoding="async"></div>
             <span class="grow-dot" aria-hidden="true"></span>
-            <span class="grow-n">Stage 1</span>
+            <span class="grow-n">Stage 1 &middot; Timber</span>
             <b>A one-room book shack</b>
             <span class="grow-when">From your first session</span>
           </li>
           <li class="grow-step rv rv-p" style="--d:0.18s;--g:2">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-2.webp" alt="Stage 2: the shack becomes a cottage with a stone chimney and more windows lit" width="640" height="640" loading="lazy" decoding="async"></div>
+            <div class="grow-plate"><img src="./assets/site/lib-stage-2.webp" alt="Stage 2: a bronze cottage with a brick chimney, copper spires and warm arched windows" width="640" height="640" loading="lazy" decoding="async"></div>
             <span class="grow-dot" aria-hidden="true"></span>
-            <span class="grow-n">Stage 2</span>
+            <span class="grow-n">Stage 2 &middot; Bronze</span>
             <b>A cottage with a chimney</b>
             <span class="grow-when">About 3 hours</span>
           </li>
           <li class="grow-step rv rv-p" style="--d:0.26s;--g:3">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-3.webp" alt="Stage 3: the library proper, taller, with dormer windows and a wider door" width="640" height="640" loading="lazy" decoding="async"></div>
+            <div class="grow-plate"><img src="./assets/site/lib-stage-3.webp" alt="Stage 3: the library proper in gold-trimmed stone under a royal-blue roof" width="640" height="640" loading="lazy" decoding="async"></div>
             <span class="grow-dot" aria-hidden="true"></span>
-            <span class="grow-n">Stage 3</span>
+            <span class="grow-n">Stage 3 &middot; Gold</span>
             <b>The library proper</b>
             <span class="grow-when">About 20 hours</span>
           </li>
           <li class="grow-step rv rv-p" style="--d:0.34s;--g:4">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-4.webp" alt="Stage 4: two storeys and a side wing, windows glowing on both floors" width="640" height="640" loading="lazy" decoding="async"></div>
+            <div class="grow-plate"><img src="./assets/site/lib-stage-4.webp" alt="Stage 4: two storeys and a side wing, ruby-red roofs and gold trim, windows glowing on both floors" width="640" height="640" loading="lazy" decoding="async"></div>
             <span class="grow-dot" aria-hidden="true"></span>
-            <span class="grow-n">Stage 4</span>
+            <span class="grow-n">Stage 4 &middot; Ruby</span>
             <b>Two storeys and a side wing</b>
             <span class="grow-when">About 60 hours</span>
           </li>
           <li class="grow-step rv rv-p" style="--d:0.42s;--g:5">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-5.webp" alt="Stage 5: a reading hall with a bell tower, a chimney and every window lit" width="640" height="640" loading="lazy" decoding="async"></div>
+            <div class="grow-plate"><img src="./assets/site/lib-stage-5.webp" alt="Stage 5: a diamond reading hall with a bell tower, crystal spires and every window lit" width="640" height="640" loading="lazy" decoding="async"></div>
             <span class="grow-dot" aria-hidden="true"></span>
-            <span class="grow-n">Stage 5</span>
+            <span class="grow-n">Stage 5 &middot; Diamond</span>
             <b>A reading hall with a bell tower</b>
             <span class="grow-when">About 150 hours</span>
           </li>
