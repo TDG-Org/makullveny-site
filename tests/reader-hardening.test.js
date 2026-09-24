@@ -428,12 +428,31 @@ test("the token is never written anywhere a person or another origin could read 
     assert.ok(!/textContent\s*=\s*[\w.]*\btoken\b/.test(file), name + ": the token must never become page text");
     assert.ok(!/href[^\n]*\btoken\b/.test(file), name + ": the token must never become a link");
     /* read.js's one per-tab sessionStorage entry is the token's only home.
-       Nothing else on the page may store it or hand it to another window. */
+       Nothing else on the page may store it or hand it to another window.
+       The one exception is book-scene.js's like memory, in localStorage --
+       and that may hold only the random reader id and FINGERPRINTS of the
+       pages liked, never a token (checked below). */
     if (name !== "read.js") {
-      assert.ok(!/sessionStorage|localStorage|document\s*\.\s*cookie|indexedDB|postMessage/.test(file),
-        name + " must not store anything or post to another window");
+      var stores = name === "book-scene.js"
+        ? /sessionStorage|document\s*\.\s*cookie|indexedDB|postMessage/
+        : /sessionStorage|localStorage|document\s*\.\s*cookie|indexedDB|postMessage/;
+      assert.ok(!stores.test(file), name + " must not store anything or post to another window");
     }
   });
+});
+
+test("the like memory keeps fingerprints of pages, never a share token", function () {
+  /* A share token is the whole authorization for a reading. The like feature
+     remembers which pages this browser liked, in localStorage, which outlives
+     the tab -- so what it keeps must not be the token. It keeps a one-way
+     fingerprint: enough to redraw a filled heart, useless as a link. */
+  var text = code("book-scene.js");
+  assert.ok(/function fingerprint\(token\)/.test(text), "book-scene.js must fingerprint a token before remembering it");
+  assert.ok(/list\.unshift\(mark\)/.test(text) && /var mark = fingerprint\(token\)/.test(text),
+    "rememberLiked() must store the fingerprint, not the token");
+  assert.ok(/likedList\(\)\.indexOf\(fingerprint\(seen\.token\)\)/.test(text),
+    "the heart must be looked up by fingerprint");
+  assert.ok(!/unshift\(token\)|setItem\([^)]*\btoken\b/.test(text), "a raw token must never be written to storage");
 });
 
 test("every sessionStorage and history access sits inside a try block", function () {
@@ -504,4 +523,74 @@ test("the site links /updates/, so the page is not an orphan", function () {
   var nav = /<nav\b[^>]*>([\s\S]*?)<\/nav>/.exec(home);
   assert.ok(nav, "the home page must still have a nav");
   assert.ok(/href="\.\/updates\/"/.test(nav[1]), "the nav must link to /updates/");
+});
+
+/* ─────────────────────────────── the token reaches the report ──────────── */
+
+test("the book scene is handed the token the page was OPENED with, not a re-read of the address bar", function () {
+  /* captureToken() strips the fragment before the request goes out, and the
+     render runs in onload -- so a tokenFromHash() there always read "" and
+     every report was filed about no page at all. */
+  var view = R.bookViewFor({ displayName: "Nate", avatarId: 4, openByDefault: true }, "abcdefghijkmnpqrstuv", false);
+  assert.equal(view.token, "abcdefghijkmnpqrstuv");
+  assert.equal(view.byline, "Nate");
+  assert.equal(view.avatarId, 4);
+  assert.equal(view.openByDefault, true);
+  assert.equal(view.preview, false);
+  var text = code("read.js");
+  assert.ok(!/token:\s*tokenFromHash\(\)/.test(text), "render must not re-read the (already stripped) fragment");
+  assert.ok(/openedToken\s*=\s*token/.test(text), "open() must remember the captured token");
+});
+
+test("bookViewFor: an anonymous reading carries no name and no avatar, and a preview no token", function () {
+  var anon = R.bookViewFor({ anonymous: true, displayName: "Nate", avatarId: 4 }, "abcdefghijkmnpqrstuv", false);
+  assert.equal(anon.byline, "");
+  assert.equal(anon.avatarId, 0);
+  var preview = R.bookViewFor({ displayName: "Nate" }, "abcdefghijkmnpqrstuv", true);
+  assert.equal(preview.token, "");
+  assert.equal(preview.preview, true);
+});
+
+test("a request that never answers does not leave 'Opening…' up forever", function () {
+  var text = code("read.js");
+  assert.ok(/request\.timeout\s*=\s*\d+/.test(text), "the read request must carry a timeout");
+  assert.ok(/request\.ontimeout\s*=/.test(text), "and say something when it fires");
+});
+
+/* ─────────────────────────────── the style a page may keep ─────────────── */
+
+test("sanitizeStyle keeps alignment, indents, hanging indents and highlights", function () {
+  assert.equal(R.sanitizeStyle("text-align: center;"), "text-align: center");
+  assert.equal(R.sanitizeStyle("margin-left: 0.5in; text-indent: -0.5in"), "margin-left: 0.5in; text-indent: -0.5in");
+  assert.equal(R.sanitizeStyle("margin-left: 40px; margin-right: 2em; padding-left: 24px"), "margin-left: 40px; margin-right: 2em; padding-left: 24px");
+  assert.equal(R.sanitizeStyle("background-color: rgb(255, 240, 102);"), "background-color: rgb(255, 240, 102)");
+  assert.equal(R.sanitizeStyle("color: #1A2B3C"), "color: #1a2b3c");
+  assert.equal(R.sanitizeStyle("font-weight: bold; font-style: italic; text-decoration: underline line-through"),
+    "font-weight: bold; font-style: italic; text-decoration: underline line-through");
+  assert.equal(R.sanitizeStyle("font-size: 18px"), "font-size: 18px");
+  assert.equal(R.sanitizeStyle("TEXT-ALIGN: Right"), "text-align: right", "names and keywords are case-insensitive");
+  assert.equal(R.sanitizeStyle("text-align: left; text-align: center"), "text-align: center", "the last declaration wins, as in CSS");
+});
+
+test("sanitizeStyle drops everything that is not a closed shape", function () {
+  [
+    "position: absolute", "left: 0", "top: -9999px", "transform: rotate(90deg)", "display: none",
+    "width: 100vw", "font-family: Comic Sans MS", "line-height: 9",
+    "background-color: url(https://evil.example/x.png)", "color: var(--x)", "color: red",
+    "color: expression(alert(1))", "margin-left: calc(100% + 1px)", "margin-left: -40px",
+    "text-indent: 99999px", "font-size: 400px", "font-size: 2px", "text-align: center !important",
+    "text-align: centre", "text-decoration: blink", "font-weight: 950", "margin-left: 10vw",
+    "background-color: rgb(1,2,3) url(x)", "color: #12345", ""
+  ].forEach(function (input) {
+    assert.equal(R.sanitizeStyle(input), "", "must be dropped: " + input);
+  });
+  assert.equal(R.sanitizeStyle("position: fixed; text-align: justify; z-index: 99"), "text-align: justify");
+  assert.equal(R.sanitizeStyle("x".repeat(3000)), "", "an absurd attribute is refused whole");
+});
+
+test("the kept style list is exactly the contract list", function () {
+  assert.deepEqual(R.STYLE_PROPERTIES.slice().sort(), [
+    "background-color", "color", "font-size", "font-style", "font-weight", "margin-left",
+    "margin-right", "padding-left", "text-align", "text-decoration", "text-indent"
+  ]);
 });

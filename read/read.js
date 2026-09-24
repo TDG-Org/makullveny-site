@@ -13,10 +13,7 @@
 
   CONTRACT CONSUMED: makullveny-share@1 / makullveny-blueprint@1, schemaVersion
   1, as committed in the private Makullveny repo's mak-share edge function and
-  mak_publication_read (2026-09-05 migrations). That contract is written and
-  committed but not yet applied to the live database, so real traffic will see
-  "Shared reading is not open yet" until the owner turns it on — this file is
-  ready for the day it does.
+  mak_publication_read (2026-09-05 migrations, live since 2026-09-07).
 */
 (function () {
   "use strict";
@@ -243,8 +240,109 @@
     "academic-heading-line": 1, "academic-title-page": 1, "academic-title-line": 1
   };
 
+  /*
+    ───────────────────────────────────────────────────────────────────────────
+    THE STYLE A PAGE MAY KEEP — A CROSS-REPO CONTRACT, LIKE ALLOWED_CLASSES
+    ───────────────────────────────────────────────────────────────────────────
+    This walk used to drop EVERY style attribute. The app's own preview keeps
+    them, so a writer who centred a title, indented a paragraph, hung a Works
+    Cited entry or highlighted a sentence saw it that way in the preview and
+    a stranger saw it flattened — the preview was promising a page the link
+    did not serve.
+
+    So a short list of properties survives, and every VALUE is matched whole
+    against a narrow shape: a keyword from a closed set, a bounded length, or a
+    colour safeColor() already accepts. Anything else — url(), var(), calc(),
+    expression(), !important, a named colour, a position, a transform — is
+    dropped with its declaration. No value is ever coerced into a different,
+    valid one.
+
+    The private app's src/shareSnapshot.js carries the SAME list and the SAME
+    shapes (SHARE_KEPT_STYLES / sanitizeShareStyle), so what the writer
+    previews is what this page draws; a fixture over there runs both.
+  */
+  var LENGTH = /^(-?)(\d{1,4}(?:\.\d{1,3})?)(px|pt|em|rem|%|in|cm|mm)$/;
+  var PX_PER = { px: 1, pt: 4 / 3, em: 16, rem: 16, "%": 8, "in": 96, cm: 37.8, mm: 3.78 };
+
+  function lengthRule(allowNegative, minPx, maxPx) {
+    return function (value) {
+      if (value === "0") return "0";
+      var m = LENGTH.exec(value);
+      if (!m) return "";
+      if (m[1] && !allowNegative) return "";
+      var px = parseFloat(m[2]) * PX_PER[m[3]];
+      if (!isFinite(px) || px < minPx || px > maxPx) return "";
+      return value;
+    };
+  }
+
+  function keywordRule(words) {
+    return function (value) { return words.indexOf(value) >= 0 ? value : ""; };
+  }
+
+  function colourRule(value) { return safeColor(value, ""); }
+
+  function decorationRule(value) {
+    var parts = value.split(/\s+/);
+    for (var i = 0; i < parts.length; i += 1) {
+      if (["underline", "line-through", "overline", "none"].indexOf(parts[i]) < 0) return "";
+    }
+    return parts.join(" ");
+  }
+
+  var FONT_SIZE_WORDS = keywordRule(["x-small", "small", "medium", "large", "x-large", "xx-large", "smaller", "larger"]);
+  var FONT_SIZE_LENGTH = lengthRule(false, 6, 96);
+
+  var STYLE_RULES = {
+    "text-align": keywordRule(["left", "right", "center", "justify", "start", "end"]),
+    "text-indent": lengthRule(true, 0, 1200),
+    "margin-left": lengthRule(false, 0, 1200),
+    "margin-right": lengthRule(false, 0, 1200),
+    "padding-left": lengthRule(false, 0, 1200),
+    "color": colourRule,
+    "background-color": colourRule,
+    "font-weight": keywordRule(["normal", "bold", "bolder", "lighter", "100", "200", "300", "400", "500", "600", "700", "800", "900"]),
+    "font-style": keywordRule(["normal", "italic", "oblique"]),
+    "text-decoration": decorationRule,
+    "font-size": function (value) { return FONT_SIZE_WORDS(value) || (value === "0" ? "" : FONT_SIZE_LENGTH(value)); }
+  };
+
+  /* Pure, so tests/ can drive it under plain Node. Returns "" when nothing
+     survives, and the caller then sets no style attribute at all. */
+  function sanitizeStyle(raw) {
+    var text = String(raw == null ? "" : raw);
+    if (!text || text.length > 2000) return "";
+    var kept = [];
+    var seen = {};
+    var declarations = text.split(";");
+    for (var i = 0; i < declarations.length; i += 1) {
+      var declaration = declarations[i];
+      var colon = declaration.indexOf(":");
+      if (colon < 1) continue;
+      var property = declaration.slice(0, colon).trim().toLowerCase();
+      var value = declaration.slice(colon + 1).trim().toLowerCase().replace(/\s+/g, " ");
+      if (!Object.prototype.hasOwnProperty.call(STYLE_RULES, property)) continue;
+      if (!value || /[!\\<>"'`(]/.test(value.replace(/^rgba?\(/, "").replace(/\)$/, ""))) continue;
+      var clean = STYLE_RULES[property](value);
+      if (!clean) continue;
+      /* The LAST declaration of a property wins in CSS; keeping the first would
+         draw something the writer overrode. */
+      if (Object.prototype.hasOwnProperty.call(seen, property)) kept[seen[property]] = "";
+      seen[property] = kept.length;
+      kept.push(property + ": " + clean);
+    }
+    var out = [];
+    for (var k = 0; k < kept.length; k += 1) if (kept[k]) out.push(kept[k]);
+    return out.join("; ");
+  }
+
   function keptAttributes(sourceNode, targetNode) {
     var tag = sourceNode.nodeName;
+    var style = sourceNode.getAttribute && sourceNode.getAttribute("style");
+    if (style) {
+      var cleanStyle = sanitizeStyle(style);
+      if (cleanStyle) targetNode.setAttribute("style", cleanStyle);
+    }
     if (tag === "A") {
       var href = safeHref(sourceNode.getAttribute("href"));
       if (href) {
@@ -478,6 +576,44 @@
 
   function refuse(message) { setState(message, "refused"); }
 
+  /*
+    THE TOKEN THIS PAGE WAS OPENED WITH, remembered here because by the time a
+    reading renders it is no longer in the address bar.
+
+    captureToken() strips the fragment BEFORE the request is sent, and the
+    render happens in the request's onload. So render() used to hand the scene
+    `tokenFromHash()` -- which by then read an empty fragment and returned "".
+    The scene uses that token for one thing, a REPORT, and a report filed about
+    "" is answered not_found: every reader who tried to report a page was told
+    it could not be sent. Measured by reading the order of the two calls, and
+    pinned by tests/reader-hardening.test.js.
+  */
+  var openedToken = "";
+
+  /* Everything the book scene is handed besides the snapshot, decided in ONE
+     place and pure so tests/ can check it. The byline and the avatar digit are
+     one decision (see render() below); the token is the one this page was
+     opened with, never a fresh read of the address bar. */
+  /* The two PUBLIC counters mak-share returns beside the snapshot (views and
+     likes, 20260924100000). Numbers only; anything else is simply not shown. */
+  var openedCounts = { views: null, likes: null };
+  function countFrom(value) {
+    return typeof value === "number" && isFinite(value) && value >= 0 ? Math.floor(value) : null;
+  }
+
+  function bookViewFor(snapshot, token, isPreview) {
+    var named = byline(snapshot);
+    return {
+      byline: named,
+      avatarId: named ? snapshot.avatarId : 0,
+      openByDefault: !!(snapshot && snapshot.openByDefault === true),
+      token: isPreview === true ? "" : String(token || ""),
+      preview: isPreview === true,
+      views: isPreview === true ? null : openedCounts.views,
+      likes: isPreview === true ? null : openedCounts.likes
+    };
+  }
+
   function classifySnapshot(snapshot) {
     var meta = SUPPORTED_FORMATS[snapshot && snapshot.format];
     if (!meta) return null;
@@ -525,14 +661,7 @@
          The token is passed because a REPORT needs to name the page it is
          about. It is the same opaque token already in this reader's own URL
          fragment; nothing new is revealed by handing it to the renderer. */
-      var named = byline(snapshot);
-      window.MakullvenyBookReader.render(snapshot, {
-        byline: named,
-        avatarId: named ? snapshot.avatarId : 0,
-        openByDefault: snapshot.openByDefault === true,
-        token: tokenFromHash(),
-        preview: isPreview === true
-      });
+      window.MakullvenyBookReader.render(snapshot, bookViewFor(snapshot, openedToken, isPreview));
     } else if (kind === "blueprint" && window.MakullvenyBlueprintReader) {
       window.MakullvenyBlueprintReader.render(snapshot, { byline: byline(snapshot) });
     } else {
@@ -574,6 +703,7 @@
     }
 
     var token = captureToken();
+    openedToken = token;
     if (!token) {
       setState("This link is not complete. Ask whoever sent it for the full address.");
       return;
@@ -619,6 +749,10 @@
         return;
       }
       var snapshot = payload && payload.snapshot ? payload.snapshot : payload;
+      openedCounts = {
+        views: countFrom(payload && payload.views),
+        likes: countFrom(payload && payload.likes)
+      };
       if (!snapshot || typeof snapshot !== "object") {
         setState(malformed.message, malformed.tone);
         return;
@@ -627,6 +761,13 @@
     };
     request.onerror = function () {
       setState("This page could not be reached. Check your connection and try again.", "retry");
+    };
+    /* A request that never answers used to leave "Opening…" on screen forever,
+       with nothing to tell a reader whether to wait or give up. Twenty seconds
+       is far past a real answer (the function replies in well under one). */
+    request.timeout = 20000;
+    request.ontimeout = function () {
+      setState("This is taking too long to open. Check your connection and reload the page to try again.", "retry");
     };
     request.send(JSON.stringify({ p_token: token }));
   }
@@ -645,6 +786,7 @@
     el: el,
     setState: setState,
     sanitizeInto: sanitizeInto,
+    sanitizeStyle: sanitizeStyle,
     safeHref: safeHref,
     safeColor: safeColor,
     accentFromName: accentFromName,
@@ -667,6 +809,9 @@
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
       tokenFromHash: tokenFromHash,
+      sanitizeStyle: sanitizeStyle,
+      bookViewFor: bookViewFor,
+      STYLE_PROPERTIES: Object.keys(STYLE_RULES),
       safeColor: safeColor,
       accentFromName: accentFromName,
       coverFromSnapshot: coverFromSnapshot,

@@ -221,6 +221,26 @@
   gap: 12px;
 }
 
+/* ── VIEWS, A LIKE, THE LINK (20260924100000) ─────────────────────────────
+   Quiet, beside Report: the page is the thing, these are its margins. */
+.pbs-social {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.pbs-social[hidden] { display: none; }
+
+.pbs-views {
+  color: var(--pbs-muted);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pbs-like-btn.is-liked { color: #e0607e; }
+
 /* ── WHOSE NAME IS ON IT ───────────────────────────────────────────────────
    On an anonymous share this whole block is ABSENT from the DOM, not hidden.
    src/shareSnapshot.js omits the identity fields rather than sending them and
@@ -1155,6 +1175,12 @@
   border-radius: 13px;
   background: rgba(19, 15, 12, 0.86);
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.5);
+  /* max-content: centred with left:50%, an absolute box shrink-wraps to the
+     HALF of the stage right of its left edge, so at 820px (stage 780) the HUD
+     got 390px and dropped Reset view onto a second row. It now takes the
+     width its buttons need, capped by the max-width below, and wraps only
+     when the stage really is that narrow. */
+  width: max-content;
   max-width: calc(100% - 24px);
   flex-wrap: wrap;
   justify-content: center;
@@ -1403,7 +1429,18 @@
     gap: 12px;
     padding: 14px 16px 12px;
   }
-  .pbs-marquee-side { justify-content: space-between; }
+  .pbs-marquee-side { justify-content: space-between; flex-wrap: wrap; }
+  /* ONE LINE ON A PHONE (2026-09-24). Views, the like, Copy link and Report
+     needed 349px of a 375px phone's 319, so Report wrapped onto a line of its
+     own under the other three. The social row flattens into the side row, an
+     empty author slot (an anonymous share) stops costing a gap, and the quiet
+     buttons lose 4px a side: 307px, one line. */
+  .pbs-marquee-side { justify-content: flex-start; gap: 4px 6px; }
+  .pbs-author-slot:empty { display: none; }
+  .pbs-social { display: contents; }
+  .pbs-social .pbs-btn-quiet,
+  .pbs-report-btn { padding-left: 8px; padding-right: 8px; }
+  .pbs-views { margin-right: 4px; }
   .pbs-hud { gap: 5px; padding: 6px 8px; bottom: 10px; }
   .pbs-indicator { min-width: 78px; font-size: 11px; }
   /* THE BADGE AND THE HINT BOTH SAT AT top:14, one from the left edge and one
@@ -1417,6 +1454,13 @@
     max-width: calc(100% - 32px);
     text-align: center;
   }
+}
+
+/* A WRAPPED HUD ORPHANS ITS DIVIDERS: below ~460px the buttons fall onto
+   three rows and each 1px separator was left standing at a row's end. The
+   gap already separates them. */
+@media (max-width: 520px) {
+  .pbs-hud-sep { display: none; }
 }
 
 /* ── REDUCED MOTION ───────────────────────────────────────────────────────
