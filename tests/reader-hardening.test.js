@@ -8,7 +8,7 @@
   Three of these are CROSS-FILE tests — they read read/index.html and
   read/config.js off disk and compare them against read/read.js. That is
   deliberate. The facts they check ("the CSP names the same origin the code
-  allows", "the committed config declares nothing") are exactly the kind that
+  allows", "the committed config carries no key") are exactly the kind that
   drift when someone edits one file and not the other, and no amount of
   testing a single module can see it.
 
@@ -126,15 +126,21 @@ test("ALLOWED_API_ORIGINS and the page's CSP connect-src name the SAME origin", 
   assert.ok(sources.indexOf("https:") === -1, "connect-src must never be the wide-open `https:` again");
 });
 
-test("the committed read/config.js declares nothing — no URL, no key", function () {
-  /* This repository is public. The deploy fills this file in; git must not. */
-  /* Code only — the file's own doc comment shows a filled-in EXAMPLE. */
+test("the committed read/config.js holds no key, and no URL the reader would refuse", function () {
+  /* This repository is public. It is GitHub Pages served straight from the
+     branch, with no deploy step to fill config.js in, so the URL is committed
+     (2026-09-07). It may only name the origin read.js already pins in
+     ALLOWED_API_ORIGINS and the CSP; empty switches sharing off. A key never
+     belongs here. Code only, so a value quoted in a comment cannot pass. */
   var config = code("config.js");
   var apiUrl = /apiUrl:\s*"([^"]*)"/.exec(config);
   var key = /publishableKey:\s*"([^"]*)"/.exec(config);
   assert.ok(apiUrl && key, "config.js must still declare both fields");
-  assert.equal(apiUrl[1], "", "a committed apiUrl ties this public repo to one project");
+  assert.ok(apiUrl[1] === "" || R.apiOriginAllowed(apiUrl[1]),
+    "a committed apiUrl must be on an origin in ALLOWED_API_ORIGINS: " + apiUrl[1]);
   assert.equal(key[1], "", "no key of any kind belongs in git here");
+  assert.ok(!/\beyJ[\w-]{10,}|sb_(?:publishable|secret)_|service_role/.test(config),
+    "no JWT, Supabase key or service-role reference may appear in config.js code");
 });
 
 /* ────────────────────────────────────── the exact cover colour ─────────── */

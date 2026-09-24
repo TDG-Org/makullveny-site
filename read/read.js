@@ -23,9 +23,9 @@
 
   /*
     ───────────────────────────────────────────────────────────────────────────
-    CONFIG — DELIBERATELY EMPTY IN GIT
+    CONFIG — ONE URL, NO KEY
     ───────────────────────────────────────────────────────────────────────────
-    See read/config.js for the deploy-time injection story. Nothing here is a
+    See read/config.js for why its URL is committed. Nothing here is a
     secret and nothing here is a private path.
   */
   /* Guarded rather than assumed, so the pure functions below (tokenFromHash,
@@ -46,10 +46,10 @@
     ───────────────────────────────────────────────────────────────────────────
     THE ONE HOST THIS PAGE MAY TALK TO
     ───────────────────────────────────────────────────────────────────────────
-    read/config.js is written at DEPLOY time, which makes it the one input to
-    this page that is not reviewed in git. A tampered or simply mis-deployed
-    config could otherwise point apiUrl at any host and this page would post
-    the reader's token to it. So the origin is pinned here as well, in code,
+    read/config.js is the one input to this page that says where to send the
+    token, and it is a separate file that can be edited, mis-copied or served
+    stale on its own. A tampered or simply mis-filled config could otherwise
+    point apiUrl at any host and this page would post the reader's token to it. So the origin is pinned here as well, in code,
     and checked BEFORE the request is opened.
 
     THIS LIST MUST BE KEPT IN STEP WITH THE `connect-src` DIRECTIVE IN
@@ -580,9 +580,9 @@
     }
     /*
       NOT-CONFIGURED and CONFIGURED-WRONG READ THE SAME, ON PURPOSE. An empty
-      apiUrl is the committed state of read/config.js; an apiUrl pointing
-      somewhere other than ALLOWED_API_ORIGINS is a deploy that has been
-      tampered with or mis-filled. Neither is the visitor's problem and
+      apiUrl means sharing is switched off; an apiUrl pointing somewhere
+      other than ALLOWED_API_ORIGINS is a config that has been tampered
+      with or mis-filled. Neither is the visitor's problem and
       neither may echo the offending URL — not into the page, not into the
       console — because that is exactly the string an attacker who managed to
       rewrite config.js would want reflected back for confirmation.

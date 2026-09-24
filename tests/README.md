@@ -80,9 +80,11 @@ that block; and the home page actually links `/updates/`.
 **Two cross-file consistency checks**, which no single-module test could see:
 the CSP `connect-src` directive in `read/index.html` must list exactly the
 origins `ALLOWED_API_ORIGINS` permits (change one, the other fails), and the
-committed `read/config.js` must still declare an empty `apiUrl` and an empty
-`publishableKey` — this repository is public, and that file is filled in at
-deploy time, never in git.
+committed `read/config.js` must carry an empty `publishableKey` and no key of
+any kind, and its `apiUrl` must be empty or on an origin `ALLOWED_API_ORIGINS`
+permits. The URL is committed on purpose: this is GitHub Pages with no deploy
+step to fill it in, and the same origin is already pinned in `read.js` and the
+CSP. A key never is, because this repository is public.
 
 ## What's covered elsewhere, and why
 
