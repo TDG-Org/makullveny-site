@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      A STUDENT'S PROFILE LINK: https://www.makullveny.com/u/#<token>
+
+      The student made this link in the Makullveny app and picked what it
+      shows: their classes this week, their other calendar events, a short
+      bio, how many achievements they have. Their name, @username and avatar
+      are always on it. Rooms, notes and assignments never are -- the app does
+      not send them, the database drops a room if one arrives, and the server
+      function forwards named fields only.
+
+      SAME RULES AS read/: no key of any kind, one POST to one function at one
+      pinned origin (the same read/config.js, the same ALLOWED_API_ORIGINS
+      check, the same connect-src below), the token in the FRAGMENT so no
+      server and no Referer ever sees it, and every string from the network
+      set with textContent. NO BUILD STEP.
+    -->
+    <title>Makullveny — a student's profile</title>
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./profile.css">
+  </head>
+  <body>
+    <header class="pp-top">
+      <a class="pp-brand" href="../">Makullveny</a>
+      <a class="pp-get" href="../#download">Get the app</a>
+    </header>
+
+    <main class="pp-main" id="ppMain">
+      <p id="ppState" class="pp-state" role="status" aria-live="polite">Opening&#8230;</p>
+
+      <div id="ppProfile" class="pp-layout" hidden>
+        <section class="pp-card pp-who" aria-labelledby="ppName">
+          <div id="ppAvatar" class="pp-avatar" data-avatar="0"><span id="ppInitial" class="pp-initial" aria-hidden="true"></span></div>
+          <div class="pp-names">
+            <h1 id="ppName" class="pp-name"></h1>
+            <p id="ppHandle" class="pp-handle" hidden></p>
+          </div>
+          <p id="ppBio" class="pp-bio" hidden></p>
+          <div id="ppStats" class="pp-stats" hidden></div>
+          <p id="ppAdd" class="pp-add" hidden></p>
+        </section>
+
+        <section id="ppWeek" class="pp-card pp-week" aria-labelledby="ppWeekTitle" hidden>
+          <div class="pp-week-head">
+            <h2 id="ppWeekTitle" class="pp-week-title">This week</h2>
+            <p class="pp-week-note">Times shown in your time zone</p>
+          </div>
+          <div id="ppGrid" class="pp-grid"></div>
+          <ol id="ppList" class="pp-list"></ol>
+          <p id="ppEmpty" class="pp-empty" hidden>Nothing on the calendar this week.</p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="pp-foot">
+      <p>Shared from <a href="../">Makullveny</a>, a local-first study app. The student chose what this page shows and can turn it off at any time.</p>
+    </footer>
+
+    <script src="../read/config.js"></script>
+    <script src="./profile.js"></script>
+  </body>
+</html>
