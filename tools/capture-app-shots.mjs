@@ -466,7 +466,10 @@ async function run() {
   const electronBinary = createRequire(join(APP, "package.json"))("electron");
   const electron = spawn(
     electronBinary,
-    [".", `--user-data-dir=${SANDBOX}`, `--remote-debugging-port=${PORT}`],
+    // --makullveny-quiet (app v2.97.0+): the window stays off-screen, off the
+    // taskbar and never takes focus, so a capture run does not take over the
+    // owner's screen. CDP screenshots are unaffected.
+    [".", "--makullveny-quiet", `--user-data-dir=${SANDBOX}`, `--remote-debugging-port=${PORT}`],
     { cwd: APP, stdio: "ignore", env: { ...process.env, TZ } }
   );
 
