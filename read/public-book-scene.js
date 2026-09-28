@@ -1997,6 +1997,7 @@
     ZOOM_MIN: ZOOM_MIN,
     ZOOM_MAX: ZOOM_MAX,
     FLIP_MS: FLIP_MS,
+    COVER_OPEN_MS: COVER_OPEN_MS,
     MAX_PAGES: MAX_PAGES,
     coverPartsFrom: coverPartsFrom,
     normalizeAvatarId: normalizeAvatarId,
