@@ -116,6 +116,11 @@
   /* Any other pitch move -- there are none left, but flyPitchTo() is general
      and a future one should not inherit the intro's leisurely pace. */
   var PITCH_FLIGHT_MS = 620;
+  /* THE COVER OPENING. The front board swings over on the spine before the
+     spread appears (owner, 2026-09-28: "there should be an animation for
+     opening the book"). Slower than a page turn, because the whole board
+     moves, and short enough that the reader is never waiting on it. */
+  var COVER_OPEN_MS = 760;
   var YAW_DEFAULT = 0, YAW_MIN = -34, YAW_MAX = 34;
   var ZOOM_MIN = 0.3, ZOOM_MAX = 3.4, ZOOM_STEP = 1.18;
 
@@ -464,7 +469,7 @@
       els.badge.hidden = true;
       stage.appendChild(els.badge);
 
-      els.hint = make("p", "pbs-hint", "Drag to move · scroll to zoom · hold Shift and drag to tilt");
+      els.hint = make("p", "pbs-hint", "Drag to move · scroll to zoom");
       stage.appendChild(els.hint);
 
       var camera = make("div", "pbs-camera");
@@ -1033,9 +1038,23 @@
 
     /* ── open / close ───────────────────────────────────────────────────── */
 
-    function setOpen(next) {
+    /* animate: a READER opened it (a tap, the button, Enter). The arrival that
+       lands a book already open does not play the cover -- nobody asked. */
+    function setOpen(next, how) {
       var wanted = next === true;
-      if (state.open === wanted) return;
+      if (state.open === wanted || state.coverOpening) return;
+      if (wanted && how && how.animate === true && !prefersReducedMotion() && els.book) {
+        state.coverOpening = true;
+        els.book.classList.add("pbs-cover-opening");
+        later(function () {
+          state.coverOpening = false;
+          if (els.book) els.book.classList.remove("pbs-cover-opening");
+          if (els.open) els.open.classList.add("pbs-spread-arriving");
+          setOpen(true);
+          later(function () { if (els.open) els.open.classList.remove("pbs-spread-arriving"); }, 420);
+        }, COVER_OPEN_MS);
+        return;
+      }
       state.open = wanted;
       els.closed.hidden = wanted;
       els.open.hidden = !wanted;
@@ -1268,11 +1287,11 @@
           return;
         }
         if (ids.length !== 1) return;
-        /* Shift, or any button but the primary one, ORBITS. Plain dragging
-           PANS, because panning is what a reader reaches for first and an
-           orbit they did not ask for is disorienting. */
+        /* EVERY DRAG PANS. The reader moves over the desk; the angle stays
+           looking down at the page (owner, 2026-09-28). Shift and the other
+           buttons used to orbit, which tipped the page away from the text. */
         drag = {
-          mode: (event.shiftKey || event.button === 1 || event.button === 2) ? "orbit" : "pan",
+          mode: "pan",
           x: event.clientX,
           y: event.clientY,
           /* Where the press started, so pointerup can tell a TAP from a DRAG.
@@ -1332,7 +1351,7 @@
         if (!cancelled && drag && drag.mode === "pan" && !state.open
             && Math.abs(event.clientX - drag.fromX) < 5
             && Math.abs(event.clientY - drag.fromY) < 5) {
-          setOpen(true);
+          setOpen(true, { animate: true });
         }
         delete pointers[event.pointerId];
         if (Object.keys(pointers).length < 2) pinch = null;
@@ -1390,12 +1409,12 @@
            reached through a flash. */
         if (event.target && typeof event.target.closest === "function"
             && event.target.closest(".pbs-hud, .pbs-veil, .pbs-badge")) return;
-        if (!state.open) setOpen(true);
+        if (!state.open) setOpen(true, { animate: true });
       });
     }
 
     function bindControls() {
-      on(els.openBtn, "click", function () { setOpen(!state.open); });
+      on(els.openBtn, "click", function () { setOpen(!state.open, { animate: true }); });
       on(els.prev, "click", function () { turn(-1); });
       on(els.next, "click", function () { turn(1); });
       on(els.zoomIn, "click", function () { zoomBy(ZOOM_STEP, 0, 0); });
@@ -1424,7 +1443,7 @@
         else if (event.key === "+" || event.key === "=") { zoomBy(ZOOM_STEP, 0, 0); }
         else if (event.key === "-") { zoomBy(1 / ZOOM_STEP, 0, 0); }
         else if (event.key === "0") { resetCamera(); }
-        else if (event.key === "Enter" && !state.open) { setOpen(true); }
+        else if (event.key === "Enter" && !state.open) { setOpen(true, { animate: true }); }
         else return;
         event.preventDefault();
       });

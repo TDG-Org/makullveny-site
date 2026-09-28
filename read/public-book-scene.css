@@ -720,6 +720,26 @@
 /* The front board sits at the top of the page block; the back board is its
    floor. The block's own thickness is what separates them. */
 .pbs-cover-front { transform: translateZ(var(--pbs-block-z)); }
+
+/* THE COVER OPENING: the front board swings over on its spine (the squared
+   left edge) before the spread appears. See COVER_OPEN_MS in the scene. */
+.pbs-cover-opening .pbs-cover-front {
+  transform-origin: 0 50%;
+  animation: pbs-cover-open 760ms cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
+}
+@keyframes pbs-cover-open {
+  0%   { transform: translateZ(var(--pbs-block-z)) rotateY(0deg); opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: translateZ(var(--pbs-block-z)) rotateY(-178deg); opacity: 0.35; }
+}
+.pbs-spread-arriving { animation: pbs-spread-in 420ms ease-out both; }
+@keyframes pbs-spread-in {
+  from { opacity: 0.35; }
+  to   { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pbs-cover-opening .pbs-cover-front, .pbs-spread-arriving { animation: none; }
+}
 .pbs-cover-back  { transform: translateZ(-2px); }
 
 .pbs-cover-plate {
