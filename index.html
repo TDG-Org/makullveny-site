@@ -362,6 +362,7 @@
     @keyframes pip { 0%,100% { box-shadow:0 0 0 3px rgba(141,185,173,.2); } 50% { box-shadow:0 0 0 6px rgba(141,185,173,.06); } }
     h1 { font-size:84px; line-height:1; margin:26px auto 0; max-width:20ch; text-shadow:0 6px 44px rgba(0,0,0,.5); }
     h1 em { font-style:italic; color:#f4cd93; }
+    h1.is-long { font-size:clamp(34px, 5.2vw, 64px); line-height:1.05; max-width:20ch; margin-left:auto; margin-right:auto; }
     .lead { max-width:58ch; margin:24px auto 0; font:400 18.5px/1.66 var(--ui); color:rgba(247,234,214,.78); }
     .cta-row { display:flex; justify-content:center; align-items:center; gap:13px; margin-top:36px; }
     .plats { display:flex; justify-content:center; align-items:center; gap:18px; margin-top:20px; font:600 12.5px/1 var(--ui); color:rgba(200,177,137,.68); }
@@ -746,6 +747,111 @@
     .bundles-inner:hover .p-a { transform:rotate(-8deg) translate(-16px,-6px); }
     .bundles-inner:hover .p-c { transform:rotate(9deg) translate(16px,-6px); }
     .bundles-cta { grid-column:1; justify-self:start; }
+
+
+    /* ══ LOCK IN — its own room now ═══════════════════════════════════ */
+    .lockin-sec { position:relative; overflow:hidden; padding:80px 0 88px;
+      background:linear-gradient(180deg,#1a3430 0%,#182c29 38%,#1a2d2a 70%,#1a3430 100%); }
+    .lockin-sec::before { content:""; position:absolute; right:-6%; top:10%; width:1100px; height:760px; filter:blur(70px); opacity:.55;
+      background:radial-gradient(ellipse at 50% 50%, rgba(240,168,96,.22), transparent 66%); pointer-events:none; }
+    .lockin-sec .lockin { position:relative; z-index:2; margin-top:0; padding-top:0; border-top:0;
+      grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); gap:56px; }
+    .lockin-say h2 { font-size:44px; line-height:1.06; margin:12px 0 16px; }
+    .lockin-say h2 em { font-style:italic; color:#f0c88f; }
+    .lockin-foot { margin-top:18px; font:400 13.5px/1.6 var(--ui) !important; color:rgba(200,177,137,.8) !important; }
+    .lockin-stage { position:relative; padding-right:clamp(90px, 13vw, 190px); }
+    .lockin-sheet, .lockin-window { margin:0; }
+    .lockin-sheet .win { border-radius:18px; box-shadow:0 40px 90px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.42); }
+    .lockin-sheet video { display:block; width:100%; height:auto; }
+    .lockin-sheet figcaption, .lockin-window figcaption { margin-top:12px; font:500 12.5px/1.5 var(--ui); color:rgba(200,177,137,.72); }
+    .lockin-window { position:absolute; right:0; bottom:-26px; width:clamp(150px, 19vw, 250px); z-index:3; }
+    .lockin-window .win { border-radius:16px; transform:rotate(2.2deg);
+      box-shadow:0 34px 80px rgba(0,0,0,.66), 0 0 0 1px rgba(255,236,203,.14), 0 0 60px rgba(240,168,96,.18); }
+    .lockin-window figcaption { text-align:center; }
+
+    /* ══ FRIENDS ══════════════════════════════════════════════════════ */
+    .friends { position:relative; overflow:hidden; padding:84px 0 92px;
+      background:linear-gradient(180deg,#1a3430 0%,#1b302d 30%,#1d302b 64%,#1a3430 100%); }
+    .friends::before { content:""; position:absolute; left:50%; top:8%; width:1500px; height:820px; transform:translateX(-50%); filter:blur(70px); opacity:.5;
+      background:radial-gradient(ellipse at 40% 40%, rgba(141,185,173,.2), transparent 64%), radial-gradient(ellipse at 70% 70%, rgba(213,140,75,.16), transparent 60%); pointer-events:none; }
+    .friends-inner { position:relative; z-index:2; }
+    .friends-head { text-align:center; margin:0 auto 34px; max-width:780px; }
+    .friends-head h2 em { font-style:italic; color:#f0c88f; }
+    .pill.new { background:rgba(240,168,96,.16); color:#f6c28f; border:1px solid rgba(240,168,96,.4); margin-left:8px; vertical-align:1px; }
+    .friends-shots { position:relative; display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:28px; align-items:center; }
+    .friends-main, .friends-profile { margin:0; }
+    .friends-main .win, .friends-profile .win { border-radius:18px; box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4); }
+    .friends-profile .win { transform:rotate(1.4deg); }
+    .friends-profile figcaption { margin-top:14px; font:500 13px/1.55 var(--ui); color:rgba(200,177,137,.78); }
+    .friends-facts { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin-top:34px; }
+    .ffact { border:1px solid var(--line-soft); border-radius:16px; padding:20px 20px 22px; background:rgba(255,245,225,.045);
+      transition:border-color .3s ease, background .3s ease, transform .3s cubic-bezier(.2,.8,.3,1); }
+    .ffact:hover { transform:translateY(-4px); border-color:rgba(141,185,173,.36); background:rgba(255,245,225,.07); }
+    .ffact b { display:flex; align-items:center; gap:9px; font:700 14px/1.3 var(--ui); color:var(--text); margin-bottom:7px; }
+    .ffact span { font:400 13px/1.6 var(--ui); color:rgba(247,234,214,.64); }
+    .share { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr); gap:48px; align-items:center;
+      margin-top:56px; padding-top:48px; border-top:1px solid var(--line-soft); }
+    .share-say h3 { font:600 30px/1.16 var(--display); color:var(--text); margin:13px 0 13px; }
+    .share-say h3 em { font-style:italic; color:#f0c88f; }
+    .share-say p { font:400 15px/1.75 var(--ui); color:rgba(247,234,214,.7); margin-bottom:20px; }
+    .share-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
+    .share-tile { margin:0; }
+    .share-tile .win { border-radius:14px; box-shadow:0 26px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.4); background:#0f0c09; }
+    .share-tile .win img { aspect-ratio:4 / 3; object-fit:cover; object-position:top center; }
+    .share-tile figcaption { margin-top:9px; font:600 11px/1 var(--ui); letter-spacing:.1em; text-transform:uppercase; color:rgba(200,177,137,.66); }
+
+    /* ══ APPS & TOOLS, IN SHORT ═══════════════════════════════════════ */
+    .apps-lite { position:relative; z-index:2; display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); gap:54px; align-items:center; }
+    .apps-lite-say h2 { font-size:44px; line-height:1.06; margin:12px 0 14px; }
+    .apps-lite-say h2 em { font-style:italic; color:#f0c88f; }
+    .apps-lite-say > p { font:400 16px/1.7 var(--ui); color:rgba(247,234,214,.72); max-width:46ch; }
+    .apps-list { list-style:none; margin:22px 0 26px; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px 18px; }
+    .apps-list a { display:flex; gap:10px; align-items:baseline; padding:9px 0; border-bottom:1px solid var(--line-soft); color:var(--text); }
+    .apps-list a:hover b { color:#f0c88f; }
+    .apps-list b { font:700 14px/1.3 var(--ui); transition:color .2s ease; white-space:nowrap; }
+    .apps-list span { font:400 12.5px/1.4 var(--ui); color:rgba(200,177,137,.72); }
+    .apps-lite .apps-shot { margin-top:0; }
+
+    /* ══ THEMES, IN SHORT ═════════════════════════════════════════════ */
+    .themes-lite { position:relative; z-index:2; }
+    .themes-lite .sec-head h2 em { font-style:italic; color:#f0c88f; }
+    .room-strip { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; margin-top:34px; }
+    .room-tile { margin:0; }
+    .room-tile .win { border-radius:12px; box-shadow:0 22px 50px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.4); transition:transform .4s cubic-bezier(.2,.8,.3,1); }
+    .room-tile:hover .win { transform:translateY(-5px); }
+    .room-tile figcaption { display:flex; justify-content:space-between; gap:8px; margin-top:9px; font:700 12.5px/1.3 var(--ui); color:rgba(247,234,214,.86); }
+    .room-tile figcaption em { font-style:normal; font:600 10px/1.3 var(--ui); letter-spacing:.08em; text-transform:uppercase; color:rgba(200,177,137,.6); align-self:center; }
+    .themes-lite-foot { display:flex; align-items:center; justify-content:space-between; gap:24px; margin-top:34px; padding-top:28px; border-top:1px solid rgba(255,236,203,.1); }
+    .themes-lite-foot p { font:400 15px/1.7 var(--ui); color:rgba(247,234,214,.72); max-width:64ch; }
+    .themes-lite-foot b { color:var(--text); }
+
+    /* ══ SELAH — the two stages you have not reached ══════════════════ */
+    .grow-step.is-locked .grow-plate { background:radial-gradient(circle at 50% 58%, rgba(240,200,143,.12), transparent 62%); }
+    .grow-step.is-locked .grow-plate img { opacity:.92; filter:drop-shadow(0 0 18px rgba(240,200,143,.18)); }
+    .grow-q { position:absolute; inset:0; display:grid; place-items:center; z-index:2; pointer-events:none;
+      font:700 clamp(38px, 4.4vw, 60px)/1 var(--display); color:#f0c88f;
+      text-shadow:0 0 24px rgba(240,168,96,.55), 0 2px 0 rgba(0,0,0,.4); }
+    .grow-step.is-locked b { color:rgba(247,234,214,.62); font-style:italic; }
+
+    @media (max-width:1040px) {
+      .lockin-sec .lockin, .apps-lite, .share, .friends-shots { grid-template-columns:minmax(0,1fr); gap:38px; }
+      .friends-facts { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .room-strip { grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .friends-profile { max-width:560px; margin:0 auto; }
+    }
+    @media (max-width:820px) {
+      .lockin-say h2, .apps-lite-say h2 { font-size:34px; }
+      .lockin-stage { padding-right:0; }
+      .lockin-window { position:relative; right:auto; bottom:auto; width:min(240px, 62%); margin:26px auto 0; }
+      .friends-facts { grid-template-columns:minmax(0,1fr); }
+      .room-strip { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .themes-lite-foot { flex-direction:column; align-items:flex-start; }
+      .share-say h3 { font-size:25px; }
+    }
+    @media (max-width:560px) {
+      .apps-list { grid-template-columns:minmax(0,1fr); }
+      .themes-lite-foot .btn, .apps-lite-say .btn { width:100%; justify-content:center; }
+    }
 
     /* == FAITH ======================================================== */
     .faith { position:relative; overflow:hidden; text-align:center; padding:80px 0 88px;
@@ -1256,6 +1362,8 @@
       .topbar nav a:not(:first-child) { border-top:1px solid var(--line-soft); }
       .topbar nav a:not(.btn)::after { display:none; }
       .topbar nav .btn-primary { width:100%; justify-content:center; margin-top:14px; border-top:0; }
+      .topbar nav .btn-ghost { width:100%; justify-content:center; margin-top:14px; border-top:0; }
+      .topbar nav .btn-ghost + .btn-primary { margin-top:10px; }
     }
 
     @media (max-width:820px) {
@@ -1359,14 +1467,12 @@
       <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
     </button>
     <nav id="siteNav">
-      <a href="#dashboard">Dashboard</a>
+      <a href="./features/">Features</a>
+      <a href="#friends">Friends</a>
       <a href="#selah">Selah</a>
-      <a href="#apps">Apps</a>
-      <a href="#tools">Tools</a>
-      <a href="#themes">Themes</a>
-      <a href="#faith">Faith</a>
-      <a href="#report">About</a>
+      <a href="./themes/">Themes</a>
       <a href="./updates/">News</a>
+      <a class="btn btn-ghost btn-sm" href="./account/">Sign up</a>
       <a class="btn btn-primary btn-sm" href="#download">Download</a>
     </nav>
   </header>
@@ -1402,9 +1508,7 @@
       <span class="badge rv" style="--d:.05s"><i></i> Free forever · Windows, macOS &amp; Linux · Account optional</span>
       <h1 class="rv" style="--d:.14s" data-hero-headline>Study smarter. <em>Stress less.</em></h1>
       <p class="lead rv" style="--d:.24s">
-        Your cozy home base for student life. Makullveny plans your assignments around your day,
-        helps you focus on what matters, and turns every study session into progress you can see—with
-        notes, calendars, flashcards, file tools, music, and more together in one place.
+        Your cozy home base for student life &mdash; notes, your calendar, flashcards, friends, file tools and music in one place, and a quiet world that grows every time you sit down to study.
       </p>
       <div class="cta-row rv" style="--d:.34s">
         <!-- Neutral until download.js knows the reader's system, so a Mac never
@@ -1413,7 +1517,7 @@
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4.5-4.5M12 15l-4.5-4.5M4 18.5V20a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-1.5" stroke="#241505" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span data-dl-hero-label>Download Makullveny</span>
         </a>
-        <a class="btn btn-ghost" href="#download" style="min-height:54px">All platforms</a>
+        <a class="btn btn-ghost" href="./account/" style="min-height:54px">Make a free account</a>
       </div>
       <div class="plats rv" style="--d:.44s">
         <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:6px"><path d="M3.5 5.6 10 4.7v6.6H3.5V5.6ZM11.4 4.5 20.5 3.2v8.1h-9.1V4.5ZM3.5 12.7H10v6.6l-6.5-.9v-5.7ZM11.4 12.7h9.1v8.1l-9.1-1.3v-6.8Z" fill="#c8b189"/></svg>Windows</span>
@@ -1433,7 +1537,7 @@
       <i></i>
       <span><b>Nothing</b> leaves your machine</span>
       <i></i>
-      <span><b>No account needed</b> — sign in only if you want cloud extras</span>
+      <span><b>No account needed</b> — make one for friends and your Backpack</span>
     </div>
 
     <div class="stage rv rv-p" style="--d:.5s">
@@ -1451,34 +1555,35 @@
         <!-- five of the best screens, one every six seconds, or press a dot -->
         <div class="rotator">
           <img class="rot" data-slide="1" src="./assets/site/hero-dash.jpg" alt="The Makullveny Today dashboard: the Ready desk naming the next assignment, a candle focus timer, the month, courses, what is due, the Quick shelf and Selah" width="2120" height="1340" decoding="async" fetchpriority="high">
-          <img class="rot" data-slide="2" src="./assets/site/hero-book.jpg" alt="The Library Desk with a page of lecture notes on lined paper, and the bookshelf holding a book, a scroll, a journal, a card box and a blueprint" width="1900" height="1214" loading="lazy" decoding="async">
-          <img class="rot" data-slide="3" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow under a pink and orange sky, a gold-trimmed library with a royal-blue roof in the middle, and a focus timer at 25:00" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="4" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over snow-capped peaks, the library lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="5" src="./assets/site/hero-blueprint.jpg" alt="The blueprint sheet: a floor plan drawn on the drafting grid, with the line-type and shape menus open" width="1900" height="1214" loading="lazy" decoding="async">
-          <img class="rot" data-slide="6" src="./assets/site/sh-overview.jpg" alt="Study Hall Overview: how much is due today, what is left this week, a homework progress ring, and the next tasks from the board" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="7" src="./assets/site/sh-courses.jpg" alt="Study Hall Courses: every class of the term with its meeting days, its room, what is due next and how much is still open" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="2" src="./assets/site/studyhall.jpg" alt="The Study Hall board for this week: To do, Doing, Almost done and Done columns holding real assignments like Midterm 1, Problem set 4 and Reading reflection 2, with All assignments 16 and 2 of 4 done today at the top" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="3" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — the gold-trimmed library with a royal-blue roof lit from inside, villagers walking across the meadow and one sitting by the trees, two deer grazing, the Ready to Focus timer at 25:00, level 14, and the coin and diamond purse" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="4" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over the peaks, the library's windows lit warm, and the villagers still out walking and sitting under the trees" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="5" src="./assets/site/friends.jpg" alt="The Makullveny dashboard with the Friends sheet open: your @username to share, a My profile line, Friends 6 of 150 and one waiting request, and six friend cards, each tinted in that friend's own app theme" width="1600" height="1120" loading="lazy" decoding="async">
+          <img class="rot" data-slide="6" src="./assets/site/hero-book.jpg" alt="The Library Desk with a page of lecture notes on lined paper, and the bookshelf holding a book, a scroll, a journal, a card box and a blueprint" width="1900" height="1214" loading="lazy" decoding="async">
+          <img class="rot" data-slide="7" src="./assets/site/assignments.jpg" alt="The All assignments table: filters for All 16, Still to do 13, Due today 2, Due soon 11 and Done 3, stage and class filters, and rows grouped into Today and This week, each with its class, due date and a stage you can change in place" width="2120" height="1340" loading="lazy" decoding="async">
           <img class="rot" data-slide="8" src="./assets/site/sh-calendar.jpg" alt="Study Hall Calendar: a week with classes laid out by hour, deadlines along the top, an exam marked as a test, and a line across the current time" width="2120" height="1340" loading="lazy" decoding="async">
         </div>
       </div>
       </div>
       <div class="rot-cap" aria-live="polite">
         <p class="rc" data-slide="1"><b>Today</b>Everything due, in the order it matters &mdash; the one assignment worth starting, a candle timer for the sitting you are in, and your month beside it.</p>
-        <p class="rc" data-slide="2"><b>Library Desk</b>Your notes on real paper you choose, in books, scrolls, journals, card boxes and blueprints. It prints, it exports, and it never leaves this machine.</p>
-        <p class="rc" data-slide="3"><b>Selah: Study Grounds</b>The hours you actually sat down, built into a place. Study, and the clearing grows a library &mdash; nothing to break, nothing to lose.</p>
+        <p class="rc" data-slide="2"><b>Study Hall &mdash; Board</b>Every assignment as a card you move when the work moves &mdash; each column carries its own progress.</p>
+        <p class="rc" data-slide="3"><b>Selah: Study Grounds</b>The hours you actually sat down, built into a place &mdash; and the people of the grounds out walking in it. Study, and the clearing grows a library.</p>
         <p class="rc" data-slide="4"><b>Selah at night</b>The same grounds, lit by the hour you are studying in. Golden morning, midday, dusk, night &mdash; it turns with your day.</p>
-        <p class="rc" data-slide="5"><b>Blueprint</b>A drafting sheet for diagrams, floor plans and anything a lined page fights you on. Snapping grid, real line types, real shapes.</p>
-        <p class="rc" data-slide="6"><b>Study Hall &mdash; Overview</b>Where everything stands in one read: due today, left this week, how much of the week is finished, and what to pick up next.</p>
-        <p class="rc" data-slide="7"><b>Study Hall &mdash; Courses</b>Every class of the term on one page &mdash; when it meets, where, what is due next, and how much of it is still open.</p>
+        <p class="rc" data-slide="5"><b>Friends</b>Your TDG friends beside your day &mdash; the same list in every TDG app, each card in that friend&rsquo;s own theme.</p>
+        <p class="rc" data-slide="6"><b>Library Desk</b>Your notes on real paper you choose, in books, scrolls, journals, card boxes and blueprints. It prints, it exports, and it never leaves this machine.</p>
+        <p class="rc" data-slide="7"><b>Assignments</b>Every assignment in one table &mdash; filter by due today, due soon or done, and move each one&rsquo;s stage right where it sits.</p>
         <p class="rc" data-slide="8"><b>Study Hall &mdash; Calendar</b>Classes and deadlines on the same week, an exam marked as a test, and a line across the hour you are in.</p>
+      </div>
       </div>
       <div class="rot-dots">
         <button class="rot-dot" type="button" data-on="true" aria-label="Show Makullveny — Today"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Library Desk"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Board"></button>
           <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · golden hour"></button>
           <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · night"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Library Desk — Blueprint"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Overview"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Courses"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Friends"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Library Desk"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Assignments"></button>
           <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Calendar"></button>
       </div>
     </div>
@@ -1529,7 +1634,7 @@
     <div class="wrap dash-inner">
       <div class="dash-head">
         <p class="eyebrow teal rv">The dashboard</p>
-        <h2 class="rv" style="--d:.08s">Open the app and the day is already laid out.</h2>
+        <h2 class="rv" style="--d:.08s">Put your classes in once. <em>Makullveny tells you what&rsquo;s next, when to do it, and locks you in.</em></h2>
         <p class="rv" style="--d:.16s">
           One screen: what to work on and why now, a candle timer for the session you are in,
           your month, your courses, what is due, the small tools, and the quiet world your focus grows.
@@ -1542,32 +1647,6 @@
           <img src="./assets/site/widgetdash.jpg" alt="The Makullveny Today dashboard: a Ready desk card naming the next assignment and why it matters, a focus timer at 18:24 with a lit candle, a September calendar, course progress bars, a due-soon list, the Quick shelf of tools and the Selah study grounds" width="1900" height="2080" loading="lazy" decoding="async">
         </div>
       </div>
-      <div class="lockin rv rv-p" style="--d:.28s">
-        <div class="lockin-say">
-          <p class="eyebrow teal">Press Lock In</p>
-          <h3>It asks four questions, then gets out of the way.</h3>
-          <p>
-            What are you doing, how long, where are you working, and what do you want on
-            while you do it &mdash; a length, real paper or the Library Desk, ambience, the radio,
-            a tool or two in their own windows, and a line to start with. Answer it once and
-            the session is built. Everything you pick is remembered for the next one.
-            And every session lands on your week: seven small bars on the Focus card show how
-            long you actually studied each day, so you can see the week you are really having.
-          </p>
-          <div class="lockin-chips">
-            <span>20 &middot; 25 &middot; 45 &middot; 60 &middot; 90 min</span>
-            <span>Library Desk, paper, or both</span>
-            <span>Rain, fire, wind, thunder</span>
-            <span>Radio, calculator, reference</span>
-            <span>A verse, a devotion, or nothing</span>
-          </div>
-        </div>
-        <figure class="lockin-shot">
-          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/lockin.jpg" alt="The Lock In sheet: What are you doing, How long with 20 to 90 minute presets, Where are you working, an ambience row of rain, fire, wind, thunder and silence, a radio row, a Bring a tool row, and a word to start with" width="1500" height="1118" loading="lazy" decoding="async"></div>
-          <figcaption>The sheet that opens when you press Lock In on the Ready Desk.</figcaption>
-        </figure>
-      </div>
-
       <div class="dash-facts">
         <div class="dfact rv rv-p" style="--d:.3s">
           <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13z" stroke="#e8b273" stroke-width="1.8" stroke-linejoin="round"/></svg>Ready desk</b>
@@ -1589,6 +1668,91 @@
     </div>
   </section>
 
+  <!-- ══════════ LOCK IN ═══════════════════════════════════════════ -->
+  <!-- Was a block inside the dashboard section. It is the one button the
+       whole app leads to, so it gets its own room: the sheet it opens, and
+       beside it the narrow window a session actually runs in. -->
+  <section class="lockin-sec" id="lockin">
+    <div class="wrap lockin">
+      <div class="lockin-say rv rv-l">
+        <p class="eyebrow teal">Lock In</p>
+        <h2>Four questions, <em>then it gets out of the way.</em></h2>
+        <p>
+          What are you doing, how long, where are you working, and what do you want on while
+          you do it. Answer once and the session is built &mdash; the Library Desk or real paper,
+          rain or fire, the radio, a tool beside you, a line to start with. Then the app folds
+          down into a small study window that sits next to your work and keeps the candle lit.
+        </p>
+        <div class="lockin-chips">
+          <span>20 &middot; 25 &middot; 45 &middot; 60 &middot; 90 min</span>
+          <span>Library Desk, paper, or both</span>
+          <span>Rain, fire, wind, thunder</span>
+          <span>Radio, calculator, reference</span>
+          <span>A verse, a devotion, or nothing</span>
+        </div>
+        <p class="lockin-foot">Every session lands on your week: seven small bars on the Focus card show how long you really studied each day.</p>
+      </div>
+      <div class="lockin-stage rv rv-r" style="--d:.14s">
+        <figure class="lockin-sheet">
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><video class="lockin-loop" autoplay muted loop playsinline preload="metadata" poster="./assets/site/lockin-flow.jpg" width="1200" height="1000" data-motion-video aria-label="Lock In in motion: the sheet rises, 45 minutes and real paper are picked, Lock In is pressed, the padlock snaps shut and the small study window appears at the edge and starts counting down"><source src="./assets/site/lockin-flow.webm" type="video/webm"><source src="./assets/site/lockin-flow.mp4" type="video/mp4"><img src="./assets/site/lockin.jpg" alt="The Lock In sheet: the goal, 20 to 90 minute lengths with 25 recommended, when the next class starts and how long to get there, and Your setup for place, sound, tools and words" width="1500" height="1240"></video></div>
+          <figcaption>Press Lock In, answer the sheet, and the padlock snaps shut. The real app, nine seconds, on a loop.</figcaption>
+        </figure>
+        <figure class="lockin-window">
+          <div class="win"><img src="./assets/site/lockin-window.jpg" alt="The study window: Locked In, a candle ring counting 44:56 of 45:00, the task Problem set 4 for CHEM 210 on paper, Notes and Radio, Jump to My page, Study Hall, Calculator and Reference, the next class ending in 34 minutes, and Pause, +5 min and Finish" width="800" height="1360" loading="lazy" decoding="async"></div>
+          <figcaption>Then this: the study window.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FRIENDS ═══════════════════════════════════════════ -->
+  <section class="friends" id="friends">
+    <div class="motes" aria-hidden="true">
+      <span class="mote" style="left:9%;top:22%;width:3px;height:3px;opacity:.4;animation-delay:-5s"></span>
+      <span class="mote cool" style="left:88%;top:36%;width:2px;height:2px;opacity:.4;animation-delay:-12s"></span>
+      <span class="mote" style="left:72%;top:80%;width:2px;height:2px;opacity:.3;animation-delay:-8s"></span>
+    </div>
+    <div class="wrap friends-inner">
+      <div class="sec-head friends-head">
+        <p class="eyebrow teal rv">Friends <span class="pill new">New</span></p>
+        <h2 class="rv" style="--d:.08s">See who is in class, <em>and who is free.</em></h2>
+        <p class="rv" style="--d:.16s">Add friends by their @username. See who is in class right now and who gets out soon, lay their week over yours, and wave hello. Sharing is off until you turn it on, and you pick who sees what.</p>
+      </div>
+
+      <div class="friends-shots">
+        <figure class="friends-main rv rv-l" style="--d:.1s">
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/friends.jpg" alt="The Makullveny dashboard with the Friends sheet open: your @username to share, a My profile line, Friends 6 of 150 and one waiting request, and six friend cards, each tinted in that friend's own app theme" width="1600" height="1120" loading="lazy" decoding="async"></div>
+        </figure>
+        <figure class="friends-profile rv rv-r" style="--d:.24s">
+          <div class="win"><img src="./assets/site/friend-profile.jpg" alt="A friend's profile: Priya Nair, @priya_reads, In BIO 110 till 2:30 PM, 4 classes, a Wave at Priya button, her bio, a private note only you see, and Remove or Block; beside it, Priya's week with her shared Monday to Friday classes" width="1600" height="1120" loading="lazy" decoding="async"></div>
+          <figcaption>A friend&rsquo;s profile: where they are now, their shared week, a wave (once every 15 minutes), and a note only you can see.</figcaption>
+        </figure>
+      </div>
+
+      <div class="friends-facts">
+        <div class="ffact rv rv-p" style="--d:.3s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8.5" r="3.2" stroke="#8db9ad" stroke-width="1.8"/><path d="M3.8 19c.6-3 2.7-4.6 5.2-4.6s4.6 1.6 5.2 4.6" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/><path d="M16 5.6a3 3 0 0 1 0 5.8M18 14.6c1.3.6 2.1 2 2.4 4.4" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>Add by @username</b><span>Or type half a name. Up to 150 friends, and the same list in Disciples Bible and TDG Cebu.</span></div>
+        <div class="ffact rv rv-p" style="--d:.4s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.6" stroke="#8db9ad" stroke-width="1.8"/><path d="M12 7.4V12l3 1.8" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>In class, or free</b><span>In BIO 110 till 2:30, out in 10 minutes &mdash; Quick Jump shows who is in class right now.</span></div>
+        <div class="ffact rv rv-p" style="--d:.5s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="#8db9ad" stroke-width="1.8"/><path d="M3.5 9h17M8 3v3m8-3v3" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>Their week, on yours</b><span>Lay a friend&rsquo;s shared classes over your Calendar and find the hour you are both free.</span></div>
+        <div class="ffact rv rv-p" style="--d:.6s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#8db9ad" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>You choose</b><span>Classes and events each have their own switch: only me, friends, or everyone. Notes and books are never shared.</span></div>
+      </div>
+
+      <div class="share">
+        <div class="share-say rv rv-l">
+          <p class="eyebrow">Share your week</p>
+          <h3>Your classes and calendar, <em>as a picture you can send.</em></h3>
+          <p>Turn your classes into a picture &mdash; a list, a timetable or cards &mdash; or share the whole month of your calendar, in your theme&rsquo;s colours. It is made on your computer and nothing is uploaded: copy it, or save it as a PNG and send it anywhere.</p>
+          <a class="btn btn-ghost btn-sm" href="./account/">Make a free account</a>
+        </div>
+        <div class="share-grid rv rv-r" style="--d:.14s">
+          <figure class="share-tile"><div class="win"><img src="./assets/site/share-timetable.jpg" alt="A shared picture of the week: My week, Fall 2026, a Monday to Friday timetable with one coloured block per class, 6 classes and 16 hours a week" width="2160" height="2716" loading="lazy" decoding="async"></div><figcaption>Timetable</figcaption></figure>
+          <figure class="share-tile"><div class="win"><img src="./assets/site/share-cards.jpg" alt="A shared picture of My classes as six cards, each with its course code, name, room, day chips and times, signed Made with Makullveny" width="2160" height="2700" loading="lazy" decoding="async"></div><figcaption>Cards</figcaption></figure>
+          <figure class="share-tile"><div class="win"><img src="./assets/site/share-list.jpg" alt="A shared picture of My classes, Fall 2026, 6 classes, as a list of class cards with day pills, times and rooms over the theme's art" width="1520" height="1252" loading="lazy" decoding="async"></div><figcaption>List</figcaption></figure>
+          <figure class="share-tile"><div class="win"><img src="./assets/site/calendar-share.jpg" alt="A shared picture of the calendar month: September 2026 with every class and assignment on its day" width="2360" height="1852" loading="lazy" decoding="async"></div><figcaption>Calendar month</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════ SELAH ═════════════════════════════════════════════ -->
   <section class="selah" id="selah">
     <div class="wrap selah-inner">
@@ -1603,10 +1767,10 @@
         </p>
       </div>
       <div class="selah-shot rv rv-p" style="--d:.24s">
-        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour — a painted meadow with pine forest and mountains, a gold-trimmed library with a royal-blue roof in the middle, a focus timer at 25:00, and a coin purse, shop and mail at the edges" width="2120" height="1340" loading="lazy" decoding="async"></div>
+        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour — the gold-trimmed library with a royal-blue roof lit from inside, villagers walking across the meadow and one sitting by the trees, two deer grazing, the Ready to Focus timer at 25:00, level 14, and the coin and diamond purse" width="2120" height="1340" loading="lazy" decoding="async"></div>
         <span class="selah-glow" aria-hidden="true"></span>
         <figure class="selah-night rv rv-r" style="--d:.42s">
-          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same meadow at night, stars over snow-capped peaks and the library lit warm from inside" width="2120" height="1340" loading="lazy" decoding="async"></div>
+          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same Selah meadow at night — stars over the peaks, the library's windows lit warm, and the villagers still out walking and sitting under the trees" width="2120" height="1340" loading="lazy" decoding="async"></div>
           <figcaption>It turns with the day. Golden hour, midday, dusk, night &mdash; the grounds are lit by the hour you are actually studying in.</figcaption>
         </figure>
       </div>
@@ -1621,7 +1785,7 @@
           <p class="eyebrow teal rv">Watch it grow</p>
           <h3 class="rv" style="--d:.06s">Every hour you study, <em>the library gets bigger.</em></h3>
           <p class="rv" style="--d:.12s">The building in the middle of Selah is yours. It grows with the time you actually put in &mdash;
-            and it only ever goes up. Here is the whole climb, straight from the app.</p>
+            and it only ever goes up. Here is the climb, straight from the app &mdash; the last two you will have to see for yourself.</p>
         </div>
         <ol class="grow-track">
           <li class="grow-step rv rv-p" style="--d:0.10s;--g:1">
@@ -1645,18 +1809,18 @@
             <b>The library proper</b>
             <span class="grow-when">About 20 hours</span>
           </li>
-          <li class="grow-step rv rv-p" style="--d:0.34s;--g:4">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-4.webp" alt="Stage 4: two storeys and a side wing, ruby-red roofs and gold trim, windows glowing on both floors" width="640" height="640" loading="lazy" decoding="async"></div>
+          <li class="grow-step is-locked rv rv-p" style="--d:0.34s;--g:4">
+            <div class="grow-plate"><img src="./assets/site/lib-stage-4-locked.webp" alt="Stage 4: a dark silhouette with a question mark over it -- not shown until you get there" width="640" height="640" loading="lazy" decoding="async"><span class="grow-q" aria-hidden="true">?</span></div>
             <span class="grow-dot" aria-hidden="true"></span>
             <span class="grow-n">Stage 4 &middot; Ruby</span>
-            <b>Two storeys and a side wing</b>
+            <b>Keep studying to find out</b>
             <span class="grow-when">About 60 hours</span>
           </li>
-          <li class="grow-step rv rv-p" style="--d:0.42s;--g:5">
-            <div class="grow-plate"><img src="./assets/site/lib-stage-5.webp" alt="Stage 5: a diamond reading hall with a bell tower, crystal spires and every window lit" width="640" height="640" loading="lazy" decoding="async"></div>
+          <li class="grow-step is-locked rv rv-p" style="--d:0.42s;--g:5">
+            <div class="grow-plate"><img src="./assets/site/lib-stage-5-locked.webp" alt="Stage 5: a dark silhouette with a question mark over it -- not shown until you get there" width="640" height="640" loading="lazy" decoding="async"><span class="grow-q" aria-hidden="true">?</span></div>
             <span class="grow-dot" aria-hidden="true"></span>
             <span class="grow-n">Stage 5 &middot; Diamond</span>
-            <b>A reading hall with a bell tower</b>
+            <b>Keep studying to find out</b>
             <span class="grow-when">About 150 hours</span>
           </li>
         </ol>
@@ -1666,207 +1830,44 @@
     </div>
   </section>
 
-  <!-- ══════════ APPS ══════════════════════════════════════════════ -->
+  <!-- ══════════ APPS & TOOLS, IN SHORT ═════════════════════════════ -->
+  <!-- The two long sections that lived here -- every app and every tool,
+       each with its own pictures -- are their own page now (features/).
+       This is the door to it: the real Apps & Tools screen, and one line
+       for each thing on it. -->
   <section class="apps" id="apps">
     <div class="motes" aria-hidden="true">
       <span class="mote cool" style="left:8%;top:14%;width:3px;height:3px;opacity:.4;animation-delay:-4s"></span>
       <span class="mote cool" style="left:92%;top:30%;width:2px;height:2px;opacity:.35;animation-delay:-11s"></span>
       <span class="mote" style="left:5%;top:62%;width:2px;height:2px;opacity:.3;animation-delay:-7s"></span>
-      <span class="mote cool" style="left:95%;top:76%;width:3px;height:3px;opacity:.3;animation-delay:-15s"></span>
     </div>
-    <div class="wrap" style="position:relative;z-index:2">
-      <div class="sec-head">
-        <p class="eyebrow teal rv">The apps</p>
-        <h2 class="rv" style="--d:.08s">Two full applications, opened from one dashboard.</h2>
-        <p class="rv" style="--d:.16s">Not panels in a sidebar — real, complete apps with their own space, their own state, and their own way of getting out of your way.</p>
+    <div class="wrap apps-lite">
+      <div class="apps-lite-say">
+        <p class="eyebrow teal rv">Apps &amp; tools</p>
+        <h2 class="rv" style="--d:.08s">Everything you open, <em>on one page.</em></h2>
+        <p class="rv" style="--d:.16s">Notes, your classes, your assignments and the small tools a study session keeps reaching for &mdash; all a press away from the dashboard.</p>
+        <ul class="apps-list rv" style="--d:.22s">
+          <li><a href="./features/#library"><b>Library Desk</b><span>notes on real paper</span></a></li>
+          <li><a href="./features/#studyhall"><b>Study Hall</b><span>board, assignments, flashcards</span></a></li>
+          <li><a href="./features/#studyhall"><b>Classes</b><span>every course, and the calendar</span></a></li>
+          <li><a href="./features/#photo"><b>Photo &rarr; flashcards</b><span>snap your cards, study them</span></a></li>
+          <li><a href="./features/#import"><b>Import Desk</b><span>a syllabus, into your term</span></a></li>
+          <li><a href="./features/#workshop"><b>File Workshop</b><span>convert, merge, split</span></a></li>
+          <li><a href="./features/#tools"><b>Typing &amp; Calculator</b><span>two small tools</span></a></li>
+          <li><a href="./features/#sound"><b>Radio &amp; ambience</b><span>lofi and rain, built in</span></a></li>
+        </ul>
+        <a class="btn btn-primary rv" style="--d:.3s" href="./features/">
+          See every app and tool
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="#241505" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
       </div>
-
-      <div class="apps-shot rv rv-p" style="--d:.2s">
+      <div class="apps-shot rv rv-r" style="--d:.2s">
         <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span>
           <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Apps &amp; Tools</span></div>
-          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools tab: Library Desk marked Ready, Study Hall marked Beta, Clyde marked Coming, and the tools — Import Desk, Cloud Backpack, File Workshop, Calculator and Typing Trials — each with its own state" width="1500" height="958" loading="lazy" decoding="async">
-        </div>
-        <p class="apps-shot-note">Everything the app opens, and exactly what state each one is in. Nothing on this page is promised that is not on that screen.</p>
-      </div>
-
-      <div class="show" style="margin-top:76px">
-        <div class="rv rv-l" style="--d:.1s">
-          <div class="app-tag"><span class="pill ready">Ready</span></div>
-          <h3>Library Desk</h3>
-          <p>Bookshelves that hold books, scrolls, journals, card boxes and blueprints. Pages take
-             rich text, drawings, pasted images and text boxes — and the paper always stays the focus,
-             with the tools in the toolbar and the rail rather than crowding the page.</p>
-          <div class="facts">
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Real paper formats</b><span>Print or export a page or a whole book to PDF.</span></div></div>
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Draw on the page</b><span>Pen, shapes and smoothing, right where you were writing.</span></div></div>
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Search the whole shelf</b><span>Pin, star and find anything you have written.</span></div></div>
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Saved on this device</b><span>Your books live in a local file, not a server.</span></div></div>
-          </div>
-        </div>
-        <div class="quadgrid rv rv-r" style="--d:.22s">
-          <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-book.jpg" alt="A book page of lecture notes on lined paper, with the formatting toolbar, page tabs and the bookshelf rail" width="2120" height="1340" loading="lazy" decoding="async"></div>
-            <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#2f5a45,#16281f)"></span><b>Book</b><em>Lined or grid paper, real formats, print or export</em></figcaption>
-          </figure>
-          <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-blueprint.jpg" alt="The blueprint sheet: a blue drafting grid with line-type and shape tools" width="1240" height="792" loading="lazy" decoding="async"></div>
-            <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#3f6f8f,#16283a)"></span><b>Blueprint</b><em>Drafting grid, snap-to-grid, shapes and dimensions</em></figcaption>
-          </figure>
-          <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-journal.jpg" alt="A journal spread with its own warmer paper" width="1240" height="792" loading="lazy" decoding="async"></div>
-            <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#6b4b78,#2b1d33)"></span><b>Journal</b><em>Its own paper and ink, dated entries, kept private</em></figcaption>
-          </figure>
-          <figure class="quad">
-            <div class="win"><img src="./assets/site/lib-cardbox.jpg" alt="A card box holding study cards" width="2120" height="1340" loading="lazy" decoding="async"></div>
-            <figcaption><span class="quad-ico" style="background:linear-gradient(150deg,#a8763c,#3b2712)"></span><b>Card box</b><em>Up to 25 cards a box, colour-coded, straight into Flashcards</em></figcaption>
-          </figure>
-        </div>
-      </div>
-
-      <div class="show flip">
-        <div class="rv rv-l" style="--d:.1s">
-          <div class="show-art">
-            <div class="win">
-              <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Study Hall — Board</span></div>
-              <img src="./assets/site/studyhall.jpg" alt="The Study Hall board: To Do, In Progress, Almost There and Done, each column colour-graded and carrying its own progress chip" width="2120" height="1340" loading="lazy" decoding="async">
-            </div>
-          </div>
-          <div class="sh-tabs">
-            <figure>
-              <div class="win"><img src="./assets/site/sh-overview.jpg" alt="The Study Hall Overview tab: a Due today list reading off the board, and a Homework progress ring for the week" width="2120" height="1340" loading="lazy" decoding="async"></div>
-              <figcaption>Overview &mdash; what is due today, and how much of the week&rsquo;s board is finished</figcaption>
-            </figure>
-            <figure>
-              <div class="win"><img src="./assets/site/sh-courses.jpg" alt="The Study Hall Courses tab: every class of the term with its code, its meeting times and how much of its work is finished" width="2120" height="1340" loading="lazy" decoding="async"></div>
-              <figcaption>Courses &mdash; every class of the term, and how far through each one you are</figcaption>
-            </figure>
-            <figure>
-              <div class="win"><img src="./assets/site/sh-calendar.jpg" alt="The Study Hall Calendar tab: a week with classes laid out by hour, deadlines along the top, an exam marked as a test, and a line across the current time" width="2120" height="1340" loading="lazy" decoding="async"></div>
-              <figcaption>Calendar &mdash; classes and deadlines on one week, with the hour you are in marked</figcaption>
-            </figure>
-          </div>
-        </div>
-        <div class="rv rv-r" style="--d:.22s">
-          <div class="app-tag"><span class="pill beta">Beta</span></div>
-          <h3>Study Hall</h3>
-          <p>A calm look at what is due, how the week is going, and where your time actually went.
-             Overview, a drag-and-drop board, every course of the term and a calendar that puts classes
-             and deadlines on the same week — and it opens in its own window when you want it next
-             to the page you are writing.</p>
-          <div class="facts">
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Cards due today</b><span>What needs reviewing, without a wall of red.</span></div></div>
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Syllabus dates</b><span>Imported once, then simply there.</span></div></div>
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Your own columns</b><span>Move a card when the work moves, not before.</span></div></div>
-            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Pops out</b><span>Its own window, beside the notes it belongs to.</span></div></div>
-          </div>
-          <div class="conv-list" style="margin-top:18px">
-            <span class="conv">Overview</span><span class="conv">Board</span><span class="conv">Courses</span><span class="conv">Schedule</span><span class="conv">Flashcards</span>
-          </div>
+          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools page: Documents (the Library Desk), Study Hall marked Beta and Classes marked New, the Market, and the tools on an arc — Import Desk, Cloud Backpack (New), File Workshop, Calculator, Typing Trials, Pocket Checklist and Friends (New)" width="2120" height="1354" loading="lazy" decoding="async">
         </div>
       </div>
     </div>
-  </section>
-
-  <!-- ══════════ TOOLS ═════════════════════════════════════════════ -->
-  <section class="tools" id="tools">
-    <span class="ov ov-tr" style="background-image:url(&quot;./assets/site/ov-bough-top-right.webp&quot;);top:24px;right:-70px;opacity:.5"></span>
-    <span class="ov ov-bl" style="background-image:url(&quot;./assets/site/ov-bough-bottom-left.webp&quot;);opacity:.42"></span>
-    <div class="wrap tools-inner">
-      <div class="sec-head">
-        <p class="eyebrow teal rv">The tools</p>
-        <h2 class="rv" style="--d:.08s">Five small tools that pop out and sit beside your work.</h2>
-        <p class="rv" style="--d:.16s">Each one opens in its own window, so it can stay next to the page you are actually writing instead of taking the whole app over.</p>
-      </div>
-
-      <div class="lead-tool">
-        <div class="show-art rv rv-l" style="--d:.1s">
-          <div class="win">
-            <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">File Workshop</span></div>
-            <img src="./assets/site/fileworkshop.jpg" alt="File Workshop: a files panel, the tool catalog by category, and the outputs panel" width="1500" height="958" loading="lazy" decoding="async">
-          </div>
-        </div>
-        <div class="rv rv-r" style="--d:.22s">
-          <div class="app-tag"><span class="pill ready">Ready</span></div>
-          <h3 style="font-size:38px;line-height:1.07;margin-bottom:14px">File Workshop</h3>
-          <p style="font:400 16px/1.7 var(--ui);color:rgba(247,234,214,.72);max-width:42ch">
-            Convert, clean and organize class files without leaving Makullveny. Every conversion
-            runs locally through a bundled FFmpeg — nothing is uploaded, and nothing needs an account.
-          </p>
-          <div class="conv-list">
-            <span class="conv">PDF → Images</span><span class="conv">Merge</span><span class="conv">Split</span><span class="conv">Optimize</span>
-            <span class="conv">Images → PDF</span><span class="conv">PNG ↔ JPG</span><span class="conv">Audio → MP3</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="tool-grid">
-        <article class="tool-card rv rv-p" style="--d:.08s">
-          <div class="head">
-            <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><path d="M5 4.5h9l5 5v10a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19.5v-15Z" stroke="#e8b273" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 4.5v5h5M8.5 13.5h7M8.5 17h4.5" stroke="#e8b273" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-            <div><h4>Import Desk</h4><p>Drop a syllabus in, tick what to keep, and get a class book, a starter flashcard deck and your dates in one pass.</p></div>
-          </div>
-          <div class="tool-shot"><div class="win"><img src="./assets/site/importdesk.jpg" alt="Import Desk: paste or drop a syllabus, then choose what to send into a book, flashcards and Study Hall" width="1300" height="952" loading="lazy" decoding="async"></div></div>
-        </article>
-
-        <article class="tool-card rv rv-p" style="--d:.16s">
-          <div class="head">
-            <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="3" y="6.5" width="14" height="11" rx="2" stroke="#e8b273" stroke-width="1.6"/><path d="M7.5 4h11A2.5 2.5 0 0 1 21 6.5v9" stroke="#e8b273" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-            <div><h4>Flashcards</h4><p>Flip and grade a local deck — Again, Good, Easy — while the Library Desk stays open behind it.</p></div>
-          </div>
-          <div class="tool-shot"><div class="win"><img src="./assets/site/flashcards.jpg" alt="The Flashcards tool: a deck of eight saved cards, all due, a prompt reading Big-O of merge sort waiting to be flipped, and the Again, Good and Easy grading buttons" width="1500" height="948" loading="lazy" decoding="async"></div></div>
-        </article>
-
-        <article class="tool-card rv rv-p" style="--d:.24s">
-          <div class="head">
-            <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="4" y="7" width="16" height="10" rx="2" stroke="#e8b273" stroke-width="1.6"/><path d="M8 11h.01M12 11h.01M16 11h.01M8.5 14h7" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg></span>
-            <div><h4>Typing Trials</h4><p>Practice your typing and watch the speed climb. Timed or word-count runs, live WPM and accuracy, records kept on this device.</p></div>
-          </div>
-          <div class="tool-shot"><div class="win"><img src="./assets/site/typing.jpg" alt="Typing Trials showing WPM, accuracy and seconds left above a passage of practice words" width="1300" height="952" loading="lazy" decoding="async"></div></div>
-        </article>
-
-        <article class="tool-card rv rv-p" style="--d:.32s">
-          <div class="head">
-            <span class="tool-ico"><svg width="21" height="21" viewBox="0 0 24 24" fill="none"><rect x="5" y="3.5" width="14" height="17" rx="2.5" stroke="#e8b273" stroke-width="1.6"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg></span>
-            <div><h4>Calculator</h4><p>A scientific calculator that works with no connection at all — trig, logs, factorials, powers, and a keyboard shortcut of your choosing.</p></div>
-          </div>
-          <div class="tool-shot" style="display:flex;justify-content:center"><div class="win" style="width:270px"><img src="./assets/site/calculator.jpg" alt="The scientific calculator with degree and radian modes and a full function keypad" width="760" height="1311" loading="lazy" decoding="async"></div></div>
-        </article>
-      </div>
-    </div>
-
-      <!-- The five above pop out; so does this. It was its own section until
-           that turned out to be the same point made twice, with a section's
-           padding and a second gradient in between. The rule is what keeps
-           "five small tools" honest: the radio sits after the five, not in
-           them. -->
-      <div class="wrap sound sound-tail">
-  <div class="rv rv-l">
-          <p class="eyebrow">Sound</p>
-          <h2 style="font-size:38px;line-height:1.07;margin:14px 0 14px">A lofi radio and room ambience, built in.</h2>
-          <p style="font:400 16px/1.7 var(--ui);color:rgba(247,234,214,.72);max-width:46ch">
-            The radio pops out into its own little window with a real visualizer, so the music stays
-            where you can reach it. Ambience layers underneath. And if movement is the thing that
-            distracts you, a reduced-motion mode turns all of it off.
-          </p>
-          <div class="conv-list">
-            <span class="conv">Lofi radio</span><span class="conv">Room ambience</span><span class="conv">Pop-out player</span>
-            <span class="conv">Two player designs</span><span class="conv">Three visualisers</span><span class="conv">Reduced motion</span>
-          </div>
-        </div>
-        <div class="radio-stack rv rv-r" style="--d:.14s">
-          <div class="show-art radio-main">
-            <div class="win">
-              <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Radio — its own window</span></div>
-              <img src="./assets/site/radio-popout.jpg" alt="The radio popped out into its own window: the mix name, transport controls, a waveform visualiser, a station picker, volume and a glass slider" width="1400" height="969" loading="lazy" decoding="async">
-            </div>
-          </div>
-          <figure class="radio-inset">
-            <div class="win"><img src="./assets/site/radio.jpg" alt="The radio docked at the edge of the app with a cassette face, a station picker, volume and transport controls" width="680" height="696" loading="lazy" decoding="async"></div>
-            <figcaption>Two designs — the mini bar above, the cassette here — and three visualisers to put in either.</figcaption>
-          </figure>
-        </div>
-      </div>
-
   </section>
 
   <div class="band" style="--band-top:#152219;--band-bottom:#17291f;height:200px" aria-hidden="true">
@@ -1875,227 +1876,39 @@
     <span class="lantern" style="right:14%;width:126px;height:206px"></span>
   </div>
 
-  <!-- ══════════ THEMES ════════════════════════════════════════════ -->
+  <!-- ══════════ THEMES, IN SHORT ═══════════════════════════════════ -->
+  <!-- The room-by-room browser moved to themes/, where the bundles already
+       were. Here: every room that ships, one picture each, straight from the
+       in-app Theme Market's own captures. -->
   <section class="themes" id="themes">
-    <div class="motes" aria-hidden="true">
-      <span class="mote" style="left:6%;top:20%;width:3px;height:3px;opacity:.35;animation-delay:-2s"></span>
-      <span class="mote" style="left:94%;top:44%;width:2px;height:2px;opacity:.3;animation-delay:-13s"></span>
-      <span class="mote" style="left:11%;top:78%;width:2px;height:2px;opacity:.28;animation-delay:-6s"></span>
-    </div>
-    <div class="wrap themes-inner">
-      <div class="sec-head" style="max-width:780px">
+    <div class="wrap themes-lite">
+      <div class="sec-head" style="max-width:760px">
         <p class="eyebrow rv">Atmosphere</p>
-        <h2 class="rv" style="--d:.08s">Nine rooms ship with the app. Pick the one you can think in.</h2>
-        <p class="rv" style="--d:.16s">
-          The whole app re-themes — background art, paper, typography and chrome all change together,
-          so switching theme changes the room you are sitting in rather than the colour of a button.
-          Choose one on the left to look around it.
-        </p>
+        <h2 class="rv" style="--d:.08s">Ten rooms ship with the app. <em>Pick the one you can think in.</em></h2>
+        <p class="rv" style="--d:.16s">The whole app re-themes &mdash; background art, paper, type and chrome change together, so you change the room you are sitting in, not the colour of a button.</p>
       </div>
-
-      <div class="browser rv" style="--d:.24s">
-        <input type="radio" name="theme" id="t1" checked>
-        <input type="radio" name="theme" id="t2">
-        <input type="radio" name="theme" id="t3">
-        <input type="radio" name="theme" id="t4">
-        <input type="radio" name="theme" id="t5">
-        <input type="radio" name="theme" id="t6">
-        <input type="radio" name="theme" id="t7">
-        <input type="radio" name="theme" id="t8">
-        <input type="radio" name="theme" id="t9">
-
-        <div class="rail">
-          <label class="row r1" for="t1">
-            <span class="row-sw" style="background:linear-gradient(120deg, #d4e3ea, #3d7688, #7a5b36)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><path fill="#7a5b36" d="M11 24 L24 14 L37 24 L37 40 L11 40 Z"/><path fill="#3d7688" d="M7.5 27 L24 11.5 L40.5 27 L37 30.4 L24 18.2 L11 30.4 Z"/><rect fill="#3d7688" x="15.5" y="30.6" width="6.4" height="9.4" rx="1.2"/><rect fill="#ffffff" x="11.9" y="34.4" width="3.2" height="1" rx="0.5"/><rect fill="#ffffff" x="26.6" y="37.6" width="6.4" height="1" rx="0.5"/><rect fill="#ffffff" x="26.2" y="30.4" width="7.2" height="6.2" rx="1"/><rect fill="#7a5b36" x="29.25" y="30.4" width="1.1" height="6.2" rx="0.2"/><rect fill="#7a5b36" x="26.2" y="32.95" width="7.2" height="1.1" rx="0.2"/><path fill="#ffffff" d="M7.5 27 L24 11.5 L40.5 27 L36.6 27 L24 15.8 L11.4 27 Z"/><path fill="#ffffff" d="M3.8 43.4 Q13 36.2 24 38.8 Q35 36.2 44.2 43.4 Z"/></svg></span>
-            <span class="row-name"><b>Snow Cabin</b><em>Included</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r2" for="t2">
-            <span class="row-sw" style="background:linear-gradient(120deg, #15120f, #8db9ad, #d58c4b)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><circle fill="#f5e7cf" cx="38" cy="9" r="4.2"/><path fill="#d58c4b" d="M11 24 L24 14 L37 24 L37 40 L11 40 Z"/><path fill="#c8b189" d="M7.5 27 L24 11.5 L40.5 27 L37 30.4 L24 18.2 L11 30.4 Z"/><rect fill="#15120f" x="15.5" y="30.6" width="6.4" height="9.4" rx="1.2"/><rect fill="#f5e7cf" x="11.9" y="34.4" width="3.2" height="1" rx="0.5"/><rect fill="#f5e7cf" x="26.6" y="37.6" width="6.4" height="1" rx="0.5"/><rect fill="#f5e7cf" x="26.2" y="30.4" width="7.2" height="6.2" rx="1"/><rect fill="#c8b189" x="29.25" y="30.4" width="1.1" height="6.2" rx="0.2"/><rect fill="#c8b189" x="26.2" y="32.95" width="7.2" height="1.1" rx="0.2"/><rect fill="#c8b189" x="6.5" y="40" width="35" height="2" rx="1"/></svg></span>
-            <span class="row-name"><b>Cozy Cabin</b><em>Included · default</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r3" for="t3">
-            <span class="row-sw" style="background:linear-gradient(120deg, #101d26, #a7c8d4, #78abc0)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><rect fill="rgba(190, 211, 221, 0.74)" x="6.5" y="6.5" width="35" height="23.5" rx="3"/><rect fill="#f2e9d8" x="9" y="9" width="30" height="18.5" rx="1.6"/><circle fill="#a7c8d4" cx="15.5" cy="15.2" r="5.2" opacity="0.5"/><circle fill="#a7c8d4" cx="15.5" cy="15.2" r="2.6"/><rect fill="rgba(190, 211, 221, 0.74)" x="23.2" y="9" width="1.5" height="18.5" rx="0"/><rect fill="rgba(190, 211, 221, 0.74)" x="9" y="17.4" width="30" height="1.5" rx="0"/><rect fill="rgba(190, 211, 221, 0.74)" x="4.5" y="30" width="39" height="2.4" rx="1.2"/><path fill="#f2e9d8" d="M16 32.4 h11.2 v4 a5.6 3 0 0 1 -11.2 0 Z"/><circle fill="#f2e9d8" cx="29.8" cy="35" r="2.6"/><circle fill="#101d26" cx="29.8" cy="35" r="1.3"/><rect fill="#f2e9d8" x="13.6" y="40" width="16" height="1.8" rx="0.9"/><rect fill="#78abc0" x="11.5" y="10.8" width="1.6" height="8" rx="0.8" transform="rotate(16 12.3 14.8)"/><rect fill="#78abc0" x="19.6" y="10" width="1.6" height="6.4" rx="0.8" transform="rotate(16 20.4 13.2)"/><rect fill="#78abc0" x="30.2" y="11.4" width="1.6" height="7.6" rx="0.8" transform="rotate(16 31 15.2)"/><rect fill="#78abc0" x="35.6" y="10.4" width="1.6" height="6" rx="0.8" transform="rotate(16 36.4 13.4)"/><rect fill="#78abc0" x="7.6" y="34.4" width="1.6" height="4.2" rx="0.8" transform="rotate(16 8.4 36.5)"/><rect fill="#78abc0" x="38.4" y="34.8" width="1.6" height="4.2" rx="0.8" transform="rotate(16 39.2 36.9)"/></svg></span>
-            <span class="row-name"><b>Rainy Cafe</b><em>Included</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r4" for="t4">
-            <span class="row-sw" style="background:linear-gradient(120deg, #16291f, #87b99c, #e0b85d)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><path fill="#b4c3a2" d="M24.6 33 C24.6 24.4 23.6 18.8 21.6 13.6 L23.9 12.7 C26 18.4 26.9 24.4 26.9 33 Z"/><path fill="#87b99c" d="M0 0 C3.4 -0.6 6 -3.6 6.4 -7.6 C2.4 -6.6 -0.4 -3.8 0 0 Z" transform="translate(22.7 14.4) rotate(-40) scale(0.75)"/><path fill="#87b99c" d="M0 0 C3.4 -0.6 6 -3.6 6.4 -7.6 C2.4 -6.6 -0.4 -3.8 0 0 Z" transform="translate(23 17.5) rotate(-70) scale(1.05)"/><path fill="#87b99c" d="M0 0 C3.4 -0.6 6 -3.6 6.4 -7.6 C2.4 -6.6 -0.4 -3.8 0 0 Z" transform="translate(24.4 22.5) rotate(15) scale(0.95)"/><path fill="#87b99c" d="M0 0 C3.4 -0.6 6 -3.6 6.4 -7.6 C2.4 -6.6 -0.4 -3.8 0 0 Z" transform="translate(24.9 25.5) rotate(-95) scale(0.85)"/><rect fill="#87b99c" x="32.4" y="22.4" width="5.2" height="14.2" rx="1.2" transform="rotate(9 35 29.5)"/><rect fill="#f1ecd8" x="32.9" y="23.4" width="1.7" height="12.2" rx="0.6" transform="rotate(9 35 29.5)"/><rect fill="#e0b85d" x="8.5" y="31.4" width="25" height="5.2" rx="1.3"/><rect fill="#b4c3a2" x="8.5" y="34.6" width="25" height="1" rx="0.5"/><rect fill="#f1ecd8" x="11" y="26.6" width="21" height="4.6" rx="1.2"/><rect fill="#b4c3a2" x="6.5" y="36.6" width="35" height="2.2" rx="1.1"/></svg></span>
-            <span class="row-name"><b>Woodland Library</b><em>Included</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r5" for="t5">
-            <span class="row-sw" style="background:linear-gradient(120deg, #020704, #00e5ff, #39ff7a)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><rect fill="rgba(190, 255, 207, 0.72)" x="6" y="8" width="36" height="26" rx="4"/><rect fill="#06120a" x="9" y="11" width="30" height="20" rx="2"/><path fill="#39ff7a" d="M12.6 15.4 L17 18.8 L12.6 22.2 L11 21 L13.8 18.8 L11 16.6 Z"/><rect fill="#39ff7a" x="19" y="17.7" width="9" height="2.2" rx="1.1"/><rect fill="#00e5ff" x="12" y="23.4" width="13" height="2.2" rx="1.1"/><rect fill="#39ff7a" x="27" y="23.4" width="6" height="2.2" rx="1.1"/><rect fill="#00e5ff" x="34.2" y="23.4" width="2.8" height="2.2" rx="0.6"/><circle fill="#00e5ff" cx="11.6" cy="32.5" r="0.9"/><rect fill="rgba(190, 255, 207, 0.72)" x="21.6" y="34" width="4.8" height="3.6" rx="0.6"/><rect fill="rgba(190, 255, 207, 0.72)" x="15" y="37" width="18" height="2.8" rx="1.4"/></svg></span>
-            <span class="row-name"><b>Neon Terminal</b><em>Theme Market</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r6" for="t6">
-            <span class="row-sw" style="background:linear-gradient(120deg, #f3dfe7, #6da8ad, #b04f70)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><path fill="#6da8ad" d="M3.4 43.8 C9.4 36 15 27.8 24.6 20.6 C17.6 30.6 12.2 38.6 8.2 43.8 Z"/><path fill="#6da8ad" d="M16.4 30.2 C21 26.8 26 24.8 31.8 24.2 C26.6 26.6 21.8 29.4 17.6 33 Z"/><circle fill="#b04f70" cx="26" cy="13.7" r="2.5"/><circle fill="#b04f70" cx="28.76" cy="15.7" r="2.5"/><circle fill="#b04f70" cx="27.7" cy="18.95" r="2.5"/><circle fill="#b04f70" cx="24.3" cy="18.95" r="2.5"/><circle fill="#b04f70" cx="23.24" cy="15.7" r="2.5"/><circle fill="#fff7f4" cx="26" cy="16.6" r="1.5"/><circle fill="#b04f70" cx="34" cy="20.22" r="2.05"/><circle fill="#b04f70" cx="36.26" cy="21.87" r="2.05"/><circle fill="#b04f70" cx="35.4" cy="24.52" r="2.05"/><circle fill="#b04f70" cx="32.6" cy="24.52" r="2.05"/><circle fill="#b04f70" cx="31.74" cy="21.87" r="2.05"/><circle fill="#fff7f4" cx="34" cy="22.6" r="1.23"/><circle fill="#b04f70" cx="13" cy="32.4" r="2.4"/><circle fill="#b04f70" cx="15.4" cy="30" r="1.7"/><ellipse fill="#b04f70" cx="9.4" cy="20.6" rx="2.3" ry="1.3" transform="rotate(-26 9.4 20.6)"/><ellipse fill="#b04f70" cx="38.4" cy="34.4" rx="1.95" ry="1.11" transform="rotate(22 38.4 34.4)"/></svg></span>
-            <span class="row-name"><b>Cherry Blossom</b><em>Theme Market</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r7" for="t7">
-            <span class="row-sw" style="background:linear-gradient(120deg, #dce9d5, #cf9a34, #3b7c4b)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><path fill="#cf9a34" d="M21.6 22 h4.8 l1.6 14 h-8 Z"/><circle fill="#3b7c4b" cx="24" cy="15.2" r="9.4"/><circle fill="#3b7c4b" cx="14.8" cy="20" r="6.6"/><circle fill="#3b7c4b" cx="33.2" cy="20" r="6.6"/><circle fill="#cf9a34" cx="17.6" cy="17.4" r="2.2"/><circle fill="#cf9a34" cx="29.2" cy="13.8" r="2.2"/><circle fill="#cf9a34" cx="31.4" cy="21.8" r="2"/><path fill="#3b7c4b" d="M6.6 39.2 Q15 34.8 24 36.6 Q33 34.8 41.4 39.2 Z"/></svg></span>
-            <span class="row-name"><b>Garden of Eden</b><em>Theme Market</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r8" for="t8">
-            <span class="row-sw" style="background:linear-gradient(120deg, #1a1410, #e2703a, #f0a94a)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><circle fill="#f0a94a" cx="24" cy="24.4" r="17" opacity="0.09"/><circle fill="#f0a94a" cx="24" cy="24.4" r="12.4" opacity="0.11"/><circle fill="rgba(235, 210, 175, 0.72)" cx="24" cy="7.4" r="2.6"/><circle fill="#1a1410" cx="24" cy="7.4" r="1.3"/><rect fill="rgba(235, 210, 175, 0.72)" x="23.3" y="9.4" width="1.4" height="3.2" rx="0.4"/><path fill="rgba(235, 210, 175, 0.72)" d="M17.4 15.8 h13.2 l -2.6 -3.4 h-8 Z"/><rect fill="#f3e7d0" x="15.4" y="15.8" width="17.2" height="17" rx="3.4"/><path fill="#f0a94a" d="M24 20.4 C21.1 23.9 21.1 27.4 24 29.6 C26.9 27.4 26.9 23.9 24 20.4 Z"/><path fill="rgba(235, 210, 175, 0.72)" d="M18 32.8 h12 l -2.2 3.2 h-7.6 Z"/><circle fill="#e2703a" cx="11.4" cy="21.4" r="1.6"/><circle fill="#e2703a" cx="36.8" cy="19" r="1.8"/><circle fill="#e2703a" cx="39.2" cy="13.4" r="1.1"/></svg></span>
-            <span class="row-name"><b>Lantern Study</b><em>Theme Market</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-          <label class="row r9" for="t9">
-            <span class="row-sw" style="background:linear-gradient(120deg, #08101d, #86aee8, #d6a85d)"><svg viewBox="0 0 48 48" width="30" height="30" aria-hidden="true" focusable="false"><circle fill="#eef1f7" cx="34.4" cy="12" r="6.4"/><circle fill="#08101d" cx="31.4" cy="10.2" r="5.6"/><path fill="#86aee8" d="M9 7.4 L9.78 9.22 L11.6 10 L9.78 10.78 L9 12.6 L8.22 10.78 L6.4 10 L8.22 9.22 Z"/><path fill="#86aee8" d="M14.4 16.5 L14.91 17.69 L16.1 18.2 L14.91 18.71 L14.4 19.9 L13.89 18.71 L12.7 18.2 L13.89 17.69 Z"/><path fill="#86aee8" d="M41 24.4 L41.6 25.8 L43 26.4 L41.6 27 L41 28.4 L40.4 27 L39 26.4 L40.4 25.8 Z"/><path fill="#aebbd3" d="M10 30 A11 11 0 0 1 32 30 Z"/><rect fill="#08101d" x="19.7" y="20" width="4.4" height="11" rx="2.2" transform="rotate(18 21.9 25.5)"/><rect fill="#d6a85d" x="20.5" y="17.5" width="2.8" height="13" rx="1.4" transform="rotate(18 21.9 24)"/><rect fill="#aebbd3" x="12.5" y="30" width="17" height="7.6" rx="1"/><rect fill="#d6a85d" x="21.4" y="32.4" width="3.4" height="5.2" rx="0.8"/><rect fill="#aebbd3" x="10.5" y="37.6" width="23" height="2.6" rx="1.3"/></svg></span>
-            <span class="row-name"><b>Moonlit Observatory</b><em>Theme Market</em></span>
-            <span class="row-go"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-          </label>
-        </div>
-
-        <div class="stagewrap">
-          <div class="panel p1">
-            <div class="panel-top"><div><h3>Snow Cabin</h3><p>The cabin at first light — cool blues, bright paper, quiet.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-snow-cabin-dash.jpg" alt="The Makullveny dashboard in the Snow Cabin theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-snow-cabin-lib.jpg" alt="The Library Desk in the Snow Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-snow-cabin-work.jpg" alt="File Workshop in the Snow Cabin theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-snow-cabin-cards.jpg" alt="A card box of study cards in the Snow Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p2">
-            <div class="panel-top"><div><h3>Cozy Cabin</h3><p>Firelight, walnut and a window full of snow. The room the app opens in.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-cozy-cabin-dash.jpg" alt="The Makullveny dashboard in the Cozy Cabin theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-cozy-cabin-lib.jpg" alt="The Library Desk in the Cozy Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-cozy-cabin-work.jpg" alt="File Workshop in the Cozy Cabin theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-cozy-cabin-cards.jpg" alt="A card box of study cards in the Cozy Cabin theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p3">
-            <div class="panel-top"><div><h3>Rainy Cafe</h3><p>Overcast blue-grey, and a window you can almost hear.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-rainy-cafe-dash.jpg" alt="The Makullveny dashboard in the Rainy Cafe theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-rainy-cafe-lib.jpg" alt="The Library Desk in the Rainy Cafe theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-rainy-cafe-work.jpg" alt="File Workshop in the Rainy Cafe theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-rainy-cafe-cards.jpg" alt="A card box of study cards in the Rainy Cafe theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p4">
-            <div class="panel-top"><div><h3>Woodland Library</h3><p>Muted oak and green shade. Built for long reading.</p></div><span class="pill free">Included</span></div>
-            <div class="win"><img src="./assets/site/t-woodland-library-dash.jpg" alt="The Makullveny dashboard in the Woodland Library theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-woodland-library-lib.jpg" alt="The Library Desk in the Woodland Library theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-woodland-library-work.jpg" alt="File Workshop in the Woodland Library theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-woodland-library-cards.jpg" alt="A card box of study cards in the Woodland Library theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p5">
-            <div class="panel-top"><div><h3>Neon Terminal</h3><p>High-contrast green on black — and the one theme with accents of its own, in pink and blue.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-terminal-hacker-dash.jpg" alt="The Makullveny dashboard in the Neon Terminal theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-terminal-hacker-lib.jpg" alt="The Library Desk in the Neon Terminal theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-terminal-hacker-work.jpg" alt="File Workshop in the Neon Terminal theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-terminal-hacker-cards.jpg" alt="A card box of study cards in the Neon Terminal theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p6">
-            <div class="panel-top"><div><h3>Cherry Blossom</h3><p>Soft pinks, pale paper and a spring window.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-cherry-blossom-dash.jpg" alt="The Makullveny dashboard in the Cherry Blossom theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-cherry-blossom-lib.jpg" alt="The Library Desk in the Cherry Blossom theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-cherry-blossom-work.jpg" alt="File Workshop in the Cherry Blossom theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-cherry-blossom-cards.jpg" alt="A card box of study cards in the Cherry Blossom theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p7">
-            <div class="panel-top"><div><h3>Garden of Eden</h3><p>Deep leaf green, with warm light coming through the canopy.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-garden-of-eden-dash.jpg" alt="The Makullveny dashboard in the Garden of Eden theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-garden-of-eden-lib.jpg" alt="The Library Desk in the Garden of Eden theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-garden-of-eden-work.jpg" alt="File Workshop in the Garden of Eden theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-garden-of-eden-cards.jpg" alt="A card box of study cards in the Garden of Eden theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p8">
-            <div class="panel-top"><div><h3>Lantern Study</h3><p>Amber lanterns and dark timber — the warmest room in the app.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-lantern-study-dash.jpg" alt="The Makullveny dashboard in the Lantern Study theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-lantern-study-lib.jpg" alt="The Library Desk in the Lantern Study theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-lantern-study-work.jpg" alt="File Workshop in the Lantern Study theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-lantern-study-cards.jpg" alt="A card box of study cards in the Lantern Study theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-          <div class="panel p9">
-            <div class="panel-top"><div><h3>Moonlit Observatory</h3><p>Indigo night, brass instruments and a sky worth looking up at.</p></div><span class="pill mkt">Theme Market</span></div>
-            <div class="win"><img src="./assets/site/t-moonlit-observatory-dash.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="1280" height="809" loading="lazy" decoding="async"></div>
-            <div class="panel-shots">
-              <div><div class="win"><img src="./assets/site/t-moonlit-observatory-lib.jpg" alt="The Library Desk in the Moonlit Observatory theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Library Desk</span></div>
-              <div><div class="win"><img src="./assets/site/t-moonlit-observatory-work.jpg" alt="File Workshop in the Moonlit Observatory theme" width="1100" height="703" loading="lazy" decoding="async"></div><span class="shot-cap">File Workshop</span></div>
-              <div><div class="win"><img src="./assets/site/t-moonlit-observatory-cards.jpg" alt="A card box of study cards in the Moonlit Observatory theme" width="1100" height="695" loading="lazy" decoding="async"></div><span class="shot-cap">Card box</span></div>
-            </div>
-          </div>
-        </div>
+      <div class="room-strip rv" style="--d:.22s">
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-cozy-cabin.jpg" alt="The Makullveny dashboard in the Cozy Cabin theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Cozy Cabin<em>Free</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-snow-cabin.jpg" alt="The Makullveny dashboard in the Snow Cabin theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Snow Cabin<em>Free</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-rainy-cafe.jpg" alt="The Makullveny dashboard in the Rainy Cafe theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Rainy Cafe<em>Free</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-woodland-library.jpg" alt="The Makullveny dashboard in the Woodland Library theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Woodland Library<em>Free</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-on-the-rock.jpg" alt="The Makullveny dashboard in the On The Rock theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>On The Rock<em>Candle</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-terminal-hacker.jpg" alt="The Makullveny dashboard in the Neon Terminal theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Neon Terminal<em>Candle</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-cherry-blossom.jpg" alt="The Makullveny dashboard in the Cherry Blossom theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Cherry Blossom<em>Candle</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-garden-of-eden.jpg" alt="The Makullveny dashboard in the Garden of Eden theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Garden of Eden<em>Candle</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-lantern-study.jpg" alt="The Makullveny dashboard in the Lantern Study theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Lantern Study<em>Candle</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-moonlit-observatory.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Moonlit Observatory<em>Candle</em></figcaption></figure>
       </div>
-    </div>
-
-      <!-- The themes section's closing line: the nine rooms above ship with
-           the app, and this is the door to the ones that do not. It was its
-           own full-padded section until it became the tail of the section it
-           was always talking about. -->
-      <div class="wrap bundles-inner bundles-tail rv">
-  <div class="bundles-copy">
-          <p class="eyebrow">Theme bundles</p>
-          <h2>There are whole collections you have not seen.</h2>
-          <p>Five hand-illustrated rooms are built and waiting on the plans they belong to, and more sit in the
-             in-app Theme Market. The bundles have their own page, room by room.</p>
-        </div>
-        <div class="bundles-peek" aria-hidden="true">
-          <span class="peek p-a"><img src="./assets/site/ti-crimson-atelier-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
-          <span class="peek p-b"><img src="./assets/site/ti-abyssal-aquarium-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
-          <span class="peek p-c"><img src="./assets/site/ti-gilded-arcana-dash.jpg" alt="" width="1500" height="958" loading="lazy" decoding="async"></span>
-        </div>
-        <a class="btn btn-primary bundles-cta" href="./themes/">
-          See the theme bundles
+      <div class="themes-lite-foot rv" style="--d:.28s">
+        <p><b>Four are free.</b> Six more are the Candle bundle in the in-app Theme Market, and a bundle of seven hand-illustrated rooms is on the way.</p>
+        <a class="btn btn-primary" href="./themes/">
+          Look around every room
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="#241505" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
-
-  </section>
-
-
-
-  <!-- ══════════ WORKBENCH ═════════════════════════════════════════ -->
-  <section class="workbench">
-    <span class="ov ov-cones" style="background-image:url(&quot;./assets/site/ov-pine-cones-ground.webp&quot;);opacity:.5"></span>
-    <span class="ov ov-br" style="background-image:url(&quot;./assets/site/ov-bough-bottom-right.webp&quot;);opacity:.38"></span>
-    <div class="wrap" style="position:relative;z-index:2">
-      <div class="sec-head">
-        <p class="eyebrow rv">On the workbench</p>
-        <h2 class="rv" style="--d:.08s">Already being built.</h2>
-        <p class="rv" style="--d:.16s">Everything above works today. These three are the next ones landing — listed so you know what is coming, rather than sold as if they were already here.</p>
-      </div>
-      <div class="workbench-grid">
-        <article class="workbench-card rv rv-p" style="--d:.08s">
-          <span class="wb-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="14.4" rx="6.3" ry="5.6" stroke="#e8b273" stroke-width="1.5"/><path d="M6.9 10.2 5.1 5.9l4 2.1M17.1 10.2l1.8-4.3-4 2.1" stroke="#e8b273" stroke-width="1.5" stroke-linejoin="round"/><circle cx="9.9" cy="13.6" r="1.15" fill="#f0c88f"/><circle cx="14.1" cy="13.6" r="1.15" fill="#f0c88f"/><path d="M12 15.6v1.1" stroke="#f0c88f" stroke-width="1.4" stroke-linecap="round"/><path d="M10.4 17.6c.5.5 2.7.5 3.2 0" stroke="#f0c88f" stroke-width="1.4" stroke-linecap="round"/><path d="M4.4 16.2c-.9.3-1.5 1-1.6 1.9M19.6 16.2c.9.3 1.5 1 1.6 1.9" stroke="#e8b273" stroke-width="1.4" stroke-linecap="round"/></svg></span>
-          <h4>Clyde <em class="wb-sub">your study pet, and an AI helper</em></h4>
-          <p>A friendly companion who keeps you company at the desk, looks things up, converts units, and remembers what you highlight. Local-first, and every module says what it can reach before you switch it on.</p>
-          <span class="pill soon">Not yet available</span>
-        </article>
-        <article class="workbench-card rv rv-p" style="--d:.16s">
-          <span class="wb-ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 10.6A4.6 4.6 0 0 1 10.6 6h2.8A4.6 4.6 0 0 1 18 10.6v8.1a1.3 1.3 0 0 1-1.3 1.3H7.3A1.3 1.3 0 0 1 6 18.7z" stroke="#e8b273" stroke-width="1.5" stroke-linejoin="round"/><path d="M9.4 6V4.9A1.9 1.9 0 0 1 11.3 3h1.4a1.9 1.9 0 0 1 1.9 1.9V6" stroke="#e8b273" stroke-width="1.5" stroke-linecap="round"/><rect x="8.9" y="13.2" width="6.2" height="4.3" rx="1.1" stroke="#f0c88f" stroke-width="1.4"/><path d="M12 13.2v-2.1" stroke="#f0c88f" stroke-width="1.4" stroke-linecap="round"/><path d="M4.3 12.4C3.4 13 3 13.9 3 15v2.2M19.7 12.4c.9.6 1.3 1.5 1.3 2.6v2.2" stroke="#e8b273" stroke-width="1.4" stroke-linecap="round"/></svg></span>
-          <h4>Cloud Backpack</h4>
-          <p>Optional backup for your library, so the books on one machine can come with you to another. Off by default, and never required to write.</p>
-          <span class="pill soon">In progress</span>
-        </article>
-        <article class="workbench-card rv rv-p" style="--d:.24s">
-          <span class="wb-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M9.6 13.4a3.6 3.6 0 0 0 5.4.4l2.6-2.6a3.6 3.6 0 0 0-5.1-5.1l-1.5 1.5" stroke="#e8b273" stroke-width="1.6" stroke-linecap="round"/><path d="M14.4 10.6a3.6 3.6 0 0 0-5.4-.4l-2.6 2.6a3.6 3.6 0 0 0 5.1 5.1l1.5-1.5" stroke="#e8b273" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-          <h4>Sharing links &amp; calendar</h4>
-          <p>Share a single page or blueprint by link, and pull your class due dates in from a school calendar during the syllabus import.</p>
-          <span class="pill soon">In progress</span>
-        </article>
-      </div>
     </div>
   </section>
+
 
   <!-- ══════════ FAITH ═════════════════════════════════════════════ -->
   <section class="faith" id="faith">
@@ -2613,7 +2426,7 @@
     <div class="foot-bottom">
       <span>Makullveny &mdash; a TDG project &middot; Your notes stay on your machine.</span>
       <div class="foot-links">
-        <a href="#download">Download</a><a href="./themes/">Themes</a><a href="./updates/">News</a><a href="#privacy">Privacy</a><a href="#report">Report a bug</a>
+        <a href="#download">Download</a><a href="./features/">Features</a><a href="./themes/">Themes</a><a href="./updates/">News</a><a href="./account/">Sign up</a><a href="#privacy">Privacy</a><a href="#report">Report a bug</a>
         <a href="https://tdg-org.github.io/TDG-Site/#top" target="_blank" rel="noreferrer">TDG</a>
       </div>
     </div>

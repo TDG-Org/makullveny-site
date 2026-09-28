@@ -241,6 +241,8 @@
       .topbar nav a { white-space:normal; padding:14px 4px; }
       .topbar nav a:not(:first-child) { border-top:1px solid var(--line-soft); }
       .topbar nav .btn-primary { width:100%; justify-content:center; margin-top:14px; border-top:0; }
+      .topbar nav .btn-ghost { width:100%; justify-content:center; margin-top:14px; border-top:0; }
+      .topbar nav .btn-ghost + .btn-primary { margin-top:10px; }
       h1 { font-size:38px; }
       .entry { grid-template-columns:minmax(0,1fr); gap:8px; }
       /* The 130px side padding on <footer> was never overridden below desktop. */
@@ -287,28 +289,26 @@
   <section class="masthead" id="top">
     <a class="skip" href="#top">Skip to the page</a>
   <header class="topbar">
-      <a class="brand" href="../#top" aria-label="Makullveny — back to the front page">
+    <a class="brand" href="../#top" aria-label="Makullveny — back to the front page">
         <span class="brand-mark"><img src="mark.webp" alt="" width="30" height="30"></span>
         <span class="brand-name">Makullveny</span>
         <span class="nav__markwrap" aria-label="The Disciples of God" role="img" title="TDG">
           <span class="nav__mark"><span class="nav__mark-body"><i class="nav__mark-bar"></i><i class="nav__mark-bar"></i></span></span>
         </span>
       </a>
-      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
-        <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
-      </button>
-      <nav id="siteNav">
-      <a href="../#dashboard">Dashboard</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
+      <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
+    </button>
+    <nav id="siteNav">
+      <a href="../features/">Features</a>
+      <a href="../#friends">Friends</a>
       <a href="../#selah">Selah</a>
-      <a href="../#apps">Apps</a>
-      <a href="../#tools">Tools</a>
       <a href="../themes/">Themes</a>
-      <a href="../#faith">Faith</a>
-      <a href="../#report">About</a>
-      <a class="here" href="./">News</a>
+      <a class="here" aria-current="page" href="./">News</a>
+      <a class="btn btn-ghost btn-sm" href="../account/">Sign up</a>
       <a class="btn btn-primary btn-sm" href="../#download">Download</a>
     </nav>
-    </header>
+  </header>
 
     <div class="wrap mast-inner">
       <p class="eyebrow">What's new</p>

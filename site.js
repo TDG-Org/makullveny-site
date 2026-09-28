@@ -37,9 +37,14 @@
       "Turn academic chaos <em>into clarity.</em>",
       "Organize your academia, <em>simplify your life.</em>",
       "Your cozy space for <em>getting things done.</em>",
-      "Plan. Focus. <em>Thrive.</em>"
+      "Plan. Focus. <em>Thrive.</em>",
+      // The owner's line (2026-09-27). Longer than the rest, so it is marked
+      // and the CSS sets it a size smaller instead of wrapping to five lines.
+      "Put your classes in once. <em>Makullveny tells you what’s next, when to do it, and locks you in.</em>"
     ];
-    headline.innerHTML = lines[Math.floor(Math.random() * lines.length)];
+    var pick = lines[Math.floor(Math.random() * lines.length)];
+    headline.innerHTML = pick;
+    if (pick.length > 60) headline.classList.add("is-long");
   })();
 
   // ── 1. the rotator ────────────────────────────────────────────────────────
@@ -56,12 +61,12 @@
     var title = document.querySelector(".win-title");
     var TITLES = [
       "Makullveny — Today",
-      "Makullveny — Library Desk",
+      "Study Hall — Board",
       "Selah: Study Grounds · golden hour",
       "Selah: Study Grounds · night",
-      "Library Desk — Blueprint",
-      "Study Hall — Overview",
-      "Study Hall — Courses",
+      "Makullveny — Friends",
+      "Makullveny — Library Desk",
+      "Makullveny — Assignments",
       "Study Hall — Calendar"
     ];
     var i = 0;
@@ -124,6 +129,28 @@
     }, { passive: true });
     show(0);
     if (!reduce) start();
+  })();
+
+  // ── 1b. the Lock In loop ──────────────────────────────────────────────────
+  // A muted <video> in place of a 2.9 MB GIF. Under reduced motion it holds
+  // still on its poster; otherwise it only plays while it is on screen.
+  (function () {
+    var videos = [].slice.call(document.querySelectorAll("video[data-motion-video]"));
+    if (!videos.length) return;
+    videos.forEach(function (v) {
+      if (reduce) {
+        v.removeAttribute("autoplay");
+        v.pause();
+      }
+    });
+    if (reduce || !("IntersectionObserver" in window)) return;
+    var watch = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { var p = e.target.play(); if (p && p.catch) p.catch(function () {}); }
+        else e.target.pause();
+      });
+    }, { threshold: 0.15 });
+    videos.forEach(function (v) { watch.observe(v); });
   })();
 
   // ── 2. the lightbox ───────────────────────────────────────────────────────

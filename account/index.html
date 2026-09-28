@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      MAKE A MAKULLVENY ACCOUNT, FROM THE WEBSITE.
+
+      It is the same account the app makes -- one TDG account, one GoTrue
+      project -- so there is nothing to keep in sync: a student who signs up
+      here signs in to the app with the same email (or username) and password,
+      and their friends, profile and Backpack are simply there.
+
+      SAME RULES AS read/ AND u/: NO KEY OF ANY KIND. The form posts to ONE
+      function (mak-web-signup) at the ONE pinned origin read/config.js names,
+      with no apikey and no Authorization header; the function holds the
+      project's key server-side and never hands a session back. The password
+      goes nowhere else: the CSP below allows exactly that origin and no form
+      action, so there is nowhere else for it to go even if account.js were
+      wrong. NO BUILD STEP.
+
+      The confirmation email lands on ../auth/, the page the app's own
+      sign-up already uses.
+    -->
+    <title>Create your account · Makullveny</title>
+    <meta name="description" content="Make a free TDG account for Makullveny: friends, a profile link, and your Backpack on every computer. The same account the app uses.">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./account.css">
+  </head>
+  <body>
+    <header class="ac-top">
+      <a class="ac-brand" href="../"><img src="../assets/site/mark.webp" alt="" width="28" height="28">Makullveny</a>
+      <a class="ac-get" href="../#download">Get the app</a>
+    </header>
+
+    <main class="ac-main">
+      <section class="ac-say" aria-labelledby="acTitle">
+        <p class="ac-eyebrow">Free · optional · one account for every TDG app</p>
+        <h1 id="acTitle">Make your account. <em>Then just open the app.</em></h1>
+        <p class="ac-lead">
+          Makullveny works without one. An account is what lets you add friends,
+          see when they are in class or free, share a profile link, and carry your
+          Backpack to another computer.
+        </p>
+        <ul class="ac-perks">
+          <li><b>Friends</b> by @username &mdash; see their classes, and who is free right now</li>
+          <li><b>Your profile link</b> &mdash; you choose what it shows</li>
+          <li><b>Same account in the app</b> &mdash; sign in there with this email or username</li>
+        </ul>
+        <p class="ac-fine">Your notes, books and assignments still stay on your computer. An account never uploads them.</p>
+      </section>
+
+      <section class="ac-card" aria-labelledby="acFormTitle">
+        <!-- The form is inert without account.js: action is none and the CSP
+             forbids form submission, so a click with no script does nothing
+             rather than sending a password anywhere. The note says so. -->
+        <form id="acForm" class="ac-form" novalidate autocomplete="on">
+          <h2 id="acFormTitle">Create your account</h2>
+
+          <label class="ac-field">
+            <span>Username</span>
+            <span class="ac-at"><i aria-hidden="true">@</i><input id="acUsername" name="username" type="text" inputmode="text" autocomplete="username" autocapitalize="off" spellcheck="false" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" required aria-describedby="acUsernameHint"></span>
+            <small id="acUsernameHint" class="ac-hint">3&ndash;20 letters, numbers or _ &middot; how friends find you</small>
+          </label>
+
+          <label class="ac-field">
+            <span>Your name <em>(optional)</em></span>
+            <input id="acName" name="name" type="text" autocomplete="name" maxlength="80">
+          </label>
+
+          <label class="ac-field">
+            <span>Email</span>
+            <input id="acEmail" name="email" type="email" autocomplete="email" autocapitalize="off" spellcheck="false" maxlength="254" required>
+            <small class="ac-hint">For the confirmation link and password resets. Never shown to anyone.</small>
+          </label>
+
+          <label class="ac-field">
+            <span>Password</span>
+            <span class="ac-pass"><input id="acPassword" name="password" type="password" autocomplete="new-password" minlength="6" maxlength="72" required><button type="button" id="acShow" class="ac-show" aria-pressed="false">Show</button></span>
+            <small class="ac-hint">At least 6 characters.</small>
+          </label>
+
+          <p id="acStatus" class="ac-status" role="status" aria-live="polite">This form needs JavaScript. You can also make an account inside the app.</p>
+
+          <button id="acSubmit" class="ac-btn" type="submit" disabled>Create account</button>
+
+          <p class="ac-alt">Already have one? <a href="../#download">Open Makullveny</a> and sign in.</p>
+        </form>
+
+        <div id="acDone" class="ac-done" hidden tabindex="-1">
+          <span class="ac-done-mark" aria-hidden="true">&#10022;</span>
+          <h2>Check your email</h2>
+          <p id="acDoneText">We sent a link to confirm your address. Press it, then open Makullveny and sign in with your username or email.</p>
+          <p class="ac-fine">Nothing there after a few minutes? Look in spam. If you already had a TDG account, just sign in with it &mdash; no new email is sent.</p>
+          <div class="ac-done-row">
+            <a class="ac-btn" href="../#download">Download Makullveny</a>
+            <button type="button" id="acAgain" class="ac-ghost">Use a different email</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="ac-foot">
+      <p>Makullveny is built under TDG &mdash; The Disciples of God. Your TDG account is the same one Disciples Bible and TDG Cebu use.</p>
+    </footer>
+
+    <script src="../read/config.js"></script>
+    <script src="./account.js"></script>
+  </body>
+</html>

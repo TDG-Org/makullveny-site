@@ -15,8 +15,11 @@ Expected URL once Pages has deployed:
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The front page: hero, the dashboard, Selah, the two apps, the five tools, the themes, faith, download, and the three most recent releases |
-| `themes/` | The full theme catalogue, grouped into its three bundles |
+| `index.html` | The front page: hero, the dashboard, Lock In, Friends, Selah, a short door to the apps and tools, the ten rooms in one strip, faith, download, and the three most recent releases |
+| `features/` | Every app and tool, with its pictures: Library Desk, Study Hall, Import Desk (and a photo into cards), Flashcards, File Workshop, Cloud Backpack, Typing Trials, Calculator and the radio |
+| `themes/` | The room-by-room browser (ten rooms; the six Candle rooms in the Theme Market's own captures) and the Illustrated bundle |
+| `account/` | Make a TDG account from the website -- the same account the app uses (see below) |
+| `u/` | A student's public profile link |
 | `updates/` | Every published release, newest first |
 | `read/` | The read-only viewer a shared Makullveny page opens in |
 | `checkout/` | The return page a completed purchase lands on |
@@ -30,7 +33,7 @@ fill something in. `tools/build-site.mjs` turns those into the pages served
 here:
 
 ```bash
-node tools/build-site.mjs      # design/*.dc.html  ->  index.html, themes/, updates/
+node tools/build-site.mjs      # design/*.dc.html  ->  index.html, features/, themes/, updates/
 ```
 
 **Its output is committed, and that is on purpose.** GitHub Pages serves this
@@ -64,6 +67,21 @@ Screenshots live in `assets/site/`, and the scene art they sit on is in
 `updates/updates-data.js` is the only file a new release needs: push one entry
 onto `window.MAKULLVENY_UPDATES` and both the archive and the three cards on the
 front page follow it.
+
+## Accounts from the website
+
+`account/` makes a TDG account without the app. It is not a second account
+system: it posts to `mak-web-signup`, a Supabase function whose source lives in
+the app repo (`supabase/functions/mak-web-signup/`), and that function calls
+the same GoTrue sign-up the app does, with the same metadata and the same
+redirect to `auth/`. So a student who signs up here signs in to the app with
+the same username or email and password, and everything else follows.
+
+**The page holds no key.** Like `read/` and `u/` it posts to the one pinned
+function origin with no apikey and no Authorization header; the function holds
+the project key server-side, never returns a session, answers a known email
+exactly like a new one, and refuses browsers on other websites.
+`tests/account-page.test.js` pins the origin, the CSP and the absence of a key.
 
 ## Downloads
 

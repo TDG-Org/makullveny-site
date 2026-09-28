@@ -39,12 +39,21 @@ const PAGES = [
     preload: ["assets/site/ov-bough-top-left.webp", "assets/site/hero-dash.jpg"]
   },
   {
+    src: "design/FeaturesPage.dc.html",
+    out: "features/index.html",
+    up: "../",
+    title: "Apps & tools · Makullveny",
+    desc:
+      "Everything Makullveny opens: the Library Desk for notes, Study Hall for your board, assignments and calendar, the Import Desk that turns a syllabus or a photo into cards, File Workshop, Flashcards, Typing Trials, a calculator and a lofi radio.",
+    preload: []
+  },
+  {
     src: "design/ThemesPage.dc.html",
     out: "themes/index.html",
     up: "../",
     title: "Themes · Makullveny",
     desc:
-      "Every Makullveny theme, in its three bundles: four included with the free app, five in the Candle bundle, and the Illustrated Art collection that arrives with the tiers above it.",
+      "Every Makullveny room, one by one: four included with the free app, six in the Candle bundle from the in-app Theme Market, and the Illustrated collection that is on the way.",
     preload: []
   },
   {
@@ -105,12 +114,12 @@ function head(page) {
 // same length as the .rot images in the artboard and as TITLES in site.js.
 const SLIDE_TITLES = [
   "Makullveny — Today",
-  "Makullveny — Library Desk",
+  "Study Hall — Board",
   "Selah: Study Grounds · golden hour",
   "Selah: Study Grounds · night",
-  "Library Desk — Blueprint",
-  "Study Hall — Overview",
-  "Study Hall — Courses",
+  "Makullveny — Friends",
+  "Makullveny — Library Desk",
+  "Makullveny — Assignments",
   "Study Hall — Calendar"
 ];
 
@@ -152,7 +161,8 @@ function build(page) {
   body = body.replace(/\{\{[^}]*\}\}/g, "");
 
   // ── paths ────────────────────────────────────────────────────────────────
-  body = body.replace(/src="([a-z0-9._-]+\.(?:jpg|webp|png))"/g, `src="${page.up}assets/site/$1"`);
+  // poster= and the video types too: the Lock In loop is a <video>.
+  body = body.replace(/(src|poster)="([a-z0-9._-]+\.(?:jpg|webp|png|gif|mp4|webm))"/g, `$1="${page.up}assets/site/$2"`);
   body = body.replace(
     /url\(&quot;([a-z0-9._-]+\.(?:jpg|webp|png))&quot;\)/g,
     `url(&quot;${page.up}assets/site/$1&quot;)`

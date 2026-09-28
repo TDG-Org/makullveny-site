@@ -111,3 +111,7 @@ body[data-state="error"] a.button {
 /* Reduced motion has nothing to turn off here on purpose: this page has no
    animation at all. A page somebody reaches while anxious about their account
    is not the place for movement. */
+
+/* The way to the app for somebody who signed up on the website. */
+.get { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
+.get a { color: var(--accent); }
