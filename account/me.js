@@ -8,8 +8,9 @@
   answers (supabase/functions/mak-web-signup in the app repo).
 
   With those facts, every page's top bar swaps its "Sign up" button for the
-  student's avatar, which opens their TDG profile page, and a small sign-out
-  button that simply forgets them in this browser.
+  student's avatar, which opens their Makullveny profile page (u/ with no
+  token draws the signed-in student's own card), and a small sign-out button
+  that simply forgets them in this browser.
 
   Everything from storage is re-checked before use (a username must still be
   3-20 letters, digits or _; an avatar must be 1-7) and set with textContent,
@@ -20,7 +21,6 @@
 
   var KEY = "makullveny.me.v1";
   var USERNAME = /^[A-Za-z0-9_]{3,20}$/;
-  var PROFILE_BASE = "https://tdg-org.github.io/TDG-Site/#/user/";
   var AVATARS = ["", "turtle-duck", "frog", "duck-on-water", "glider", "tree", "jellyfish", "mushroom"];
 
   function clean(raw) {
@@ -46,9 +46,13 @@
   function clear() {
     try { window.localStorage.removeItem(KEY); } catch (_e) { /* nothing kept anyway */ }
     render(null);
+    /* This tab's own pages (u/ showing the student's card) follow it too;
+       other tabs hear the storage event. */
+    try { window.dispatchEvent(new Event("makullveny-signout")); } catch (_e) { /* old browser */ }
   }
+  /* Their own Makullveny profile, on this site. */
   function profileUrl(me) {
-    return me && me.username ? PROFILE_BASE + encodeURIComponent(me.username) : "";
+    return me ? BASE + "u/" : "";
   }
   function avatarSrc(base, id) {
     return id >= 1 && id <= 7 ? base + "assets/site/avatars/mak-avatar-" + id + "-" + AVATARS[id] + ".png" : "";
@@ -85,12 +89,31 @@
     return d;
   }
 
+  /* The page's OTHER account doors -- "Make a free account" buttons, the
+     footer's Sign in -- lead to the student's profile while signed in, and
+     get their own words back on sign-out. */
+  function swapDoors(me) {
+    var doors = document.querySelectorAll('a[href$="account/"], a[href$="account/#signin"], a[data-me-door]');
+    for (var i = 0; i < doors.length; i += 1) {
+      var a = doors[i];
+      if (a === signUp || a.classList.contains("me-chip") || a.hasAttribute("data-me-keep")) continue;
+      if (!a.hasAttribute("data-me-door")) {
+        a.setAttribute("data-me-door", "");
+        a.setAttribute("data-me-href", a.getAttribute("href"));
+        a.setAttribute("data-me-text", a.textContent);
+      }
+      a.setAttribute("href", me ? profileUrl(me) : a.getAttribute("data-me-href"));
+      a.textContent = me ? (a.classList.contains("btn") ? "View your profile" : "Your profile") : a.getAttribute("data-me-text");
+    }
+  }
+
   var signUp = null;   // the page's own Sign up link, kept to put back
   var mounted = [];
   function render(me) {
-    var nav = document.querySelector(".topbar nav") || document.querySelector(".ac-top");
+    var nav = document.querySelector(".topbar nav") || document.querySelector(".ac-top") || document.querySelector(".pp-actions");
+    if (nav && !signUp) signUp = nav.querySelector('a[href*="account/"]');
+    swapDoors(me);
     if (!nav) return;
-    if (!signUp) signUp = nav.querySelector('a[href*="account/"]');
     mounted.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
     mounted = [];
     if (!me) {
@@ -99,12 +122,10 @@
     }
     if (signUp) signUp.style.display = "none";
 
-    var url = profileUrl(me);
     var chip = el("a", "me-chip");
-    chip.href = url || BASE + "account/";
-    if (url) { chip.target = "_blank"; chip.rel = "noopener noreferrer"; }
-    chip.title = url ? "Your TDG profile" : "Your account";
-    chip.setAttribute("aria-label", (url ? "Your TDG profile: @" + me.username : "Your account") + " (opens in a new tab)");
+    chip.href = profileUrl(me);
+    chip.title = "Your profile";
+    chip.setAttribute("aria-label", "Your profile" + (me.username ? ": @" + me.username : ""));
     chip.appendChild(disc(me));
     chip.appendChild(el("span", "me-name", me.username ? "@" + me.username : me.displayName));
 
@@ -115,7 +136,7 @@
     out.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 4.5h3a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5h-3M10.5 16.5 6 12l4.5-4.5M6 12h9.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>';
     out.addEventListener("click", clear);
 
-    var anchor = signUp || nav.querySelector(".btn-primary, .ac-get");
+    var anchor = signUp || nav.querySelector(".btn-primary, .ac-get, .pp-get");
     nav.insertBefore(chip, anchor);
     nav.insertBefore(out, anchor);
     mounted = [chip, out];

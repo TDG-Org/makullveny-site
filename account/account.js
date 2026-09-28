@@ -196,13 +196,9 @@
       var box = $("acMeDisc");
       box.replaceChildren(window.MakullvenyMe.disc(me));
       $("acMeName").textContent = me.displayName ? "Hi, " + me.displayName : "You’re signed in";
-      var url = window.MakullvenyMe.profileUrl(me);
-      var link = $("acMeProfile");
-      link.hidden = !url;
-      if (url) link.href = url;
-      $("acMeText").textContent = url
-        ? "Signed in as @" + me.username + ". Your avatar is in the top bar on every page of this site — press it to open your TDG profile."
-        : "Signed in. Pick a username in the Makullveny app to get a TDG profile page.";
+      $("acMeProfile").href = window.MakullvenyMe.profileUrl(me);
+      $("acMeText").textContent = (me.username ? "Signed in as @" + me.username + ". " : "Signed in. ") +
+        "Your avatar is in the top bar on every page of this site — press it to open your profile.";
     }
     tabs.signup.addEventListener("click", function () { face("signup"); });
     tabs.signin.addEventListener("click", function () { face("signin"); });

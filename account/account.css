@@ -70,6 +70,12 @@ a:hover { color: #ffd2a6; }
   padding: 11px 18px;
   border: 1px solid var(--line);
   border-radius: 999px;
+  white-space: nowrap;
+}
+/* Signed in, the avatar and sign-out join this row (me.css); keep it one line. */
+@media (max-width: 640px) {
+  .ac-top { gap: 8px; }
+  .ac-get { padding: 10px 14px; font-size: 13px; }
 }
 .ac-get:hover { border-color: rgba(240, 178, 122, 0.5); color: var(--ink); }
 

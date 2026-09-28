@@ -80,6 +80,7 @@ a:hover { color: #ffc58f; }
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .pp-get:hover { background: rgba(255, 226, 196, 0.14); }
@@ -439,6 +440,7 @@ a:hover { color: #ffc58f; }
 
 @media (max-width: 640px) {
   .pp-brand { font-size: 21px; }
+  .pp-get { padding: 0 14px; font-size: 13px; }
   .pp-avatar { width: 120px; height: 120px; }
   .pp-avatar img { width: 114px; height: 114px; }
   .pp-name { font-size: 27px; }

@@ -19,7 +19,7 @@ Expected URL once Pages has deployed:
 | `features/` | Every app and tool, with its pictures: Library Desk, Study Hall, Import Desk (and a photo into cards), Flashcards, File Workshop, Cloud Backpack, Typing Trials, Calculator and the radio |
 | `themes/` | The room-by-room browser (ten rooms; the six Candle rooms in the Theme Market's own captures) and the Illustrated bundle |
 | `account/` | Make a TDG account from the website -- the same account the app uses (see below) |
-| `u/` | A student's public profile link |
+| `u/` | A student's public profile link, or -- opened with no link while signed in on the website -- the student's own profile |
 | `updates/` | Every published release, newest first |
 | `read/` | The read-only viewer a shared Makullveny page opens in |
 | `checkout/` | The return page a completed purchase lands on |
@@ -88,9 +88,14 @@ exactly like a new one, and refuses browsers on other websites.
 profile row *as the student*, ends that session before answering, and returns
 three public facts: username, display name, avatar number. `account/me.js`
 (loaded on every page) keeps only those in `localStorage` and swaps the top
-bar's Sign in button for the avatar, which opens the student's TDG profile page
-(`tdg-org.github.io/TDG-Site/#/user/<username>`). No password, token or email
-is ever kept in the browser, so there is nothing here worth stealing.
+bar's Sign in button for the avatar, which opens the student's Makullveny
+profile at `u/`. With no token in the address, `u/` draws the signed-in
+student's own card from those three facts; a profile link from the app
+(`u/#<token>`) still shows the classes and calendar the student chose. While
+signed in, the page's other account doors ("Make a free account", the
+footer's Sign in) lead to the profile too, and get their words back on
+sign-out. No password, token or email is ever kept in the browser, so there is
+nothing here worth stealing.
 
 ## Downloads
 

@@ -25,11 +25,12 @@
     <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./profile.css">
+    <link rel="stylesheet" href="../account/me.css">
   </head>
   <body>
     <header class="pp-top">
       <a class="pp-brand" href="../">Makullveny</a>
-      <a class="pp-get" href="../#download">Get the app</a>
+      <div class="pp-actions"><a class="pp-get" href="../#download">Get the app</a></div>
     </header>
 
     <main class="pp-main" id="ppMain">
@@ -60,10 +61,11 @@
     </main>
 
     <footer class="pp-foot">
-      <p>Shared from <a href="../">Makullveny</a>, a local-first study app. The student chose what this page shows and can turn it off at any time.</p>
+      <p id="ppFoot">Shared from <a href="../">Makullveny</a>, a local-first study app. The student chose what this page shows and can turn it off at any time.</p>
     </footer>
 
     <script src="../read/config.js"></script>
+    <script src="../account/me.js"></script>
     <script src="./profile.js"></script>
   </body>
 </html>

@@ -127,3 +127,12 @@ test("every avatar the page can draw exists on this site", function () {
     assert.ok(fs.existsSync(path.join(ROOT, "assets", "site", "avatars", P.AVATARS[id].file)), P.AVATARS[id].file);
   });
 });
+
+test("opened with no link while signed in, the page draws the student's own card", function () {
+  var html = fs.readFileSync(path.join(ROOT, "u", "index.html"), "utf8");
+  // me.js must run before profile.js, which asks it who is signed in.
+  assert.ok(html.indexOf('src="../account/me.js"') > 0);
+  assert.ok(html.indexOf('src="../account/me.js"') < html.indexOf('src="./profile.js"'));
+  assert.match(P.ownNote({ username: "maya_r" }), /@maya_r/);
+  assert.doesNotMatch(P.ownNote({ username: "", displayName: "Maya" }), /@/);
+});

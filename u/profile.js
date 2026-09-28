@@ -415,6 +415,27 @@
     el("ppProfile").hidden = false;
   }
 
+  /* The line under a signed-in student's own card. */
+  function ownNote(me) {
+    return me && me.username
+      ? "This is you. Friends can add you as @" + me.username + " in the app. To show your classes and calendar here, make a profile link in Makullveny."
+      : "This is you. Pick a username in the Makullveny app so friends can add you.";
+  }
+
+  function renderOwn(me) {
+    render({ displayName: me.displayName, username: me.username, avatarId: me.avatarId }, Date.now());
+    document.title = "Your profile — Makullveny";
+    var add = el("ppAdd");
+    add.hidden = false;
+    add.replaceChildren(document.createTextNode(ownNote(me)));
+    var foot = el("ppFoot");
+    if (foot) {
+      foot.replaceChildren(document.createTextNode("Only you see this page, in this browser. "), make("a", "", "Your account"));
+      foot.lastChild.href = "../account/";
+      foot.lastChild.setAttribute("data-me-keep", "");
+    }
+  }
+
   function open() {
     /* A LOCAL PREVIEW ONLY. A page script can set this global before
        profile.js runs (tools and screenshots do); a URL cannot, so there is
@@ -425,7 +446,16 @@
     }
     var token = tokenFromHash();
     if (!token) {
+      /* No token: the signed-in student's OWN page, from the three public
+         facts account/me.js keeps (name, @username, avatar digit) -- the
+         avatar in every top bar and account/'s "View your profile" land here. */
+      var me = window.MakullvenyMe && window.MakullvenyMe.get();
+      if (me) { renderOwn(me); return; }
       setState("This link is not complete. Ask whoever sent it for the full address.");
+      var state = el("ppState");
+      var signin = make("a", "", "Sign in");
+      signin.href = "../account/#signin";
+      state.append(document.createElement("br"), signin, document.createTextNode(" to see your own profile."));
       return;
     }
     if (!CONFIG.apiUrl || !apiOriginAllowed(CONFIG.apiUrl)) {
@@ -458,6 +488,7 @@
       classCount: classCount,
       colourFor: colourFor,
       stateForStatus: stateForStatus,
+      ownNote: ownNote,
       clock: clock,
       ALLOWED_API_ORIGINS: ALLOWED_API_ORIGINS,
       AVATARS: AVATARS
@@ -466,6 +497,9 @@
 
   if (hasWindow && typeof document !== "undefined" && document.getElementById && document.getElementById("ppMain")) {
     window.addEventListener("hashchange", function () { window.location.reload(); });
+    /* Signed in or out in another tab while this shows the student's own page. */
+    window.addEventListener("storage", function (e) { if (e.key === "makullveny.me.v1" && !tokenFromHash()) window.location.reload(); });
+    window.addEventListener("makullveny-signout", function () { if (!tokenFromHash()) window.location.replace("../account/#signin"); });
     open();
   }
 })();
