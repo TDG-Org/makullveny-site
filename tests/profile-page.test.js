@@ -50,6 +50,7 @@ test("shapeProfile keeps only what the page draws, and never an id, email or roo
     displayName: "Maya Reyes",
     username: "mayareads",
     avatarId: 3,
+    look: { v: 1, theme: "cozy-cabin", bg: true, order: ["calendar", "classes", "selah", "achievements"], wide: ["calendar"] },
     bio: "Bio major.",
     classes: [{ t: "BIO 110", s: 100, e: 150 }],
     achievements: 12
@@ -117,6 +118,9 @@ test("a class keeps one colour, from this page's own palette", function () {
 test("the page holds no key and renders nothing as markup", function () {
   var source = fs.readFileSync(path.join(ROOT, "u", "profile.js"), "utf8");
   assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML/);
+  var view = fs.readFileSync(path.join(ROOT, "u", "profile-view.js"), "utf8");
+  assert.doesNotMatch(view, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(view, /fetch\(|XMLHttpRequest/);
   assert.doesNotMatch(source, /service_role|sk_live_|eyJ[A-Za-z0-9_-]{10}/);
   assert.doesNotMatch(source, /\?token=|\?p_token=/);
   assert.match(source, /request\.send\(JSON\.stringify\(\{ action: "profile", token: token \}\)\)/);
@@ -135,4 +139,68 @@ test("opened with no link while signed in, the page draws the student's own card
   assert.ok(html.indexOf('src="../account/me.js"') < html.indexOf('src="./profile.js"'));
   assert.match(P.ownNote({ username: "maya_r" }), /@maya_r/);
   assert.doesNotMatch(P.ownNote({ username: "", displayName: "Maya" }), /@/);
+});
+
+/* ── the look (2026-09-28, "profile parity") ─────────────────────────────── */
+
+test("the look is a theme KEY from this site's own list, never a URL or a colour", function () {
+  var shaped = P.shapeProfile({ displayName: "Maya", look: { theme: "snow-cabin", bg: false, order: ["selah"], wide: [] } });
+  assert.deepEqual(shaped.look, { v: 1, theme: "snow-cabin", bg: false, order: ["selah", "calendar", "classes", "achievements"], wide: [] });
+  assert.equal(P.shapeProfile({ look: { theme: "not-a-theme" } }).look.theme, "cozy-cabin");
+  assert.equal(P.shapeProfile({ look: { theme: "url(x)" } }).look.theme, "cozy-cabin");
+  assert.equal(P.shapeProfile({ look: { theme: "snow-cabin", accent: "pink" } }).look.accent, undefined);
+  assert.equal(P.shapeProfile({ look: { theme: "terminal-hacker", accent: "pink" } }).look.accent, "pink");
+});
+
+test("an old link with no look draws the first-time look (Cozy Cabin, art on)", function () {
+  var shaped = P.shapeProfile({ displayName: "Maya", classes: [] });
+  assert.equal(shaped.look.theme, "cozy-cabin");
+  assert.equal(shaped.look.bg, true);
+});
+
+test("every theme on the list has its colours in themes.css, and every picture it names exists", function () {
+  var css = fs.readFileSync(path.join(ROOT, "u", "themes.css"), "utf8");
+  P.THEMES.forEach(function (theme) {
+    if (theme === "cozy-cabin") assert.match(css, /:root,\s*:root\[data-theme="cozy-cabin"\] \{/);
+    else assert.ok(css.indexOf(':root[data-theme="' + theme + '"] {') >= 0, theme);
+  });
+  var urls = css.match(/url\("[^"]+"\)/g) || [];
+  assert.ok(urls.length >= P.THEMES.length);
+  urls.forEach(function (u) {
+    var rel = u.slice(5, -2).replace(/^\.\.\//, "");
+    assert.ok(fs.existsSync(path.join(ROOT, rel)), rel);
+  });
+});
+
+test("Selah's library art exists for every stage", function () {
+  for (var n = 1; n <= 5; n += 1) {
+    assert.ok(fs.existsSync(path.join(ROOT, "assets", "site", "profile", "selah-stage-" + n + ".webp")), "stage " + n);
+  }
+});
+
+test("Selah's numbers are clamped and its name is plain text", function () {
+  var shaped = P.shapeProfile({ selah: { name: " <b>Willow</b>  Hall ", stage: 3, coins: 1e12, diamonds: -1, evil: "x" } });
+  assert.equal(shaped.selah.name, "<b>Willow</b> Hall");
+  assert.equal(shaped.selah.coins, 1e9);
+  assert.equal(shaped.selah.diamonds, 0);
+  assert.equal("evil" in shaped.selah, false);
+});
+
+test("the page loads the app's renderer before its own script, and no fixture ships", function () {
+  var html = fs.readFileSync(path.join(ROOT, "u", "index.html"), "utf8");
+  assert.ok(html.indexOf('<script src="./profile-view.js">') < html.indexOf('<script src="./profile.js">'));
+  assert.match(html, /<link rel="stylesheet" href="\.\/themes\.css">/);
+  assert.match(html, /<link rel="stylesheet" href="\.\/profile-view\.css">/);
+  assert.equal(fs.existsSync(path.join(ROOT, "u", "_fixture.js")), false);
+});
+
+/* THE MERGE OF 2026-09-28: main's own-profile view (renderOwn) landed on the
+   profile-parity page, which had dropped the `make` helper the signed-out
+   "Sign in" line and renderOwn both call -- a ReferenceError the moment a
+   signed-in student opened u/. Caught in a jsdom run before it went live. */
+test("the own-profile view's helpers are all defined on the new page", function () {
+  var src = fs.readFileSync(path.join(ROOT, "u", "profile.js"), "utf8");
+  ["make", "el", "render", "renderOwn", "ownNote", "setState"].forEach(function (name) {
+    assert.ok(new RegExp("function " + name + "\\(").test(src), name);
+  });
 });
