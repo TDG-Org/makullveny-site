@@ -140,6 +140,32 @@
     root.setAttribute("data-bg", look.bg ? "on" : "off");
   }
 
+  /* A theme key -> its scenery in assets/themes/ (the same pictures the
+     page's own background uses). An unknown key draws no banner. */
+  var BANNER_FILES = {
+    "cozy-cabin": "cabin-background.webp",
+    "terminal-hacker": "neon-terminal-background.webp",
+    "abyssal-aquarium": "abyssal-aquarium-illustrated-background.webp",
+    "aurora-glasshouse": "aurora-glasshouse-illustrated-background.webp",
+    "cotton-candy": "cotton-candy-illustrated-background.webp",
+    "crimson-atelier": "crimson-atelier-illustrated-background.webp",
+    "gilded-arcana": "gilded-arcana-illustrated-background.webp",
+    "ink-and-ivory": "ink-and-ivory-illustrated-background.webp",
+    "skyline-loft": "skyline-loft-illustrated-background.webp",
+    "cherry-blossom": "cherry-blossom-background.webp",
+    "garden-of-eden": "garden-of-eden-background.webp",
+    "lantern-study": "lantern-study-background.webp",
+    "moonlit-observatory": "moonlit-observatory-background.webp",
+    "on-the-rock": "on-the-rock-background.webp",
+    "rainy-cafe": "rainy-cafe-background.webp",
+    "snow-cabin": "snow-cabin-background.webp",
+    "woodland-library": "woodland-library-background.webp"
+  };
+  function bannerFile(key) {
+    var base = String(key || "").replace(/-(pink|blue)$/, "");
+    return Object.prototype.hasOwnProperty.call(BANNER_FILES, base) ? "../assets/themes/" + BANNER_FILES[base] : "";
+  }
+
   function render(payload, nowMs) {
     var profile = shapeProfile(payload);
     wearLook(profile.look);
@@ -153,6 +179,11 @@
       stageArt: function (stage) {
         var n = Math.max(1, Math.min(5, Math.floor(Number(stage) || 1)));
         return STAGE_BASE + n + ".webp";
+      },
+      /* The banner the student picked in the app (look.banner, else their
+         theme): that theme's own scenery from assets/themes/. */
+      bannerArt: function (key) {
+        return bannerFile(key);
       }
     });
     /* This page's own line under the sidebar card: how to add them. */

@@ -147,6 +147,7 @@
       wide: isArray(look.wide) ? widgetKeys(look.wide) : DEFAULT_LOOK.wide.slice()
     };
     if (look.accent === "pink" || look.accent === "blue") out.accent = look.accent;
+    if (typeof look.banner === "string" && /^[a-z0-9-]{1,40}$/.test(look.banner)) out.banner = look.banner;
     return out;
   }
 
@@ -446,6 +447,26 @@
     var opts = options || {};
     var side = make("aside", "pv-side");
     var card = make("div", "pv-card pv-who");
+    /* THE BANNER (owner, 2026-09-28): a theme's scenery across the top of the
+       card -- the one the student picked in Settings, else their theme. Drawn
+       only when the host can name the picture (options.bannerArt), so a host
+       without one looks exactly as before. */
+    var look = profile.look || DEFAULT_LOOK;
+    var bannerKey = look.banner || look.theme || "";
+    var bannerSrc = bannerKey && typeof opts.bannerArt === "function" ? opts.bannerArt(bannerKey) : "";
+    if (bannerSrc) {
+      var band = make("div", "pv-banner");
+      band.setAttribute("aria-hidden", "true");
+      var bandImg = make("img", "pv-banner-img");
+      bandImg.alt = "";
+      bandImg.src = bannerSrc;
+      bandImg.setAttribute("draggable", "false");
+      bandImg.addEventListener("error", function () { if (band.parentNode) band.parentNode.removeChild(band); card.classList.remove("has-banner"); });
+      band.append(bandImg);
+      card.append(band);
+      card.classList.add("has-banner");
+      card.setAttribute("data-banner", bannerKey);
+    }
     var avatar = make("div", "pv-avatar");
     avatar.setAttribute("data-avatar", String(profile.avatarId || 0));
     var picture = profile.avatarId && typeof opts.avatar === "function" ? opts.avatar(profile.avatarId) : null;
