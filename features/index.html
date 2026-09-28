@@ -1353,6 +1353,10 @@
     .import-row .tool-card { margin:0; }
     .import-row .tool-card h4 .pill, .tool-card h4 .pill { margin-left:8px; vertical-align:2px; }
     .photo-head { max-width:760px; margin:78px 0 24px; }
+    .app-aka { display:block; margin-top:6px; font:italic 500 18px/1.2 var(--display); color:#f0c88f; }
+    #classes { margin-top:110px; }
+    #studyhall .sh-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    @media (max-width:560px) { #studyhall .sh-tabs { grid-template-columns:minmax(0,1fr); } }
     .photo-head h3 { font:600 32px/1.14 var(--display); color:var(--text); margin:12px 0 12px; }
     .photo-head h3 em { font-style:italic; color:#f0c88f; }
     .photo-head p:last-child { font:400 15.5px/1.75 var(--ui); color:rgba(247,234,214,.72); }
@@ -1408,6 +1412,7 @@
       <nav class="fp-jump rv" style="--d:.28s" aria-label="On this page">
         <a href="#library">Library Desk</a>
         <a href="#studyhall">Study Hall</a>
+        <a href="#classes">Classes</a>
         <a href="#photo">Photo &rarr; flashcards</a>
         <a href="#import">Import Desk</a>
         <a href="#workshop">File Workshop</a>
@@ -1429,8 +1434,8 @@
     <div class="wrap" style="position:relative;z-index:2">
       <div class="sec-head">
         <p class="eyebrow teal rv">The apps</p>
-        <h2 class="rv" style="--d:.08s">Two full applications, opened from one dashboard.</h2>
-        <p class="rv" style="--d:.16s">Not panels in a sidebar &mdash; real, complete apps with their own space and their own state: one for everything you write, one for everything that is due.</p>
+        <h2 class="rv" style="--d:.08s">Three full apps, opened from one dashboard.</h2>
+        <p class="rv" style="--d:.16s">Not panels in a sidebar &mdash; real, complete apps with their own space: <b>Documents</b> for everything you write, <b>Study Hall</b> for everything that is due, and <b>Classes</b> for your courses and your week.</p>
       </div>
 
       <div class="apps-shot rv rv-p" style="--d:.2s">
@@ -1444,7 +1449,7 @@
       <div class="show" id="library" style="margin-top:76px">
         <div class="rv rv-l" style="--d:.1s">
           <div class="app-tag"><span class="pill ready">Ready</span></div>
-          <h3>Library Desk</h3>
+          <h3>Documents <em class="app-aka">the Library Desk</em></h3>
           <p>Bookshelves that hold books, scrolls, journals, card boxes and blueprints. Pages take
              rich text, drawings, pasted images and text boxes — and the paper always stays the focus,
              with the tools in the toolbar and the rail rather than crowding the page.</p>
@@ -1489,19 +1494,15 @@
               <figcaption>All assignments &mdash; one table, filtered by what is due, with each stage changed in place</figcaption>
             </figure>
             <figure>
-              <div class="win"><img src="../assets/site/sh-courses.jpg" alt="Classes, the Courses tab: 6 classes and 13 open, a Your week strip, and the Fall 2026 classes each with its next due item and one ending in 34 minutes" width="2120" height="1340" loading="lazy" decoding="async"></div>
-              <figcaption>Classes &mdash; every course of the term, and what is due next in each</figcaption>
-            </figure>
-            <figure>
-              <div class="win"><img src="../assets/site/sh-calendar.jpg" alt="Classes, the Calendar tab: the week of September 28 with due chips along the top, coloured class blocks, a study group event, and a Today panel with Lock In buttons" width="2120" height="1340" loading="lazy" decoding="async"></div>
-              <figcaption>Calendar &mdash; classes and deadlines on one week, with today beside it</figcaption>
+              <div class="win"><img src="../assets/site/sh-overview.jpg" alt="The Study Hall Overview: 2 due today, 12 left this week, 8% done this week, an Up next list of six tasks, a Homework progress ring, completed-per-day bars and per-class bars" width="2120" height="1340" loading="lazy" decoding="async"></div>
+              <figcaption>Overview &mdash; due today, left this week, and how the week is going</figcaption>
             </figure>
           </div>
         </div>
         <div class="rv rv-r" style="--d:.22s">
           <div class="app-tag"><span class="pill beta">Beta</span></div>
           <h3>Study Hall</h3>
-          <p>Your homework, calmly: an overview of the week, a drag-and-drop board, every assignment in one table, and your flashcards. Next door, <b>Classes</b> holds every course of the term and a calendar that puts classes and deadlines on the same week.</p>
+          <p>Your homework, calmly: an overview of the week, a drag-and-drop board, every assignment in one table, and your flashcards.</p>
           <div class="facts">
             <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Cards due today</b><span>What needs reviewing, without a wall of red.</span></div></div>
             <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Syllabus dates</b><span>Imported once, then simply there.</span></div></div>
@@ -1509,7 +1510,37 @@
             <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>All assignments</b><span>One table, filtered by due today, due soon or done.</span></div></div>
           </div>
           <div class="conv-list" style="margin-top:18px">
-            <span class="conv">Overview</span><span class="conv">Board</span><span class="conv">All assignments</span><span class="conv">Flashcards</span><span class="conv">Classes &middot; Courses</span><span class="conv">Classes &middot; Calendar</span>
+            <span class="conv">Overview</span><span class="conv">Board</span><span class="conv">All assignments</span><span class="conv">Flashcards</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="show" id="classes">
+        <div class="rv rv-l" style="--d:.1s">
+          <div class="app-tag"><span class="pill new">New</span></div>
+          <h3>Classes</h3>
+          <p>Every course of the term in one place &mdash; when it meets, where, what is due next in each &mdash;
+             and a calendar that puts your classes and your deadlines on the same week, with today beside it.
+             It is also where your friends&rsquo; shared weeks can sit over yours.</p>
+          <div class="facts">
+            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Your week at a glance</b><span>Every class, by the hour, with the one you are in marked.</span></div></div>
+            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>What is next, per class</b><span>The next thing due in each course, and how much is open.</span></div></div>
+            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Share it as a picture</b><span>Your classes as a list, a timetable or cards.</span></div></div>
+            <div class="fact"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7" stroke="#8db9ad" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><div><b>Friends on your calendar</b><span>Lay a friend&rsquo;s shared classes over your week.</span></div></div>
+          </div>
+        </div>
+        <div class="rv rv-r" style="--d:.22s">
+          <div class="show-art">
+            <div class="win">
+              <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Classes — Courses</span></div>
+              <img src="../assets/site/sh-courses.jpg" alt="Classes, the Courses tab: 6 classes and 13 open, a Your week strip, and the Fall 2026 classes each with its next due item and one ending in 34 minutes" width="2120" height="1340" loading="lazy" decoding="async">
+            </div>
+          </div>
+          <div class="sh-tabs" style="grid-template-columns:minmax(0,1fr)">
+            <figure>
+              <div class="win"><img src="../assets/site/sh-calendar.jpg" alt="Classes, the Calendar tab: the week of September 28 with due chips along the top, coloured class blocks, a study group event, and a Today panel with Lock In buttons" width="2120" height="1340" loading="lazy" decoding="async"></div>
+              <figcaption>Calendar &mdash; classes and deadlines on one week, with today beside it</figcaption>
+            </figure>
           </div>
         </div>
       </div>

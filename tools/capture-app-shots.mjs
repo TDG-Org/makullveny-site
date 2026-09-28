@@ -51,8 +51,11 @@ const APP = process.env.MAK_APP || join(SITE, "..", "Makullveny");
 /* MAK_SHOTS_OUT sends a trial run somewhere else, so a bad frame is looked
    at and thrown away instead of landing over the good one in the site. */
 const OUT = process.env.MAK_SHOTS_OUT || join(SITE, "assets", "site");
-const SANDBOX = join(tmpdir(), "mak-preview-siteshots");
-const PORT = 9333;
+/* MAK_SHOTS_PORT / MAK_SHOTS_SANDBOX let a second run go side by side with
+   one already open, instead of killing its window and wiping its profile.
+   The name must still start mak-preview- or the seeding script refuses it. */
+const SANDBOX = join(tmpdir(), process.env.MAK_SHOTS_SANDBOX || "mak-preview-siteshots");
+const PORT = Number(process.env.MAK_SHOTS_PORT) || 9333;
 
 /* The DEFAULT layout width. This is the zoom control, and it is the opposite
    of what it looks like: a SMALLER css width is a MORE zoomed picture, because
@@ -276,8 +279,156 @@ const SHOTS = [
     what: "Import Desk",
     go: `await go("dashboard"); tab('[data-dashboard-tab="tools"]'); await sleep(520);
          click('[data-dashboard-tool="syllabus"]'); await sleep(900);`
+  },
+  /* THE CLOUD BACKPACK, IN ITS OWN WINDOW, AT ITS OWN SHAPE. main.js opens it
+     1180x780 (TOOL_WINDOW_IDS), so that is the layout; 1.3x for sharpness.
+     Everything it shows is an account answer and the sandbox is signed out,
+     so `inTool` builds the window's panel a second time over an invented
+     account -- see FAKE_BACKPACK. */
+  {
+    id: "backpack",
+    to: ["backpack.jpg"],
+    size: [1534, 1014],
+    css: 1180,
+    tool: "backpack",
+    what: "Cloud Backpack (its own window)",
+    go: `await go("dashboard"); tab('[data-dashboard-tab="tools"]'); await sleep(520);
+         click('[data-dashboard-tool="backpack"]'); await sleep(900);`,
+    get inTool() { return FAKE_BACKPACK; }
   }
 ];
+
+/* ── THE BACKPACK'S ACCOUNT, INVENTED ─────────────────────────────────────
+   Every card state, the meter and the plan list are the server's answer, and
+   a demo profile has no account -- so the real window can only say "Signed
+   out". src/toolWindow.js already builds the panel over a fake transport for
+   its own screenshots (qaBackpackFixture, behind --makullveny-qa=1). This does
+   the same, in the window the shot opened: the app's own
+   createCloudBackpackSync and createCloudBackpackDrawer, handed an api that
+   answers backpackList / backpackPut / backpackRemove in the shapes that
+   fixture uses. Every pixel is the drawer's own code.
+
+   What is invented: five books (the demo student's classes, their writing
+   made up here), three of them stored; the island; which items are ticked.
+   What is the app's: the classes (backpack:read on the sandbox), every
+   size (bookContent() measured, as the drawer does), and the plan numbers,
+   which are docs/CLOUD_TIERS_AND_LIMITS.md's -- Free is 5 items and 3 MiB,
+   one class list rides free of the item count, Lantern is "coming soon".
+   Nothing is sent anywhere: the fake api is the only transport the panel has,
+   and its Market / Restore / safety-net doors are left shut, as the fixture's. */
+const FAKE_BACKPACK = `
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  for (let i = 0; i < 50 && !document.querySelector("#backpackDrawer .cb-layout"); i += 1) await sleep(200);
+  const Sync = window.MakullvenyCloudBackpackSync, Drawer = window.MakullvenyCloudBackpackDrawer;
+  if (!Sync || !Drawer) return "  [no Backpack modules in this window]";
+  const DAY = 86400000, now = Date.now();
+  const when = (daysAgo, hour) => { const d = new Date(now - daysAgo * DAY); d.setHours(hour, 10, 0, 0); return d.toISOString(); };
+  const para = (...lines) => lines.map((l) => "<p>" + l + "</p>").join("");
+  const list = (...items) => "<ul>" + items.map((i) => "<li>" + i + "</li>").join("") + "</ul>";
+  const page = (id, title, html, daysAgo) => ({ id, title, html: "<h2>" + title + "</h2>" + html, updatedAt: when(daysAgo, 15) });
+  const BOOKS = [
+    { id: "bp-chem", title: "Organic Chemistry", subject: "CHEM 210", color: "pine", pages: [
+      page("bp-chem-1", "Functional groups", para("Alcohols, aldehydes, ketones, carboxylic acids, esters, amines, amides. Know the suffix for each and one example.", "Ketone: C=O in the middle of the chain (-one). Aldehyde: C=O at the end (-al).") + list("Alcohol: -OH, hydrogen bonds, higher boiling point", "Ether: R-O-R, fairly unreactive", "Amine: basic, -NH2, smells like fish"), 9),
+      page("bp-chem-2", "Nomenclature", para("Find the longest chain, number from the end closest to the first branch, list substituents alphabetically.", "Di-, tri-, tetra- do not count for alphabetising. Cis/trans before the name, E/Z when there are more than two groups."), 8),
+      page("bp-chem-3", "Stereochemistry", para("Chiral centre: carbon with four different groups. Assign priority by atomic number (CIP rules), point lowest away, clockwise = R.", "Enantiomers are mirror images; diastereomers are not. Meso compounds have a plane of symmetry and are not optically active."), 6),
+      page("bp-chem-4", "SN1 vs SN2", para("SN2: one step, backside attack, inversion, favoured by strong nucleophile + primary carbon + polar aprotic solvent.", "SN1: carbocation first, racemic mix, favoured by tertiary carbon + weak nucleophile + polar protic solvent.") + list("Rate SN2 = k[substrate][Nu]", "Rate SN1 = k[substrate]", "Watch for carbocation rearrangements (hydride / methyl shift)"), 4),
+      page("bp-chem-5", "E1 and E2", para("E2 needs anti-periplanar H and leaving group. Bulky base gives the Hofmann (less substituted) product, small base gives Zaitsev.", "E1 competes with SN1; heat pushes toward elimination."), 3),
+      page("bp-chem-6", "Midterm 1 review", para("Ch. 3 to 7. Practise naming ten molecules and drawing mechanisms with arrows for every step. Office hours Thursday 2 to 4.") + list("Resonance and formal charge", "Acid/base: pKa table from the back of the book", "Newman projections and chair flips"), 1)
+    ] },
+    { id: "bp-math", title: "Calculus I", subject: "MATH 151", color: "midnight", pages: [
+      page("bp-math-1", "Limits", para("If direct substitution gives 0/0, factor, rationalise or use L'Hopital later. One-sided limits must agree for the limit to exist."), 12),
+      page("bp-math-2", "Derivative rules", list("Power: d/dx x^n = n x^(n-1)", "Product: f'g + fg'", "Quotient: (f'g - fg') / g^2", "Chain: f'(g(x)) g'(x)"), 10),
+      page("bp-math-3", "Section 2.3 exercises", para("1, 5, 9, 13, 17, 21 and 33. Number 17 needs the chain rule twice. Check answers against the odd-numbered solutions."), 2),
+      page("bp-math-4", "Related rates", para("Draw it, name every quantity, write the equation that links them, THEN differentiate with respect to t. Plug numbers in last."), 2)
+    ] },
+    { id: "bp-psy", title: "Psych 100 Notes", subject: "PSY 100", color: "plum", pages: [
+      page("bp-psy-1", "Research methods", para("Correlation is not causation. Experiments need random assignment; the independent variable is what the researcher changes."), 14),
+      page("bp-psy-2", "The brain", para("Hippocampus: forming new memories. Amygdala: fear and emotion. Frontal lobe: planning, decisions, personality.") + list("Neuron: dendrites, soma, axon, terminal", "Myelin speeds the signal", "Neurotransmitters: dopamine, serotonin, GABA"), 11),
+      page("bp-psy-3", "Learning", para("Classical conditioning (Pavlov): pair a neutral stimulus with one that already causes a response. Operant (Skinner): behaviour shaped by what follows it."), 5),
+      page("bp-psy-4", "Module 3 quiz prep", para("Positive vs negative reinforcement is the one people mix up. Negative reinforcement REMOVES something unpleasant and makes behaviour more likely."), 1)
+    ] },
+    { id: "bp-hist", title: "World History", subject: "HIST 101", color: "saffron", pages: [
+      page("bp-hist-1", "Map quiz list", list("Mesopotamia", "Indus Valley", "Nile delta", "Yellow River", "Fertile Crescent"), 3),
+      page("bp-hist-2", "Timeline project ideas", para("Trade routes, 500 BCE to 1500 CE. Silk Road, Indian Ocean, trans-Saharan. Ask Dr. Grant if maps count as sources."), 0)
+    ] },
+    { id: "bp-eng", title: "Essay Drafts", subject: "ENG 102", color: "cranberry", pages: [
+      page("bp-eng-1", "Essay draft", para("Working thesis: small study habits matter more than long sessions, because consistency compounds.", "Need two more sources for the second paragraph."), 0),
+      page("bp-eng-2", "Peer review notes", para("Intro is too long. Move the statistic to paragraph two. Conclusion repeats the thesis word for word."), 0)
+    ] }
+  ];
+  /* A term's worth of lecture notes behind the pages above, so each book
+     weighs what a real notebook does (the tiers doc measures five at about
+     124 KB) rather than a few hundred bytes. Built from each book's own lines;
+     only the page count on the cover and the size show it. */
+  const LECTURES = { "bp-chem": 10, "bp-math": 6, "bp-psy": 4 };
+  BOOKS.forEach((b) => {
+    const pool = b.pages.map((p) => p.html.replace(new RegExp("<h2>.*?</h2>"), "")).join("").split(new RegExp("</?(?:p|li|ul)>")).filter((t) => t.length > 12);
+    for (let k = 1; k <= (LECTURES[b.id] || 0); k += 1) {
+      const lines = Array.from({ length: 21 }, (_, i) => pool[(k * 5 + i) % pool.length]);
+      const html = [0, 3, 6, 9, 12, 15, 18].map((i) => para(lines.slice(i, i + 3).join(" "))).join("");
+      b.pages.push(page(b.id + "-lec-" + k, "Lecture " + k, html, 20 - k));
+    }
+    b.updatedAt = b.pages.reduce((m, p) => (p.updatedAt > m ? p.updatedAt : m), "");
+  });
+  const STORED = ["bp-chem", "bp-math", "bp-psy"];
+  const syncedAt = new Date(now - 40 * 60000).toISOString();
+
+  const tool = window.makullvenyTool || {};
+  const read = await Promise.resolve(tool.readBackpack && tool.readBackpack()).catch(() => null);
+  const courses = read && read.ok && read.courses && Array.isArray(read.courses.items) ? read.courses.items : [];
+  const state = {
+    shelves: [{ id: "bp-shelf", name: "Fall 2026", books: BOOKS }],
+    courses: { items: courses },
+    cloudBackpack: { selected: STORED.slice(), pages: {}, autoUpdate: true, syncCourses: true, syncSelah: true,
+      syncSelahChosen: true, courseExcluded: [], updatedAt: syncedAt,
+      synced: Object.fromEntries(STORED.map((id) => [id, { revision: 4 }])) }
+  };
+  /* The server's jsonb re-renders a little bigger than what was sent (the
+     drawer's own note: 264 bytes here, 288 there) -- so stored sizes are
+     the measured payload plus that margin, not a round number. */
+  const measure = (b) => new TextEncoder().encode(JSON.stringify(Sync.bookContent(b, b.pages))).length;
+  const backend = new Map();
+  STORED.forEach((id) => {
+    const b = BOOKS.find((x) => x.id === id);
+    backend.set(id, { itemId: id, itemKind: "book", revision: 4, bytes: Math.round(measure(b) * 1.09), itemCount: b.pages.length, title: b.title, updatedAt: syncedAt });
+  });
+  backend.set("course-spine", { itemId: "course-spine", itemKind: "courses", revision: 6, bytes: 1612, itemCount: courses.length || 6, title: "My classes", updatedAt: syncedAt });
+  backend.set("selah-world", { itemId: "selah-world", itemKind: "selah", revision: 9, bytes: 10140, itemCount: 1, title: "Maple Hall", updatedAt: syncedAt });
+  const limits = { max_bytes: 3 * 1024 * 1024, max_items: 5 };
+  const usage = () => {
+    const rows = [...backend.values()];
+    return { bytes: rows.reduce((s, r) => s + r.bytes, 0), rows: rows.length,
+      items: rows.filter((r) => r.itemKind !== "courses").length + Math.max(rows.filter((r) => r.itemKind === "courses").length - 1, 0) };
+  };
+  const fakeApi = {
+    backpackList: async () => ({ ok: true, items: [...backend.values()], publications: [], usage: usage(), limits }),
+    backpackPut: async () => ({ ok: false, code: "cloud_unavailable", error: "Not in a screenshot." }),
+    backpackRemove: async () => ({ ok: false, code: "cloud_unavailable", error: "Not in a screenshot." })
+  };
+  const catalog = { plan: "free", plans: {
+    free: { max_items: 5, max_bytes: 3 * 1048576, max_active_links: 1, offer: "included" },
+    hearth: { max_items: 500, max_bytes: 250 * 1048576, max_active_links: 50, offer: "hidden" },
+    lantern: { max_items: 100, max_bytes: 50 * 1048576, max_active_links: 10, offer: "coming_soon" } } };
+
+  const sync = Sync.createCloudBackpackSync({ api: fakeApi, getPrefs: () => state });
+  const drawer = Drawer.createCloudBackpackDrawer({
+    document, window, getPrefs: () => state, sync,
+    saveSelection: (selection) => Promise.resolve({ ok: true, cloudBackpack: selection }),
+    getPlanCatalog: () => catalog,
+    openMarket: null, recoverPage: null, forgetRecovery: null, previewRestore: null, restoreItems: null, readLocal: null,
+    restoreRemoteItem: () => Promise.resolve({ ok: false, error: "Restore is unavailable in this preview." })
+  });
+  /* A fresh host in the old one's place: the signed-out controller keeps its
+     subscription, and a repaint from it lands on a node nobody can see. */
+  const old = document.getElementById("backpackDrawer");
+  const host = document.createElement("section");
+  host.id = "backpackDrawer"; host.className = "backpack-drawer";
+  old.replaceWith(host);
+  await drawer.mountStandalone(host);
+  await sleep(900);
+  const s = drawer.snapshot();
+  return "  [" + s.state.label + ", " + (s.usage ? s.usage.items + " of " + s.usage.maxItems + " items" : "no usage") + "]";
+`;
 
 /* ── CDP, small and by hand ──────────────────────────────────────────────
    One socket, one id counter, one map of pending replies. A CDP client is
@@ -933,15 +1084,21 @@ async function run() {
       await evaluate(cdp, inPage(`${shot.go} await sleep(900); await clearTheWay(); return document.body.dataset.view;`));
 
       /* A tool's card opens a window of its own, so the page to photograph is
-         one this connection knows nothing about yet. (No shot here does that
-         any more -- Import Desk moved inside the app -- but the Backpack and
-         others still can.) */
+         one this connection knows nothing about yet. (Import Desk moved inside
+         the app; the Backpack still opens its own window, and is shot so.) */
       let target = cdp;
+      let note = "";
       if (shot.tool) {
         target = await findToolWindow(shot.tool, openPageIds);
         await target.send("Page.enable");
         await wait(1200);
         await evaluate(target, `(async () => { ${CLEAR_THE_WAY} return await clearTheWay(); })()`);
+        /* Whatever the shot does INSIDE that window (the Backpack's account
+           answer, below), then the way cleared again for anything it raised. */
+        if (shot.inTool) {
+          note = String(await evaluate(target, `(async () => { ${shot.inTool} })()`) || "");
+          await evaluate(target, `(async () => { ${CLEAR_THE_WAY} return await clearTheWay(); })()`);
+        }
       }
 
       /* Metrics AFTER the navigation: several views measure themselves on the
@@ -957,7 +1114,6 @@ async function run() {
       })).data, "base64");
 
       let bytes;
-      let note = "";
       if (shot.villagers) {
         /* A few arrivals, a few seconds apart so they do not all step out of
            the same tree, then the best of a run of frames. */

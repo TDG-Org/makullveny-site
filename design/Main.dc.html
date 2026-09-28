@@ -842,6 +842,29 @@
     .rot-dots { gap:12px; bottom:-30px; z-index:4; }
     .rot-dot { width:10px; height:10px; background:rgba(255,236,203,.34); box-shadow:0 0 0 1px rgba(0,0,0,.25); }
 
+    /* ══ THE DOWNLOAD WARNING: read it first ══════════════════════════ */
+    /* The line under "Windows will warn you once" draws itself once, and the
+       download button waits 1.25 s with a spinner (site.js), so the warning
+       is the first thing read -- not the button. */
+    .dl-uline { background-image:linear-gradient(90deg,#e7a061,#f0c88f); background-repeat:no-repeat;
+      background-position:0 100%; background-size:0% 2px; padding-bottom:5px;
+      -webkit-box-decoration-break:clone; box-decoration-break:clone; }
+    .dl-guide h3.is-drawn .dl-uline { animation:dl-uline 1.05s cubic-bezier(.3,.7,.2,1) .15s forwards; }
+    @keyframes dl-uline { to { background-size:100% 2px; } }
+    .dl-guide-go.is-waiting { pointer-events:none; cursor:progress; filter:saturate(.7) brightness(.82); }
+    .dl-guide-go.is-waiting > svg { opacity:0; }
+    .dl-guide-go { position:relative; }
+    .dl-guide-go.is-waiting::before { content:""; position:absolute; left:22px; top:50%; width:15px; height:15px; margin-top:-8.5px;
+      border-radius:50%; border:2px solid rgba(36,21,5,.28); border-top-color:#241505; animation:dl-spin .75s linear infinite; }
+    .dl-guide-go.is-waiting::after { content:""; position:absolute; left:0; bottom:0; height:3px; border-radius:0 0 999px 999px;
+      background:rgba(36,21,5,.35); animation:dl-wait 1.25s linear forwards; }
+    @keyframes dl-spin { to { transform:rotate(360deg); } }
+    @keyframes dl-wait { from { width:0; } to { width:100%; } }
+    @media (prefers-reduced-motion:reduce) {
+      .dl-guide h3.is-drawn .dl-uline { animation:none; background-size:100% 2px; }
+      .dl-guide-go.is-waiting::before { animation:none; }
+    }
+
     /* == FAITH ======================================================== */
     .faith { position:relative; overflow:hidden; text-align:center; padding:80px 0 88px;
       background:linear-gradient(180deg,#33210f 0%,#2a1a0d 34%,#221408 68%,#2b1b0e 100%); }
@@ -2230,14 +2253,14 @@
       <div class="dl-guide-in">
         <p class="dl-guide-ok is-done" data-dl-guide-post hidden><span aria-hidden="true">&#10003;</span> Downloading</p>
         <div data-dl-guide-for="win" hidden>
-          <h3 id="dl-guide-title">Windows will warn you once. <em>It&#8217;s okay.</em></h3>
+          <h3 id="dl-guide-title"><span class="dl-uline">Windows will warn you once. <em>It&#8217;s okay.</em></span></h3>
           <ol class="dl-guide-steps">
             <li><p><span>1</span><span>Click <b>More info</b></span></p></li>
             <li><p><span>2</span><span>Click <b>Run anyway</b></span></p></li>
           </ol>
         </div>
         <div data-dl-guide-for="mac" hidden>
-          <h3 id="dl-guide-title-mac">Your Mac will block it once. <em>It&#8217;s okay.</em></h3>
+          <h3 id="dl-guide-title-mac"><span class="dl-uline">Your Mac will block it once. <em>It&#8217;s okay.</em></span></h3>
           <ol class="dl-guide-steps">
             <li><p><span>1</span><span>Click <b>Done</b><small>not Move to Trash</small></span></p></li>
             <li><p><span>2</span><span>Click <b>Open Anyway</b><small>System Settings &#8250; Privacy &amp; Security</small></span></p></li>

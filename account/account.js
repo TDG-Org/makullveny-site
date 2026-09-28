@@ -131,17 +131,66 @@
     var signin = $("acSignin");
     var meBox = $("acMe");
     var tabs = { signup: $("acTabUp"), signin: $("acTabIn") };
-    function face(which) {
-      var me = window.MakullvenyMe && window.MakullvenyMe.get();
-      if (me && which !== "signup-forced") which = "me";
-      form.hidden = which !== "signup" && which !== "signup-forced";
+    /* THE FACES CROSS-FADE (owner, 2026-09-27: "smoother and cleaner"): the
+       words on the left and the card's contents fade out together, swap, and
+       fade back in while the card eases to its new height. The tab pill
+       slides on its own. Under reduced motion it is an instant swap. */
+    var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var card = form.parentNode;
+    var sayUp = $("acSayUp");
+    var sayIn = $("acSayIn");
+    var tabRow = tabs.signup.parentNode;
+    [form, signin, done, meBox].forEach(function (n) { n.classList.add("ac-swap"); });
+    var current = "";
+    var swapTimer = 0;
+
+    function apply(which, me) {
+      form.hidden = which !== "signup";
       signin.hidden = which !== "signin";
       done.hidden = true;
       meBox.hidden = which !== "me";
-      $("acTabUp").parentNode.hidden = which === "me";
-      tabs.signup.setAttribute("aria-selected", String(!form.hidden));
-      tabs.signin.setAttribute("aria-selected", String(!signin.hidden));
+      tabRow.hidden = which === "me";
+      sayUp.hidden = which !== "signup";
+      sayIn.hidden = which === "signup";
+      tabRow.setAttribute("data-on", which === "signin" ? "signin" : "signup");
+      tabs.signup.setAttribute("aria-selected", String(which === "signup"));
+      tabs.signin.setAttribute("aria-selected", String(which === "signin"));
       if (which === "me") showMe(me);
+    }
+    function visible() {
+      return [sayUp, sayIn, form, signin, done, meBox].filter(function (n) { return !n.hidden; });
+    }
+    function face(which) {
+      var me = window.MakullvenyMe && window.MakullvenyMe.get();
+      if (me) which = "me";
+      if (which === current && done.hidden) return;
+      var first = !current;
+      current = which;
+      clearTimeout(swapTimer);
+      if (first || reduceMotion) { apply(which, me); return; }
+
+      // Tabs answer at once; the content follows the fade.
+      tabRow.setAttribute("data-on", which === "signin" ? "signin" : "signup");
+      var from = card.offsetHeight;
+      card.classList.add("is-sizing");
+      card.style.height = from + "px";
+      var leaving = visible();
+      leaving.forEach(function (n) { n.classList.remove("is-entering"); n.classList.add("is-leaving"); });
+      swapTimer = setTimeout(function () {
+        leaving.forEach(function (n) { n.classList.remove("is-leaving"); });
+        apply(which, me);
+        card.style.height = "auto";
+        var to = card.offsetHeight;
+        card.style.height = from + "px";
+        void card.offsetHeight;
+        card.style.height = to + "px";
+        visible().forEach(function (n) { n.classList.add("is-entering"); });
+        swapTimer = setTimeout(function () {
+          card.style.height = "";
+          card.classList.remove("is-sizing");
+          visible().forEach(function (n) { n.classList.remove("is-entering"); });
+        }, 360);
+      }, 170);
     }
     function showMe(me) {
       var box = $("acMeDisc");

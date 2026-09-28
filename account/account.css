@@ -235,3 +235,26 @@ a:hover { color: #ffd2a6; }
 .ac-me-disc .me-disc { width: 72px; height: 72px; margin-bottom: 14px; }
 .ac-me-disc .me-initial { font-size: 30px; }
 .ac-me .ac-fine { margin-top: 18px; }
+
+/* ── switching faces: a cross-fade, the card easing to its new height ── */
+.ac-left { display: grid; }
+.ac-card { position: relative; transition: height .34s cubic-bezier(.2, .8, .3, 1); }
+.ac-card.is-sizing { overflow: hidden; }
+.ac-swap { transition: opacity .17s ease, transform .17s ease; }
+.ac-swap.is-leaving { opacity: 0; transform: translateY(6px); }
+.ac-swap.is-entering { animation: ac-in .34s cubic-bezier(.2, .8, .3, 1) both; }
+@keyframes ac-in { from { opacity: 0; transform: translateY(-6px); } }
+
+/* the tab's pill slides under the words instead of jumping */
+.ac-tabs { position: relative; isolation: isolate; }
+.ac-tabs::before { content: ""; position: absolute; z-index: -1; top: 4px; bottom: 4px; left: 4px; width: calc(50% - 6px);
+  border-radius: 999px; background: rgba(213, 140, 75, .22); box-shadow: inset 0 0 0 1px rgba(240, 178, 122, .42);
+  transition: transform .38s cubic-bezier(.2, .8, .3, 1); }
+.ac-tabs[data-on="signin"]::before { transform: translateX(calc(100% + 4px)); }
+.ac-tabs button { transition: color .25s ease; }
+.ac-tabs button[aria-selected="true"] { background: none; box-shadow: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ac-card, .ac-swap, .ac-tabs::before { transition: none; }
+  .ac-swap.is-entering { animation: none; }
+}
