@@ -1,0 +1,449 @@
+/*
+  A STUDENT'S PROFILE PAGE (u/), after the Claude Design mockup
+  "PublicProfile" (friends-2026-09-27): a profile card on the left, the week on
+  the right, the cabin's warm dark palette. On a phone the two stack and the
+  week becomes a list, one day at a time.
+
+  NO WEB FONTS -- the CSP forbids them; Georgia stands in for Lora and the
+  system UI face for Inter.
+*/
+
+:root {
+  color-scheme: dark;
+  --pp-bg-a: #4a3526;
+  --pp-bg-b: #1d1510;
+  --pp-bg-c: #140f0b;
+  --pp-card: rgba(42, 31, 24, 0.86);
+  --pp-line: rgba(255, 226, 196, 0.14);
+  --pp-line-soft: rgba(255, 226, 196, 0.07);
+  --pp-ink: #f3e7d8;
+  --pp-ink-strong: #fbf1e4;
+  --pp-muted: #c9b39c;
+  --pp-faint: #b89d82;
+  --pp-hour: #9d8670;
+  --pp-accent: #f0a868;
+  --pp-accent-soft: rgba(224, 146, 79, 0.14);
+  --pp-accent-ink: #f3d2b2;
+  --pp-chip: rgba(255, 226, 196, 0.06);
+  --pp-well: rgba(12, 8, 6, 0.35);
+  --pp-event: #b8a58f;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse at 15% 0%, var(--pp-bg-a) 0%, var(--pp-bg-b) 55%, var(--pp-bg-c) 100%) fixed, var(--pp-bg-c);
+  color: var(--pp-ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+a { color: var(--pp-accent); }
+a:hover { color: #ffc58f; }
+
+[hidden] { display: none !important; }
+
+/* ── top ── */
+.pp-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 48px;
+}
+
+.pp-brand {
+  color: var(--pp-ink-strong);
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.pp-get {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 226, 196, 0.18);
+  background: rgba(255, 226, 196, 0.08);
+  color: var(--pp-accent);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.pp-get:hover { background: rgba(255, 226, 196, 0.14); }
+
+/* ── main ── */
+.pp-main {
+  flex: 1;
+  padding: 8px 48px 40px;
+}
+
+.pp-state {
+  max-width: 34rem;
+  margin: 12vh auto 0;
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: var(--pp-card);
+  border: 1px solid var(--pp-line);
+  font-size: 17px;
+  text-align: center;
+}
+
+.pp-layout {
+  display: flex;
+  gap: 32px;
+  align-items: stretch;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pp-card {
+  border-radius: 26px;
+  background: var(--pp-card);
+  border: 1px solid var(--pp-line);
+}
+
+/* ── who ── */
+.pp-who {
+  flex: 0 0 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 36px 28px;
+  text-align: center;
+}
+
+.pp-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #d6ecf3;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Each avatar's own ground, the same colours the app draws it on. */
+.pp-avatar[data-avatar="1"] { background: #dcefdc; }
+.pp-avatar[data-avatar="2"] { background: #dff0d8; }
+.pp-avatar[data-avatar="3"] { background: #cfe3f4; }
+.pp-avatar[data-avatar="4"] { background: #e3eef8; }
+.pp-avatar[data-avatar="5"] { background: #e6f0dc; }
+.pp-avatar[data-avatar="6"] { background: #f6dcec; }
+.pp-avatar[data-avatar="7"] { background: #f8e7db; }
+.pp-avatar[data-avatar="0"] { background: linear-gradient(160deg, #e0a458, #a8643a); }
+
+.pp-avatar img {
+  width: 142px;
+  height: 142px;
+  object-fit: contain;
+}
+
+.pp-initial {
+  color: #fff7ec;
+  font-family: var(--serif);
+  font-size: 64px;
+  font-weight: 700;
+}
+
+.pp-names { min-width: 0; max-width: 100%; }
+
+.pp-name {
+  margin: 0;
+  color: var(--pp-ink-strong);
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.pp-handle {
+  margin: 2px 0 0;
+  color: var(--pp-muted);
+  font-size: 16px;
+}
+
+.pp-bio {
+  margin: 0;
+  color: #eadbc8;
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.pp-stats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pp-stat {
+  display: grid;
+  min-width: 84px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--pp-chip);
+}
+
+.pp-stat-value {
+  color: var(--pp-ink-strong);
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pp-stat-label {
+  color: var(--pp-faint);
+  font-size: 12px;
+}
+
+.pp-add {
+  width: 100%;
+  margin: auto 0 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--pp-accent-soft);
+  color: var(--pp-accent-ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.pp-add b { color: var(--pp-ink-strong); }
+
+/* ── the week ── */
+.pp-week {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px;
+}
+
+.pp-week-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 4px 16px;
+}
+
+.pp-week-title {
+  margin: 0;
+  color: var(--pp-ink-strong);
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.pp-week-note {
+  margin: 0;
+  color: var(--pp-faint);
+  font-size: 14px;
+}
+
+.pp-empty {
+  margin: 0;
+  padding: 28px;
+  border-radius: 16px;
+  background: var(--pp-well);
+  color: var(--pp-muted);
+  text-align: center;
+}
+
+.pp-grid-days {
+  display: flex;
+  padding-left: 60px;
+  margin-bottom: 10px;
+}
+
+.pp-grid-day {
+  flex: 1 1 0;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+}
+
+.pp-grid-day-name {
+  color: var(--pp-faint);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.pp-grid-day-date {
+  color: var(--pp-muted);
+  font-size: 13px;
+}
+
+.pp-grid-body {
+  position: relative;
+  border-radius: 16px;
+  background: var(--pp-well);
+  border: 1px solid rgba(255, 226, 196, 0.08);
+}
+
+.pp-grid-hour {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--pp-line-soft);
+}
+
+.pp-grid-hour:first-child { border-top-color: transparent; }
+
+.pp-grid-hour-label {
+  position: absolute;
+  left: 12px;
+  top: 5px;
+  color: var(--pp-hour);
+  font-size: 11px;
+}
+
+.pp-grid-lanes {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 60px;
+  right: 8px;
+}
+
+.pp-block {
+  position: absolute;
+  padding: 3px;
+}
+
+.pp-block-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border-left: 3px solid var(--pp-c, var(--pp-event));
+  background: color-mix(in srgb, var(--pp-c, var(--pp-event)) 22%, transparent);
+  overflow: hidden;
+}
+
+.pp-block-event .pp-block-inner {
+  border-left-style: dashed;
+  background: rgba(255, 226, 196, 0.07);
+}
+
+.pp-block-title {
+  color: var(--pp-ink-strong);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-block-time {
+  color: #e3d0bb;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* The list is the phone's view of the same week. */
+.pp-list {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-list-day { margin: 0 0 14px; }
+
+.pp-list-day-name {
+  margin: 0 0 6px;
+  color: var(--pp-faint);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pp-list-rows {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-list-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border-left: 3px solid var(--pp-c, var(--pp-event));
+  background: color-mix(in srgb, var(--pp-c, var(--pp-event)) 18%, transparent);
+}
+
+.pp-list-row.pp-block-event {
+  border-left-style: dashed;
+  background: rgba(255, 226, 196, 0.07);
+}
+
+.pp-list-time {
+  color: #e3d0bb;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.pp-list-title {
+  color: var(--pp-ink-strong);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+/* ── foot ── */
+.pp-foot {
+  padding: 18px 48px 28px;
+  color: var(--pp-faint);
+  font-size: 13px;
+  text-align: center;
+}
+
+.pp-foot p { margin: 0; }
+
+/* ── narrower: stack, then the list ── */
+@media (max-width: 900px) {
+  .pp-top { padding: 18px 20px; }
+  .pp-main { padding: 4px 16px 32px; }
+  .pp-layout { flex-direction: column; gap: 18px; }
+  .pp-who { flex: none; padding: 28px 20px; }
+  .pp-foot { padding: 16px 20px 24px; }
+}
+
+@media (max-width: 640px) {
+  .pp-brand { font-size: 21px; }
+  .pp-avatar { width: 120px; height: 120px; }
+  .pp-avatar img { width: 114px; height: 114px; }
+  .pp-name { font-size: 27px; }
+  .pp-week { padding: 20px 16px; }
+  .pp-week-title { font-size: 22px; }
+  .pp-grid { display: none; }
+  .pp-list { display: block; }
+}

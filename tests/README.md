@@ -24,6 +24,16 @@ refusal), and the HTTP-status-to-reader-message mapping (confirming
 404-family causes are worded identically, and that a paused share never leaks
 *why* it's paused).
 
+### `profile-page.test.js` — the profile link page (`u/`)
+
+A student's profile link, `https://www.makullveny.com/u/#<token>`, made in
+the app. Pins the token parse, the one pinned origin (the same list as
+`read/read.js`, and the same `connect-src`), `shapeProfile` keeping only what
+the page draws (never an id, an email or a room), the rolling seven-day week
+(weekend columns only when used, hours fitted, overlaps side by side), one
+not-found sentence for revoked / unknown / malformed, and that the page holds
+no key and writes nothing as markup.
+
 ### `reader-hardening.test.js` — what was added when the viewer was tightened
 
 **The outbound-origin allowlist.** `apiOriginAllowed()` accepts only the one
