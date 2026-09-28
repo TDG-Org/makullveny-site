@@ -1,0 +1,413 @@
+/*
+  THE SIXTEEN THEMES, AS THE APP PAINTS THEM (2026-09-28, "profile parity").
+
+  GENERATED -- do not hand-edit. Every value below was READ OUT OF THE RUNNING
+  APP (Makullveny v2.116, getComputedStyle on each [data-theme], the probe
+  tools/probes/profileThemeTokens.probe in the app repository), so a student's
+  profile page here wears exactly the colours their app does. The theme's art
+  is the app's own background, re-encoded as WebP in ../assets/themes/.
+
+  u/profile.js sets <html data-theme data-accent data-bg> from the link's
+  look. An unknown theme falls back to the :root block (Cozy Cabin, the app's
+  default). The tokens are the app's own names, so the page's one stylesheet
+  (u/profile-view.css, a byte copy of the app's) reads them unchanged.
+*/
+:root,
+:root[data-theme="cozy-cabin"] {
+  color-scheme: dark;
+  --bg: #15120f;
+  --text: #f7ead6;
+  --accent: #d58c4b;
+  --accent-2: #8db9ad;
+  --on-accent: #2d2218;
+  --panel-bg: linear-gradient(135deg, rgba(75, 49, 31, 0.48), rgba(17, 10, 6, 0.76)), rgba(13, 8, 5, 0.68);
+  --panel-soft-bg: rgba(255, 245, 225, 0.08);
+  --panel-softer-bg: rgba(255, 245, 225, 0.06);
+  --panel-text: #fff1d2;
+  --panel-heading: #fff5da;
+  --panel-muted: rgba(255, 235, 198, 0.72);
+  --panel-muted-strong: rgba(255, 238, 207, 0.78);
+  --panel-border: rgba(255, 236, 203, 0.14);
+  --panel-border-strong: rgba(255, 236, 203, 0.18);
+  --panel-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+  --app-background: radial-gradient(circle at 18% 12%, rgba(255, 207, 134, 0.2), transparent 28%), radial-gradient(circle at 25% 42%, rgba(111, 164, 180, 0.18), transparent 30%), linear-gradient(90deg, rgba(12, 9, 8, 0.48) 0 34%, rgba(22, 15, 11, 0.28) 56%, rgba(12, 9, 8, 0.78)), linear-gradient(180deg, rgba(10, 8, 7, 0.08), rgba(10, 8, 7, 0.72)), url("../assets/themes/cabin-background.webp") center / cover, #15120f;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="snow-cabin"] {
+  color-scheme: light;
+  --bg: #d4e3ea;
+  --text: #1b2b33;
+  --accent: #7a5b36;
+  --accent-2: #3d7688;
+  --on-accent: #ffffff;
+  --panel-bg: linear-gradient(135deg, rgba(244, 250, 252, 0.94), rgba(212, 231, 239, 0.9)), rgba(244, 250, 252, 0.86);
+  --panel-soft-bg: rgba(244, 250, 252, 0.86);
+  --panel-softer-bg: rgba(226, 240, 246, 0.74);
+  --panel-text: #1f333c;
+  --panel-heading: #152a34;
+  --panel-muted: rgba(31, 51, 60, 0.74);
+  --panel-muted-strong: rgba(26, 43, 51, 0.86);
+  --panel-border: rgba(31, 57, 68, 0.2);
+  --panel-border-strong: rgba(31, 57, 68, 0.32);
+  --panel-shadow: 0 20px 70px rgba(35, 61, 73, 0.22);
+  --app-background: linear-gradient(180deg, rgba(242, 248, 251, 0.08), rgba(30, 52, 63, 0.2)), linear-gradient(90deg, rgba(236, 246, 250, 0.14), rgba(236, 246, 250, 0.02) 48%, rgba(48, 76, 89, 0.18)), url("../assets/themes/snow-cabin-background.webp") center / cover, #d4e3ea;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="terminal-hacker"] {
+  color-scheme: dark;
+  --bg: #020704;
+  --text: #c9ffd6;
+  --accent: #39ff7a;
+  --accent-2: #00e5ff;
+  --on-accent: #2d2218;
+  --panel-bg: linear-gradient(135deg, rgba(5, 28, 13, 0.82), rgba(1, 13, 7, 0.82)), rgba(0, 0, 0, 0.32);
+  --panel-soft-bg: rgba(3, 25, 12, 0.72);
+  --panel-softer-bg: rgba(4, 35, 16, 0.48);
+  --panel-text: #c9ffd6;
+  --panel-heading: #e4ffe9;
+  --panel-muted: rgba(190, 255, 207, 0.72);
+  --panel-muted-strong: rgba(205, 255, 218, 0.82);
+  --panel-border: color-mix(in srgb, #39ff7a 18%, transparent);
+  --panel-border-strong: color-mix(in srgb, #39ff7a 34%, transparent);
+  --panel-shadow: 0 18px 60px rgba(0, 0, 0, 0.38), 0 0 30px color-mix(in srgb, #39ff7a 8%, transparent);
+  --app-background: linear-gradient(180deg, rgba(0, 9, 5, 0.24), rgba(0, 6, 4, 0.48)), linear-gradient(90deg, rgba(0, 229, 255, 0.08), rgba(57, 255, 122, 0.04) 48%, rgba(0, 0, 0, 0.2)), linear-gradient(90deg, rgba(57, 255, 122, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(57, 255, 122, 0.05) 1px, transparent 1px), url("../assets/themes/neon-terminal-background.webp") center / cover, linear-gradient(180deg, #010503, #031108 58%, #000402);
+  --pv-font: "Cascadia Mono", Consolas, SFMono-Regular, monospace;
+}
+
+:root[data-theme="cherry-blossom"] {
+  color-scheme: light;
+  --bg: #f3dfe7;
+  --text: #372631;
+  --accent: #b04f70;
+  --accent-2: #6da8ad;
+  --on-accent: #ffffff;
+  --panel-bg: linear-gradient(135deg, rgba(255, 248, 250, 0.82), rgba(239, 211, 222, 0.76)), rgba(255, 246, 249, 0.66);
+  --panel-soft-bg: rgba(255, 246, 249, 0.72);
+  --panel-softer-bg: rgba(245, 224, 232, 0.56);
+  --panel-text: #3b2934;
+  --panel-heading: #2e2029;
+  --panel-muted: rgba(59, 41, 52, 0.72);
+  --panel-muted-strong: rgba(50, 34, 43, 0.84);
+  --panel-border: rgba(111, 70, 84, 0.2);
+  --panel-border-strong: rgba(111, 70, 84, 0.32);
+  --panel-shadow: 0 20px 70px rgba(121, 70, 86, 0.18);
+  --app-background: linear-gradient(180deg, rgba(255, 247, 249, 0.12), rgba(76, 45, 58, 0.18)), linear-gradient(90deg, rgba(255, 239, 244, 0.14), rgba(255, 239, 244, 0.02) 46%, rgba(117, 77, 91, 0.16)), url("../assets/themes/cherry-blossom-background.webp") center / cover, #f3dfe7;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="rainy-cafe"] {
+  color-scheme: dark;
+  --bg: #101d26;
+  --text: #dce9ef;
+  --accent: #78abc0;
+  --accent-2: #a7c8d4;
+  --on-accent: #2d2218;
+  --panel-bg: linear-gradient(135deg, rgba(25, 48, 61, 0.9), rgba(11, 25, 35, 0.92)), rgba(5, 15, 22, 0.42);
+  --panel-soft-bg: rgba(31, 59, 73, 0.72);
+  --panel-softer-bg: rgba(37, 70, 84, 0.52);
+  --panel-text: #e2eef3;
+  --panel-heading: #f2f8fa;
+  --panel-muted: rgba(190, 211, 221, 0.7);
+  --panel-muted-strong: rgba(211, 228, 235, 0.86);
+  --panel-border: rgba(151, 188, 205, 0.26);
+  --panel-border-strong: rgba(151, 188, 205, 0.48);
+  --panel-shadow: 0 18px 60px rgba(0, 0, 0, 0.44), 0 0 30px rgba(101, 161, 188, 0.08);
+  --app-background: linear-gradient(180deg, rgba(8, 18, 27, 0.28), rgba(7, 15, 23, 0.62)), linear-gradient(112deg, rgba(34, 67, 84, 0.2), rgba(12, 28, 39, 0.1) 54%, rgba(5, 13, 20, 0.38)), url("../assets/themes/rainy-cafe-background.webp") center / cover, linear-gradient(180deg, #1b303d, #0b151e 70%, #071018);
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="garden-of-eden"] {
+  color-scheme: light;
+  --bg: #dce9d5;
+  --text: #23331f;
+  --accent: #3b7c4b;
+  --accent-2: #cf9a34;
+  --on-accent: #ffffff;
+  --panel-bg: linear-gradient(135deg, rgba(249, 252, 243, 0.92), rgba(223, 236, 212, 0.86)), rgba(249, 252, 243, 0.7);
+  --panel-soft-bg: rgba(247, 251, 238, 0.82);
+  --panel-softer-bg: rgba(228, 240, 218, 0.66);
+  --panel-text: #26361f;
+  --panel-heading: #1a2915;
+  --panel-muted: rgba(45, 66, 40, 0.74);
+  --panel-muted-strong: rgba(36, 54, 32, 0.86);
+  --panel-border: rgba(60, 92, 50, 0.2);
+  --panel-border-strong: rgba(60, 92, 50, 0.32);
+  --panel-shadow: 0 20px 70px rgba(46, 78, 44, 0.18);
+  --app-background: linear-gradient(180deg, rgba(247, 251, 239, 0.12), rgba(60, 100, 55, 0.16)), radial-gradient(circle at 76% 14%, rgba(250, 232, 150, 0.34), transparent 44%), radial-gradient(circle at 16% 92%, rgba(120, 178, 200, 0.2), transparent 46%), linear-gradient(120deg, rgba(120, 182, 110, 0.16), rgba(206, 228, 172, 0.05) 48%, rgba(88, 150, 92, 0.16)), url("../assets/themes/garden-of-eden-background.webp") center / cover, linear-gradient(180deg, #dce9d5, #d0e1c7 60%, #c4d9bb);
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="woodland-library"] {
+  color-scheme: dark;
+  --bg: #16291f;
+  --text: #edf3df;
+  --accent: #e0b85d;
+  --accent-2: #87b99c;
+  --on-accent: #182014;
+  --panel-bg: linear-gradient(135deg, rgba(29, 52, 36, 0.94), rgba(14, 34, 22, 0.94));
+  --panel-soft-bg: rgba(43, 70, 49, 0.8);
+  --panel-softer-bg: rgba(56, 86, 61, 0.58);
+  --panel-text: #edf3df;
+  --panel-heading: #f8f7e9;
+  --panel-muted: rgba(214, 226, 194, 0.7);
+  --panel-muted-strong: rgba(226, 235, 208, 0.84);
+  --panel-border: rgba(169, 199, 139, 0.2);
+  --panel-border-strong: rgba(201, 219, 166, 0.38);
+  --panel-shadow: 0 22px 70px rgba(0, 0, 0, 0.48), 0 0 38px rgba(123, 169, 107, 0.08);
+  --app-background: linear-gradient(90deg, rgba(16, 36, 24, 0.4), rgba(20, 46, 30, 0.48) 48%, rgba(14, 32, 21, 0.44)), linear-gradient(180deg, rgba(20, 44, 28, 0.18), rgba(12, 30, 19, 0.5)), url("../assets/themes/woodland-library-background.webp") center / cover, #16291f;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="lantern-study"] {
+  color-scheme: dark;
+  --bg: #1a1410;
+  --text: #f6e6cd;
+  --accent: #f0a94a;
+  --accent-2: #e2703a;
+  --on-accent: #2d2218;
+  --panel-bg: linear-gradient(135deg, rgba(52, 37, 23, 0.86), rgba(30, 21, 13, 0.86)), rgba(0, 0, 0, 0.28);
+  --panel-soft-bg: rgba(48, 34, 21, 0.72);
+  --panel-softer-bg: rgba(58, 42, 26, 0.5);
+  --panel-text: #f6e6cd;
+  --panel-heading: #fef3dd;
+  --panel-muted: rgba(232, 208, 176, 0.66);
+  --panel-muted-strong: rgba(240, 219, 190, 0.84);
+  --panel-border: rgba(230, 170, 90, 0.18);
+  --panel-border-strong: rgba(230, 170, 90, 0.36);
+  --panel-shadow: 0 18px 60px rgba(0, 0, 0, 0.42), 0 0 34px rgba(240, 169, 74, 0.06);
+  --app-background: linear-gradient(180deg, rgba(14, 10, 7, 0.32), rgba(8, 5, 3, 0.56)), radial-gradient(circle at 22% 20%, rgba(240, 169, 74, 0.22), transparent 40%), radial-gradient(circle at 80% 30%, rgba(226, 112, 58, 0.16), transparent 42%), radial-gradient(circle at 60% 84%, rgba(240, 169, 74, 0.12), transparent 44%), url("../assets/themes/lantern-study-background.webp") center / cover, linear-gradient(180deg, #211812, #17100b 62%, #100a06);
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="moonlit-observatory"] {
+  color-scheme: dark;
+  --bg: #08101d;
+  --text: #e8efff;
+  --accent: #d6a85d;
+  --accent-2: #86aee8;
+  --on-accent: #171109;
+  --panel-bg: linear-gradient(135deg, rgba(18, 31, 55, 0.94), rgba(7, 15, 31, 0.94));
+  --panel-soft-bg: rgba(28, 45, 72, 0.78);
+  --panel-softer-bg: rgba(35, 54, 84, 0.58);
+  --panel-text: #e8efff;
+  --panel-heading: #f5f7ff;
+  --panel-muted: rgba(207, 220, 243, 0.7);
+  --panel-muted-strong: rgba(220, 231, 249, 0.84);
+  --panel-border: rgba(146, 177, 226, 0.2);
+  --panel-border-strong: rgba(178, 202, 240, 0.38);
+  --panel-shadow: 0 22px 70px rgba(0, 0, 0, 0.5), 0 0 38px rgba(87, 133, 205, 0.08);
+  --app-background: linear-gradient(90deg, rgba(3, 8, 17, 0.32), rgba(5, 13, 28, 0.48) 45%, rgba(2, 7, 15, 0.36)), linear-gradient(180deg, rgba(4, 9, 19, 0.18), rgba(3, 7, 14, 0.62)), url("../assets/themes/moonlit-observatory-background.webp") center / cover, #08101d;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="on-the-rock"] {
+  color-scheme: dark;
+  --bg: #171b22;
+  --text: #f2e9dd;
+  --accent: #efa57c;
+  --accent-2: #88aeb8;
+  --on-accent: #241a15;
+  --panel-bg: linear-gradient(135deg, rgba(41, 43, 51, 0.88), rgba(21, 24, 31, 0.9)), rgba(8, 10, 14, 0.3);
+  --panel-soft-bg: rgba(34, 37, 45, 0.78);
+  --panel-softer-bg: rgba(49, 51, 59, 0.54);
+  --panel-text: #f2e9dd;
+  --panel-heading: #fff5e8;
+  --panel-muted: rgba(216, 202, 188, 0.68);
+  --panel-muted-strong: rgba(246, 235, 222, 0.96);
+  --panel-border: rgba(239, 165, 124, 0.2);
+  --panel-border-strong: rgba(239, 165, 124, 0.38);
+  --panel-shadow: 0 20px 66px rgba(3, 5, 9, 0.46), 0 0 34px rgba(239, 132, 82, 0.045);
+  --app-background: linear-gradient(180deg, rgba(11, 12, 17, 0.2), rgba(10, 11, 15, 0.48)), radial-gradient(circle at 82% 22%, rgba(239, 132, 82, 0.16), transparent 34%), linear-gradient(90deg, rgba(8, 9, 12, 0.26), transparent 28% 70%, rgba(8, 9, 12, 0.28)), url("../assets/themes/on-the-rock-background.webp") center / cover, linear-gradient(180deg, #252936, #171b22 62%, #0e1116);
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="cotton-candy"] {
+  color-scheme: light;
+  --bg: #f1e8f5;
+  --text: #2d3346;
+  --accent: #cf7fac;
+  --accent-2: #6aaed4;
+  --on-accent: #1e1018;
+  --panel-bg: linear-gradient(135deg, rgba(255, 251, 253, 0.9), rgba(226, 241, 249, 0.82));
+  --panel-soft-bg: rgba(255, 249, 252, 0.74);
+  --panel-softer-bg: rgba(231, 242, 250, 0.58);
+  --panel-text: #32364c;
+  --panel-heading: #23283f;
+  --panel-muted: rgba(54, 61, 84, 0.8);
+  --panel-muted-strong: rgba(45, 51, 70, 0.84);
+  --panel-border: rgba(91, 112, 150, 0.18);
+  --panel-border-strong: rgba(91, 112, 150, 0.3);
+  --panel-shadow: 0 22px 70px rgba(93, 112, 148, 0.18), 0 0 36px rgba(207, 127, 172, 0.08);
+  --app-background: linear-gradient(90deg, rgba(246, 226, 237, 0.48), rgba(221, 240, 250, 0.34) 48%, rgba(250, 222, 235, 0.32)), linear-gradient(180deg, rgba(255, 251, 253, 0.36), rgba(159, 185, 216, 0.2)), url("../assets/themes/cotton-candy-illustrated-background.webp") center / cover, #f1e8f5;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="skyline-loft"] {
+  color-scheme: dark;
+  --bg: #070920;
+  --text: #f1f0ff;
+  --accent: #f3c35f;
+  --accent-2: #9a6ff2;
+  --on-accent: #1a1208;
+  --panel-bg: linear-gradient(135deg, rgba(26, 22, 58, 0.94), rgba(7, 10, 31, 0.95));
+  --panel-soft-bg: rgba(36, 30, 72, 0.78);
+  --panel-softer-bg: rgba(50, 41, 92, 0.56);
+  --panel-text: #f1f0ff;
+  --panel-heading: #fbf9ff;
+  --panel-muted: rgba(218, 211, 241, 0.72);
+  --panel-muted-strong: rgba(232, 226, 250, 0.84);
+  --panel-border: rgba(172, 136, 240, 0.22);
+  --panel-border-strong: rgba(202, 174, 255, 0.4);
+  --panel-shadow: 0 22px 70px rgba(0, 0, 0, 0.54), 0 0 38px rgba(154, 111, 242, 0.1);
+  --app-background: linear-gradient(90deg, rgba(7, 6, 24, 0.3), rgba(22, 12, 46, 0.48) 45%, rgba(5, 9, 28, 0.38)), linear-gradient(180deg, rgba(26, 16, 54, 0.14), rgba(5, 8, 24, 0.68)), url("../assets/themes/skyline-loft-illustrated-background.webp") center / cover, #070920;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="abyssal-aquarium"] {
+  color-scheme: dark;
+  --bg: #03151d;
+  --text: #ecfbff;
+  --accent: #6fe9f4;
+  --accent-2: #d276ee;
+  --on-accent: #052229;
+  --panel-bg: linear-gradient(135deg, rgba(9, 43, 56, 0.94), rgba(2, 16, 25, 0.95));
+  --panel-soft-bg: rgba(16, 57, 70, 0.78);
+  --panel-softer-bg: rgba(25, 77, 92, 0.56);
+  --panel-text: #ecfbff;
+  --panel-heading: #f7feff;
+  --panel-muted: rgba(200, 230, 238, 0.74);
+  --panel-muted-strong: rgba(219, 244, 249, 0.86);
+  --panel-border: rgba(111, 233, 244, 0.22);
+  --panel-border-strong: rgba(169, 245, 251, 0.4);
+  --panel-shadow: 0 22px 70px rgba(0, 0, 0, 0.54), 0 0 38px rgba(111, 233, 244, 0.08);
+  --app-background: linear-gradient(90deg, rgba(2, 13, 20, 0.28), rgba(4, 31, 42, 0.46) 46%, rgba(1, 12, 20, 0.42)), linear-gradient(180deg, rgba(4, 42, 56, 0.14), rgba(2, 13, 20, 0.7)), url("../assets/themes/abyssal-aquarium-illustrated-background.webp") center / cover, #03151d;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="gilded-arcana"] {
+  color-scheme: dark;
+  --bg: #020202;
+  --text: #fff5d6;
+  --accent: #e4b84d;
+  --accent-2: #ffe29a;
+  --on-accent: #171006;
+  --panel-bg: linear-gradient(135deg, rgba(28, 21, 8, 0.95), rgba(2, 2, 2, 0.97));
+  --panel-soft-bg: rgba(43, 31, 12, 0.8);
+  --panel-softer-bg: rgba(67, 47, 17, 0.56);
+  --panel-text: #fff5d6;
+  --panel-heading: #fff8e5;
+  --panel-muted: rgba(232, 211, 159, 0.76);
+  --panel-muted-strong: rgba(246, 224, 170, 0.88);
+  --panel-border: rgba(228, 184, 77, 0.26);
+  --panel-border-strong: rgba(255, 226, 154, 0.44);
+  --panel-shadow: 0 24px 76px rgba(0, 0, 0, 0.64), 0 0 42px rgba(228, 184, 77, 0.09);
+  --app-background: linear-gradient(90deg, rgba(1, 1, 1, 0.42), rgba(10, 8, 4, 0.56) 46%, rgba(0, 0, 0, 0.6)), linear-gradient(180deg, rgba(92, 58, 11, 0.14), rgba(0, 0, 0, 0.78)), url("../assets/themes/gilded-arcana-illustrated-background.webp") center / cover, #020202;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="aurora-glasshouse"] {
+  color-scheme: dark;
+  --bg: #06191d;
+  --text: #edfff8;
+  --accent: #39d98d;
+  --accent-2: #8b7dff;
+  --on-accent: #061711;
+  --panel-bg: linear-gradient(135deg, rgba(9, 48, 43, 0.94), rgba(3, 18, 28, 0.95));
+  --panel-soft-bg: rgba(17, 62, 55, 0.78);
+  --panel-softer-bg: rgba(28, 83, 70, 0.56);
+  --panel-text: #edfff8;
+  --panel-heading: #f8fffb;
+  --panel-muted: rgba(204, 231, 227, 0.74);
+  --panel-muted-strong: rgba(222, 244, 240, 0.86);
+  --panel-border: rgba(57, 217, 141, 0.22);
+  --panel-border-strong: rgba(139, 125, 255, 0.4);
+  --panel-shadow: 0 22px 70px rgba(0, 0, 0, 0.54), 0 0 38px rgba(57, 217, 141, 0.08);
+  --app-background: linear-gradient(90deg, rgba(3, 18, 19, 0.24), rgba(5, 42, 39, 0.46) 46%, rgba(2, 12, 22, 0.42)), linear-gradient(180deg, rgba(15, 74, 65, 0.12), rgba(2, 12, 22, 0.68)), url("../assets/themes/aurora-glasshouse-illustrated-background.webp") center / cover, #06191d;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="crimson-atelier"] {
+  color-scheme: dark;
+  --bg: #130305;
+  --text: #fff2e8;
+  --accent: #e54b55;
+  --accent-2: #ffbd77;
+  --on-accent: #1a0507;
+  --panel-bg: linear-gradient(135deg, rgba(55, 12, 15, 0.94), rgba(16, 3, 5, 0.96));
+  --panel-soft-bg: rgba(77, 18, 22, 0.78);
+  --panel-softer-bg: rgba(108, 27, 31, 0.56);
+  --panel-text: #fff2e8;
+  --panel-heading: #fff8ef;
+  --panel-muted: rgba(231, 185, 171, 0.76);
+  --panel-muted-strong: rgba(247, 213, 199, 0.88);
+  --panel-border: rgba(229, 75, 85, 0.28);
+  --panel-border-strong: rgba(255, 188, 141, 0.42);
+  --panel-shadow: 0 24px 76px rgba(0, 0, 0, 0.58), 0 0 42px rgba(229, 75, 85, 0.08);
+  --app-background: linear-gradient(90deg, rgba(12, 2, 4, 0.32), rgba(42, 6, 10, 0.5) 46%, rgba(9, 1, 3, 0.54)), linear-gradient(180deg, rgba(116, 22, 24, 0.16), rgba(10, 1, 3, 0.76)), url("../assets/themes/crimson-atelier-illustrated-background.webp") center / cover, #130305;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="ink-and-ivory"] {
+  color-scheme: dark;
+  --bg: #080807;
+  --text: #f5f0e6;
+  --accent: #f3eadb;
+  --accent-2: #aeb2b5;
+  --on-accent: #111111;
+  --panel-bg: linear-gradient(135deg, rgba(31, 30, 27, 0.95), rgba(7, 7, 6, 0.97));
+  --panel-soft-bg: rgba(48, 46, 42, 0.78);
+  --panel-softer-bg: rgba(70, 68, 62, 0.54);
+  --panel-text: #f5f0e6;
+  --panel-heading: #fffaf0;
+  --panel-muted: rgba(208, 202, 190, 0.76);
+  --panel-muted-strong: rgba(231, 225, 213, 0.88);
+  --panel-border: rgba(245, 240, 230, 0.2);
+  --panel-border-strong: rgba(190, 187, 178, 0.42);
+  --panel-shadow: 0 24px 76px rgba(0, 0, 0, 0.6), 0 0 42px rgba(245, 240, 230, 0.06);
+  --app-background: linear-gradient(90deg, rgba(2, 2, 2, 0.28), rgba(20, 19, 17, 0.44) 46%, rgba(0, 0, 0, 0.58)), linear-gradient(180deg, rgba(245, 240, 230, 0.06), rgba(4, 4, 4, 0.76)), url("../assets/themes/ink-and-ivory-illustrated-background.webp") center / cover, #080807;
+  --pv-font: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+:root[data-theme="terminal-hacker"][data-accent="pink"] {
+  color-scheme: dark;
+  --bg: #020704;
+  --text: #ffd9f0;
+  --accent: #ff5db1;
+  --accent-2: #ff9ed6;
+  --on-accent: #2d2218;
+  --panel-bg: linear-gradient(135deg, rgba(28, 5, 18, 0.82), rgba(13, 1, 8, 0.82)), rgba(0, 0, 0, 0.32);
+  --panel-soft-bg: rgba(25, 3, 15, 0.72);
+  --panel-softer-bg: rgba(35, 4, 20, 0.48);
+  --panel-text: #ffd9f0;
+  --panel-heading: #ffe6f5;
+  --panel-muted: rgba(255, 200, 232, 0.72);
+  --panel-muted-strong: rgba(255, 214, 238, 0.84);
+  --panel-border: rgba(255, 93, 177, 0.17);
+  --panel-border-strong: rgba(255, 93, 177, 0.34);
+  --panel-shadow: 0 18px 60px rgba(0, 0, 0, 0.38), 0 0 30px color-mix(in srgb, #ff5db1 8%, transparent);
+  --app-background: linear-gradient(180deg, rgba(0, 9, 5, 0.24), rgba(0, 6, 4, 0.48)), linear-gradient(90deg, rgba(0, 229, 255, 0.08), rgba(57, 255, 122, 0.04) 48%, rgba(0, 0, 0, 0.2)), linear-gradient(90deg, rgba(57, 255, 122, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(57, 255, 122, 0.05) 1px, transparent 1px), url("../assets/themes/neon-terminal-background.webp") center / cover, linear-gradient(180deg, #010503, #031108 58%, #000402);
+  --pv-font: "Cascadia Mono", Consolas, SFMono-Regular, monospace;
+}
+
+:root[data-theme="terminal-hacker"][data-accent="blue"] {
+  color-scheme: dark;
+  --bg: #020704;
+  --text: #d2ecff;
+  --accent: #3aa0ff;
+  --accent-2: #5fd8ff;
+  --on-accent: #2d2218;
+  --panel-bg: linear-gradient(135deg, rgba(5, 18, 30, 0.82), rgba(1, 8, 15, 0.82)), rgba(0, 0, 0, 0.32);
+  --panel-soft-bg: rgba(3, 16, 27, 0.72);
+  --panel-softer-bg: rgba(4, 20, 36, 0.48);
+  --panel-text: #d2ecff;
+  --panel-heading: #e6f4ff;
+  --panel-muted: rgba(180, 220, 255, 0.72);
+  --panel-muted-strong: rgba(206, 234, 255, 0.84);
+  --panel-border: rgba(58, 160, 255, 0.17);
+  --panel-border-strong: rgba(58, 160, 255, 0.34);
+  --panel-shadow: 0 18px 60px rgba(0, 0, 0, 0.38), 0 0 30px color-mix(in srgb, #3aa0ff 8%, transparent);
+  --app-background: linear-gradient(180deg, rgba(0, 9, 5, 0.24), rgba(0, 6, 4, 0.48)), linear-gradient(90deg, rgba(0, 229, 255, 0.08), rgba(57, 255, 122, 0.04) 48%, rgba(0, 0, 0, 0.2)), linear-gradient(90deg, rgba(57, 255, 122, 0.05) 1px, transparent 1px), linear-gradient(180deg, rgba(57, 255, 122, 0.05) 1px, transparent 1px), url("../assets/themes/neon-terminal-background.webp") center / cover, linear-gradient(180deg, #010503, #031108 58%, #000402);
+  --pv-font: "Cascadia Mono", Consolas, SFMono-Regular, monospace;
+}
