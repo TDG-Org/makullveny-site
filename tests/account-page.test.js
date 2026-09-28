@@ -56,3 +56,52 @@ test("every error code the function sends has words, and an unknown one never sh
   }
   assert.equal(A.messageFor("<script>"), A.messageFor("server_error"));
 });
+
+/* account/me.js runs in a browser; this gives it just enough of one. */
+function loadMe() {
+  var vm = require("node:vm");
+  var store = {};
+  var ctx = {
+    localStorage: {
+      getItem: function (k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },
+      setItem: function (k, v) { store[k] = String(v); },
+      removeItem: function (k) { delete store[k]; }
+    },
+    addEventListener: function () {},
+    document: {
+      readyState: "complete",
+      currentScript: { src: "https://www.makullveny.com/account/me.js" },
+      querySelector: function () { return null; },
+      addEventListener: function () {}
+    }
+  };
+  ctx.window = ctx;
+  vm.runInNewContext(fs.readFileSync(path.join(ROOT, "account", "me.js"), "utf8"), ctx);
+  return { me: ctx.MakullvenyMe, store: store };
+}
+
+test("me.js keeps three public facts and nothing else, whatever it is handed", function () {
+  var t = loadMe();
+  t.me.save({ username: "maya_r", displayName: "  Maya  ", avatarId: 3, access_token: "eyJhbGciOiJIUzI1NiJ9", email: "maya@example.com", password: "hunter22" });
+  var kept = JSON.parse(t.store["makullveny.me.v1"]);
+  assert.deepEqual(kept, { username: "maya_r", displayName: "Maya", avatarId: 3 });
+  assert.equal(t.me.base, "https://www.makullveny.com/");
+});
+
+test("me.js re-checks what it reads back: a bad handle, a bad avatar", function () {
+  var t = loadMe();
+  t.store["makullveny.me.v1"] = JSON.stringify({ username: "<img src=x>", displayName: "Eve", avatarId: 99 });
+  var me = t.me.get();
+  assert.equal(me.username, "");
+  assert.equal(me.avatarId, 0);
+  assert.equal(t.me.profileUrl(me), "");
+  t.store["makullveny.me.v1"] = "not json";
+  assert.equal(t.me.get(), null);
+});
+
+test("the avatar opens the TDG profile page for that handle", function () {
+  var t = loadMe();
+  assert.equal(t.me.profileUrl({ username: "maya_r" }), "https://tdg-org.github.io/TDG-Site/#/user/maya_r");
+  t.me.clear();
+  assert.equal(t.store["makullveny.me.v1"], undefined);
+});

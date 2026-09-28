@@ -22,12 +22,13 @@
       The confirmation email lands on ../auth/, the page the app's own
       sign-up already uses.
     -->
-    <title>Create your account · Makullveny</title>
+    <title>Sign in or create your account · Makullveny</title>
     <meta name="description" content="Make a free TDG account for Makullveny: friends, a profile link, and your Backpack on every computer. The same account the app uses.">
     <meta name="referrer" content="no-referrer">
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
     <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./account.css">
+    <link rel="stylesheet" href="./me.css">
   </head>
   <body>
     <header class="ac-top">
@@ -53,6 +54,10 @@
       </section>
 
       <section class="ac-card" aria-labelledby="acFormTitle">
+        <div class="ac-tabs" role="tablist" aria-label="Account">
+          <button type="button" role="tab" id="acTabUp" aria-selected="true" aria-controls="acForm">Create account</button>
+          <button type="button" role="tab" id="acTabIn" aria-selected="false" aria-controls="acSignin">Sign in</button>
+        </div>
         <!-- The form is inert without account.js: action is none and the CSP
              forbids form submission, so a click with no script does nothing
              rather than sending a password anywhere. The note says so. -->
@@ -86,8 +91,39 @@
 
           <button id="acSubmit" class="ac-btn" type="submit" disabled>Create account</button>
 
-          <p class="ac-alt">Already have one? <a href="../#download">Open Makullveny</a> and sign in.</p>
+          <p class="ac-alt">Already have one? <button type="button" class="ac-link" data-go="signin">Sign in here</button>, or in the app.</p>
         </form>
+
+        <!-- SIGN IN. The server checks the password and answers with your
+             username, name and avatar only; the page keeps those three to show
+             your avatar in the top bar. No token and no password are kept. -->
+        <form id="acSignin" class="ac-form" novalidate autocomplete="on" hidden>
+          <h2>Welcome back</h2>
+          <label class="ac-field">
+            <span>Username or email</span>
+            <input id="acIdent" name="username" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" maxlength="254" required>
+          </label>
+          <label class="ac-field">
+            <span>Password</span>
+            <span class="ac-pass"><input id="acPass2" name="password" type="password" autocomplete="current-password" maxlength="72" required><button type="button" id="acShow2" class="ac-show" aria-pressed="false">Show</button></span>
+            <small class="ac-hint">The same one you use in Makullveny, Disciples Bible or TDG Cebu.</small>
+          </label>
+          <p id="acStatus2" class="ac-status" role="status" aria-live="polite"></p>
+          <button id="acSubmit2" class="ac-btn" type="submit" disabled>Sign in</button>
+          <p class="ac-alt">New here? <button type="button" class="ac-link" data-go="signup">Create an account</button></p>
+        </form>
+
+        <div id="acMe" class="ac-done ac-me" hidden tabindex="-1">
+          <div id="acMeDisc" class="ac-me-disc"></div>
+          <h2 id="acMeName">You&rsquo;re signed in</h2>
+          <p id="acMeText">Your avatar is in the top bar on every page of this site. Press it to open your TDG profile.</p>
+          <div class="ac-done-row">
+            <a id="acMeProfile" class="ac-btn" href="../" target="_blank" rel="noopener noreferrer">View your profile</a>
+            <a class="ac-ghost" href="../">Back to the site</a>
+            <button type="button" id="acMeOut" class="ac-link">Sign out</button>
+          </div>
+          <p class="ac-fine">This website only remembers your name and avatar, in this browser. Your password and your notes are never kept here.</p>
+        </div>
 
         <div id="acDone" class="ac-done" hidden tabindex="-1">
           <span class="ac-done-mark" aria-hidden="true">&#10022;</span>
@@ -107,6 +143,7 @@
     </footer>
 
     <script src="../read/config.js"></script>
+    <script src="./me.js"></script>
     <script src="./account.js"></script>
   </body>
 </html>

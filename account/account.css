@@ -222,3 +222,16 @@ a:hover { color: #ffd2a6; }
   .ac-main { grid-template-columns: 1fr; align-items: start; }
   .ac-say h1 em { display: inline; }
 }
+
+/* Create account / Sign in */
+.ac-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin: 0 0 22px;
+  border-radius: 999px; background: var(--field); border: 1px solid var(--line); }
+.ac-tabs button { min-height: 42px; border: 0; border-radius: 999px; background: none; color: var(--muted);
+  font: 700 14px/1 var(--ui); cursor: pointer; }
+.ac-tabs button[aria-selected="true"] { background: rgba(213, 140, 75, .2); color: var(--ink); box-shadow: inset 0 0 0 1px rgba(240, 178, 122, .4); }
+.ac-link { border: 0; padding: 0; background: none; color: var(--accent-hi); font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.ac-done-row .ac-link { align-self: center; margin-left: 4px; }
+.ac-ghost { display: inline-flex; align-items: center; text-decoration: none; }
+.ac-me-disc .me-disc { width: 72px; height: 72px; margin-bottom: 14px; }
+.ac-me-disc .me-initial { font-size: 30px; }
+.ac-me .ac-fine { margin-top: 18px; }

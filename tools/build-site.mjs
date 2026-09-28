@@ -106,6 +106,7 @@ function head(page) {
     <link rel="manifest" href="${u}site.webmanifest">${preloads}
     ${FONTS}
     <link rel="stylesheet" href="${u}bless.css">
+    <link rel="stylesheet" href="${u}account/me.css">
 `;
 }
 
@@ -187,6 +188,8 @@ function build(page) {
     // site.js fills from this same array.
     (page.out === "themes/index.html" ? '    <script src="../updates/updates-data.js" defer></script>\n' : "") +
     `    <script src="${page.up}site.js" defer></script>\n` +
+    // who is signed in on this website: the avatar in the top bar
+    `    <script src="${page.up}account/me.js" defer></script>\n` +
     (page.out === "index.html" ? '    <script src="./download.js" defer></script>\n' : "") +
     (page.out === "updates/index.html" ? '    <script src="./updates.js" defer></script>\n' : "") +
     "  </body>\n</html>\n";

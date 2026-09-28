@@ -54,6 +54,9 @@
     rate_limited: "Too many tries from here. Wait a few minutes and try again.",
     signup_closed: "New accounts are paused for a moment. Try again later, or sign up inside the app.",
     offline: "Could not reach TDG. Check your connection and try again.",
+    invalid_credentials: "That username or email and password do not match.",
+    email_not_confirmed: "Confirm your email first — press the link we sent you, then sign in.",
+    bad_request: "Enter your username or email, and your password.",
     server_error: "Something went wrong on our side. Try again in a minute."
   };
 
@@ -113,13 +116,96 @@
     submit.disabled = false;
     say("", "");
 
-    /* Show / hide the password. */
-    $("acShow").addEventListener("click", function () {
-      var shown = fields.password.type === "text";
-      fields.password.type = shown ? "password" : "text";
-      this.textContent = shown ? "Show" : "Hide";
-      this.setAttribute("aria-pressed", shown ? "false" : "true");
+    /* Show / hide a password. */
+    function showToggle(button, input) {
+      button.addEventListener("click", function () {
+        var shown = input.type === "text";
+        input.type = shown ? "password" : "text";
+        button.textContent = shown ? "Show" : "Hide";
+        button.setAttribute("aria-pressed", shown ? "false" : "true");
+      });
+    }
+    showToggle($("acShow"), fields.password);
+
+    /* ── the two faces, and the signed-in one ─────────────────────────── */
+    var signin = $("acSignin");
+    var meBox = $("acMe");
+    var tabs = { signup: $("acTabUp"), signin: $("acTabIn") };
+    function face(which) {
+      var me = window.MakullvenyMe && window.MakullvenyMe.get();
+      if (me && which !== "signup-forced") which = "me";
+      form.hidden = which !== "signup" && which !== "signup-forced";
+      signin.hidden = which !== "signin";
+      done.hidden = true;
+      meBox.hidden = which !== "me";
+      $("acTabUp").parentNode.hidden = which === "me";
+      tabs.signup.setAttribute("aria-selected", String(!form.hidden));
+      tabs.signin.setAttribute("aria-selected", String(!signin.hidden));
+      if (which === "me") showMe(me);
+    }
+    function showMe(me) {
+      var box = $("acMeDisc");
+      box.replaceChildren(window.MakullvenyMe.disc(me));
+      $("acMeName").textContent = me.displayName ? "Hi, " + me.displayName : "You’re signed in";
+      var url = window.MakullvenyMe.profileUrl(me);
+      var link = $("acMeProfile");
+      link.hidden = !url;
+      if (url) link.href = url;
+      $("acMeText").textContent = url
+        ? "Signed in as @" + me.username + ". Your avatar is in the top bar on every page of this site — press it to open your TDG profile."
+        : "Signed in. Pick a username in the Makullveny app to get a TDG profile page.";
+    }
+    tabs.signup.addEventListener("click", function () { face("signup"); });
+    tabs.signin.addEventListener("click", function () { face("signin"); });
+    [].slice.call(document.querySelectorAll("[data-go]")).forEach(function (b) {
+      b.addEventListener("click", function () { face(b.getAttribute("data-go")); });
     });
+    $("acMeOut").addEventListener("click", function () {
+      window.MakullvenyMe.clear();
+      face("signin");
+    });
+    window.addEventListener("storage", function () { face(signin.hidden ? "signup" : "signin"); });
+
+    /* ── sign in ──────────────────────────────────────────────────────── */
+    var ident = $("acIdent");
+    var pass2 = $("acPass2");
+    var submit2 = $("acSubmit2");
+    var status2 = $("acStatus2");
+    showToggle($("acShow2"), pass2);
+    submit2.disabled = false;
+    var busy2 = false;
+    signin.addEventListener("submit", function (event) {
+      event.preventDefault();
+      if (busy2) return;
+      var who = ident.value.trim();
+      if (!who || !pass2.value) {
+        status2.textContent = "Enter your username or email, and your password.";
+        status2.setAttribute("data-kind", "error");
+        (who ? pass2 : ident).focus();
+        return;
+      }
+      busy2 = true;
+      submit2.disabled = true;
+      submit2.textContent = "Signing in…";
+      status2.textContent = "";
+      post(url, { action: "signin", identifier: who, password: pass2.value }).then(function (reply) {
+        busy2 = false;
+        submit2.disabled = false;
+        submit2.textContent = "Sign in";
+        pass2.value = "";
+        if (reply.data && reply.data.ok === true && reply.data.profile && window.MakullvenyMe.save(reply.data.profile)) {
+          face("me");
+          meBox.focus();
+          return;
+        }
+        var code = reply.status === 0 ? "offline" : (reply.data && reply.data.error) || "server_error";
+        status2.textContent = messageFor(code);
+        status2.setAttribute("data-kind", "error");
+        pass2.focus();
+      });
+    });
+
+    face(/signin/.test(location.hash) ? "signin" : "signup");
 
     /* The username check, as they type, after a pause. The last question
        asked is the only one whose answer is shown. */

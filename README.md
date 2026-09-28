@@ -83,6 +83,15 @@ the project key server-side, never returns a session, answers a known email
 exactly like a new one, and refuses browsers on other websites.
 `tests/account-page.test.js` pins the origin, the CSP and the absence of a key.
 
+**Signing in on the website is "who am I", not a session.** The same function's
+`signin` action checks the password with GoTrue, reads the student's own
+profile row *as the student*, ends that session before answering, and returns
+three public facts: username, display name, avatar number. `account/me.js`
+(loaded on every page) keeps only those in `localStorage` and swaps the top
+bar's Sign in button for the avatar, which opens the student's TDG profile page
+(`tdg-org.github.io/TDG-Site/#/user/<username>`). No password, token or email
+is ever kept in the browser, so there is nothing here worth stealing.
+
 ## Downloads
 
 `download.js` fills four slots from the public releases feed — Windows

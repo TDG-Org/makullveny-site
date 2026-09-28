@@ -831,6 +831,17 @@
       .themes-lite-foot .btn, .apps-lite-say .btn { width:100%; justify-content:center; }
     }
 
+    /* ══ THE SLIDER'S ARROWS — plain chevrons, no disc (owner, 2026-09-27) ═ */
+    .rot-arrow { border:0; border-radius:0; background:none; box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none;
+      color:#f0c88f; filter:drop-shadow(0 2px 8px rgba(0,0,0,.75)); transition:color .25s ease, transform .3s cubic-bezier(.2,.8,.3,1); }
+    .rot-arrow svg { width:34px; height:34px; }
+    .rot-arrow:hover { background:none; border-color:transparent; color:#ffdcae; }
+    .rot-arrow::after { border-radius:12px; }
+    .room-tile figcaption em.paid { color:#e8b273; }
+    /* the dots under the slider: a touch bigger and brighter so they read */
+    .rot-dots { gap:12px; bottom:-30px; z-index:4; }
+    .rot-dot { width:10px; height:10px; background:rgba(255,236,203,.34); box-shadow:0 0 0 1px rgba(0,0,0,.25); }
+
     /* == FAITH ======================================================== */
     .faith { position:relative; overflow:hidden; text-align:center; padding:80px 0 88px;
       background:linear-gradient(180deg,#33210f 0%,#2a1a0d 34%,#221408 68%,#2b1b0e 100%); }
@@ -1448,7 +1459,7 @@
       <a href="#selah">Selah</a>
       <a href="./themes/">Themes</a>
       <a href="./updates/">News</a>
-      <a class="btn btn-ghost btn-sm" href="./account/">Sign up</a>
+      <a class="btn btn-ghost btn-sm" href="./account/#signin">Sign in</a>
       <a class="btn btn-primary btn-sm" href="#download">Download</a>
     </nav>
   </header>
@@ -1530,7 +1541,7 @@
         </div>
         <!-- five of the best screens, one every six seconds, or press a dot -->
         <div class="rotator">
-          <img class="rot" style="opacity: {{o1}}" src="hero-dash.jpg" alt="The Makullveny Today dashboard: the Ready desk naming the next assignment, a candle focus timer, the month, courses, what is due, the Quick shelf and Selah" width="2120" height="1340" decoding="async" fetchpriority="high">
+          <img class="rot" style="opacity: {{o1}}" src="hero-dash.jpg" alt="The Makullveny Today dashboard: a PSY 100 class pill ending in 35 minutes, the Ready desk with a timeline of the day and Problem set 4 to Lock In on, the next four assignments with how long each takes, a 25:00 focus candle, and Your study rhythm below" width="2120" height="1340" decoding="async" fetchpriority="high">
           <img class="rot" style="opacity: {{o2}}" src="studyhall.jpg" alt="The Study Hall board for this week: To do, Doing, Almost done and Done columns holding real assignments like Midterm 1, Problem set 4 and Reading reflection 2, with All assignments 16 and 2 of 4 done today at the top" width="2120" height="1340" loading="lazy" decoding="async">
           <img class="rot" style="opacity: {{o3}}" src="hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — the gold-trimmed library with a royal-blue roof lit from inside, villagers walking across the meadow and one sitting by the trees, two deer grazing, the Ready to Focus timer at 25:00, level 14, and the coin and diamond purse" width="2120" height="1340" loading="lazy" decoding="async">
           <img class="rot" style="opacity: {{o4}}" src="hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over the peaks, the library's windows lit warm, and the villagers still out walking and sitting under the trees" width="2120" height="1340" loading="lazy" decoding="async">
@@ -1550,7 +1561,6 @@
         <p class="rc" style="opacity: {{o6}}"><b>Library Desk</b>Your notes on real paper you choose, in books, scrolls, journals, card boxes and blueprints. It prints, it exports, and it never leaves this machine.</p>
         <p class="rc" style="opacity: {{o7}}"><b>Assignments</b>Every assignment in one table &mdash; filter by due today, due soon or done, and move each one&rsquo;s stage right where it sits.</p>
         <p class="rc" style="opacity: {{o8}}"><b>Study Hall &mdash; Calendar</b>Classes and deadlines on the same week, an exam marked as a test, and a line across the hour you are in.</p>
-      </div>
       </div>
       <div class="rot-dots">
         <sc-for list="{{dots}}" as="dot" hint-placeholder-count="5">
@@ -1615,7 +1625,7 @@
       <div class="dash-shot rv rv-p" style="--d:.24s">
         <div class="win">
           <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Today</span></div>
-          <img src="widgetdash.jpg" alt="The Makullveny Today dashboard: a Ready desk card naming the next assignment and why it matters, a focus timer at 18:24 with a lit candle, a September calendar, course progress bars, a due-soon list, the Quick shelf of tools and the Selah study grounds" width="1900" height="2080" loading="lazy" decoding="async">
+          <img src="widgetdash.jpg" alt="The whole Today dashboard: the Ready desk naming Problem set 4 and why now, a 25:00 focus candle, Your study rhythm, and under Schedule, assignments and more a September calendar, today’s classes and what is due soonest" width="1900" height="2080" loading="lazy" decoding="async">
         </div>
       </div>
       <div class="dash-facts">
@@ -1855,7 +1865,7 @@
     <div class="wrap themes-lite">
       <div class="sec-head" style="max-width:760px">
         <p class="eyebrow rv">Atmosphere</p>
-        <h2 class="rv" style="--d:.08s">Ten rooms ship with the app. <em>Pick the one you can think in.</em></h2>
+        <h2 class="rv" style="--d:.08s">Four rooms come free. <em>Six more are in the Candle bundle.</em></h2>
         <p class="rv" style="--d:.16s">The whole app re-themes &mdash; background art, paper, type and chrome change together, so you change the room you are sitting in, not the colour of a button.</p>
       </div>
       <div class="room-strip rv" style="--d:.22s">
@@ -1863,15 +1873,15 @@
         <figure class="room-tile"><div class="win"><img src="m-dashboard-snow-cabin.jpg" alt="The Makullveny dashboard in the Snow Cabin theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Snow Cabin<em>Free</em></figcaption></figure>
         <figure class="room-tile"><div class="win"><img src="m-dashboard-rainy-cafe.jpg" alt="The Makullveny dashboard in the Rainy Cafe theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Rainy Cafe<em>Free</em></figcaption></figure>
         <figure class="room-tile"><div class="win"><img src="m-dashboard-woodland-library.jpg" alt="The Makullveny dashboard in the Woodland Library theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Woodland Library<em>Free</em></figcaption></figure>
-        <figure class="room-tile"><div class="win"><img src="m-dashboard-on-the-rock.jpg" alt="The Makullveny dashboard in the On The Rock theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>On The Rock<em>Candle</em></figcaption></figure>
-        <figure class="room-tile"><div class="win"><img src="m-dashboard-terminal-hacker.jpg" alt="The Makullveny dashboard in the Neon Terminal theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Neon Terminal<em>Candle</em></figcaption></figure>
-        <figure class="room-tile"><div class="win"><img src="m-dashboard-cherry-blossom.jpg" alt="The Makullveny dashboard in the Cherry Blossom theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Cherry Blossom<em>Candle</em></figcaption></figure>
-        <figure class="room-tile"><div class="win"><img src="m-dashboard-garden-of-eden.jpg" alt="The Makullveny dashboard in the Garden of Eden theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Garden of Eden<em>Candle</em></figcaption></figure>
-        <figure class="room-tile"><div class="win"><img src="m-dashboard-lantern-study.jpg" alt="The Makullveny dashboard in the Lantern Study theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Lantern Study<em>Candle</em></figcaption></figure>
-        <figure class="room-tile"><div class="win"><img src="m-dashboard-moonlit-observatory.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Moonlit Observatory<em>Candle</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="m-dashboard-on-the-rock.jpg" alt="The Makullveny dashboard in the On The Rock theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>On The Rock<em class="paid">Candle · paid</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="m-dashboard-terminal-hacker.jpg" alt="The Makullveny dashboard in the Neon Terminal theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Neon Terminal<em class="paid">Candle · paid</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="m-dashboard-cherry-blossom.jpg" alt="The Makullveny dashboard in the Cherry Blossom theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Cherry Blossom<em class="paid">Candle · paid</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="m-dashboard-garden-of-eden.jpg" alt="The Makullveny dashboard in the Garden of Eden theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Garden of Eden<em class="paid">Candle · paid</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="m-dashboard-lantern-study.jpg" alt="The Makullveny dashboard in the Lantern Study theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Lantern Study<em class="paid">Candle · paid</em></figcaption></figure>
+        <figure class="room-tile"><div class="win"><img src="m-dashboard-moonlit-observatory.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Moonlit Observatory<em class="paid">Candle · paid</em></figcaption></figure>
       </div>
       <div class="themes-lite-foot rv" style="--d:.28s">
-        <p><b>Four are free.</b> Six more are the Candle bundle in the in-app Theme Market, and a bundle of seven hand-illustrated rooms is on the way.</p>
+        <p><b>Free with the app:</b> Cozy Cabin, Snow Cabin, Rainy Cafe and Woodland Library. <b>Paid:</b> the other six are the Candle bundle, bought once in the in-app Theme Market. A bundle of seven hand-illustrated rooms is on the way.</p>
         <a class="btn btn-primary" href="./themes/">
           Look around every room
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="#241505" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2397,7 +2407,7 @@
     <div class="foot-bottom">
       <span>Makullveny &mdash; a TDG project &middot; Your notes stay on your machine.</span>
       <div class="foot-links">
-        <a href="#download">Download</a><a href="./features/">Features</a><a href="./themes/">Themes</a><a href="./updates/">News</a><a href="./account/">Sign up</a><a href="#privacy">Privacy</a><a href="#report">Report a bug</a>
+        <a href="#download">Download</a><a href="./features/">Features</a><a href="./themes/">Themes</a><a href="./updates/">News</a><a href="./account/#signin">Sign in</a><a href="#privacy">Privacy</a><a href="#report">Report a bug</a>
         <a href="https://tdg-org.github.io/TDG-Site/#top" target="_blank" rel="noreferrer">TDG</a>
       </div>
     </div>
