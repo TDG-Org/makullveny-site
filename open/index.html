@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      OPEN THE APP (2026-09-28). The welcome email's "Open Makullveny and Lock
+      In!" button lands here, because Gmail on the web and several other mail
+      clients strip custom-scheme links (makullveny://). This page hands off to
+      makullveny://open (the app comes to the front) and, for a student who does
+      not have it on this computer yet, offers the download. Same shape and CSP
+      as checkout/: no inline style or script.
+    -->
+    <meta name="robots" content="noindex, follow">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <title>Makullveny — open the app</title>
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./open.css">
+  </head>
+  <body>
+    <main>
+      <img class="logo" src="../assets/icons/apple-touch-icon.png" width="72" height="72" alt="">
+      <h1 id="title">Opening Makullveny&#8230;</h1>
+      <p class="lead" id="lead">Pick one thing that is due, and Lock In for 25 minutes.</p>
+      <a class="button" id="open" href="makullveny://open">Open Makullveny</a>
+      <hr>
+      <p class="fine" id="fine">
+        Not on this computer yet? <a href="../#download">Download Makullveny</a> &mdash; it is free.
+      </p>
+    </main>
+    <script src="./open.js"></script>
+  </body>
+</html>
