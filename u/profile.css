@@ -64,7 +64,11 @@ a { color: var(--accent); }
   padding: 20px 24px;
 }
 
+/* the mark beside the name, as on the front page and account/ */
 .pp-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--text);
   font-family: "Lora", Georgia, serif;
   font-size: 24px;
@@ -72,6 +76,8 @@ a { color: var(--accent); }
   text-decoration: none;
   text-shadow: 0 1px 12px rgba(0, 0, 0, 0.25);
 }
+
+.pp-brand img { flex: none; border-radius: 8px; }
 
 .pp-get {
   display: inline-flex;
