@@ -12,6 +12,21 @@
       the page that explains a broken link is a bad joke. No external CSS, no
       script, no fonts.
     -->
+    <!--
+      THE ONE SCRIPT HERE (2026-09-30): the Makullveny app made group calendar
+      links as /g/<token> until it learned to make /g/#<token>. GitHub Pages
+      has no page for the first shape, so it lands HERE -- "That page isn't
+      here" -- which is exactly what the owner saw. Only that one exact shape
+      is moved to the real page, with the token in the fragment; every other
+      missing path still gets the page below. Inline on purpose: this file
+      must work when nothing else on the site loads.
+    -->
+    <script>
+      (function () {
+        var m = /^\/g\/([a-z2-9]{16,64})\/?$/i.exec(window.location.pathname);
+        if (m) window.location.replace("/g/#" + m[1].toLowerCase());
+      })();
+    </script>
     <meta name="robots" content="noindex, follow">
     <title>Makullveny — page not found</title>
     <link rel="icon" href="/assets/icons/icon.svg" type="image/svg+xml">

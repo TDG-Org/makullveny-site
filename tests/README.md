@@ -34,6 +34,19 @@ the page draws (never an id, an email or a room), the rolling seven-day week
 not-found sentence for revoked / unknown / malformed, and that the page holds
 no key and writes nothing as markup.
 
+### `group-page.test.js` — a friend group's calendar link (`g/`)
+
+A group calendar's share link, `https://www.makullveny.com/g/#<token>`, made
+by the group's owner in the app. Pins the same token parse and the same one
+pinned origin as `u/` and `read/` (and the same `connect-src`, no key),
+`shapeGroup` keeping only names, colour slots and `{t, s, e, k}` items (never
+an id, a username, a room or a course colour), the theme key picking only
+one of `u/themes.css`'s themes, four distinct person colours whose ink always
+reads, the rolling week (everyone in one column, split only on overlap) and
+the five-week month, one not-found sentence, and that `404.html` moves an old
+`/g/<token>` link (the app's shape before 2026-09-30) to `/g/#<token>` and
+nothing else — run through the 404's real inline script.
+
 ### `reader-hardening.test.js` — what was added when the viewer was tightened
 
 **The outbound-origin allowlist.** `apiOriginAllowed()` accepts only the one
