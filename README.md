@@ -22,6 +22,7 @@ Expected URL once Pages has deployed:
 | `u/` | A student's public profile link, or -- opened with no link while signed in on the website -- the student's own profile |
 | `updates/` | Every published release, newest first |
 | `read/` | The read-only viewer a shared Makullveny page opens in |
+| `profile/` | A student's profile at `/profile/<username>` (the canonical address; `404.html` routes it, and old `/u/#<token>` links land on it too), with Add friend for a signed-in visitor |
 | `checkout/` | The return page a completed purchase lands on |
 
 ## How the three pages are made

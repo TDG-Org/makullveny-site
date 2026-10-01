@@ -8,8 +8,8 @@
   answers (supabase/functions/mak-web-signup in the app repo).
 
   With those facts, every page's top bar swaps its "Sign up" button for the
-  student's avatar, which opens their Makullveny profile page (u/ with no
-  token draws the signed-in student's own card), and a small sign-out button
+  student's avatar, which opens their Makullveny profile page
+  (profile/<username>, the page friends see), and a small sign-out button
   that simply forgets them in this browser.
 
   Everything from storage is re-checked before use (a username must still be
@@ -50,9 +50,12 @@
        other tabs hear the storage event. */
     try { window.dispatchEvent(new Event("makullveny-signout")); } catch (_e) { /* old browser */ }
   }
-  /* Their own Makullveny profile, on this site. */
+  /* Their own Makullveny profile, on this site: profile/<username>, the
+     canonical address (2026-09-30), the same page friends open. Without a
+     username, profile/ draws their own card from these three facts. */
   function profileUrl(me) {
-    return me ? BASE + "u/" : "";
+    if (!me) return "";
+    return USERNAME.test(me.username || "") ? BASE + "profile/" + me.username : BASE + "profile/";
   }
   function avatarSrc(base, id) {
     return id >= 1 && id <= 7 ? base + "assets/site/avatars/mak-avatar-" + id + "-" + AVATARS[id] + ".png" : "";
