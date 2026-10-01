@@ -20,11 +20,23 @@
       is moved to the real page, with the token in the fragment; every other
       missing path still gets the page below. Inline on purpose: this file
       must work when nothing else on the site loads.
+
+      TWO MORE SHAPES (2026-09-30): a profile's canonical address is
+      /profile/<username>, which has no file either -- it moves to
+      /profile/#<username>, and that page puts /profile/<username> back in the
+      address bar. And /u/<token> (a profile link with its token pasted into
+      the path) moves to /u/#<token>, which opens it and then shows the
+      canonical address too.
     -->
     <script>
       (function () {
-        var m = /^\/g\/([a-z2-9]{16,64})\/?$/i.exec(window.location.pathname);
-        if (m) window.location.replace("/g/#" + m[1].toLowerCase());
+        var path = window.location.pathname;
+        var m = /^\/g\/([a-z2-9]{16,64})\/?$/i.exec(path);
+        if (m) { window.location.replace("/g/#" + m[1].toLowerCase()); return; }
+        m = /^\/profile\/@?([A-Za-z0-9_]{3,20})\/?$/.exec(path);
+        if (m) { window.location.replace("/profile/#" + m[1]); return; }
+        m = /^\/u\/([a-z2-9]{16,64})\/?$/i.exec(path);
+        if (m) window.location.replace("/u/#" + m[1].toLowerCase());
       })();
     </script>
     <meta name="robots" content="noindex, follow">

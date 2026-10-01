@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en" data-theme="cozy-cabin" data-bg="on">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      A STUDENT'S PROFILE: https://www.makullveny.com/profile/<username>
+      (the owner, 2026-09-30 -- the canonical address).
+
+      THE SAME PAGE AS u/: the same renderer, colours, rules, CSP and script
+      (../u/profile.js reads the address and asks by username here, by token
+      there). GitHub Pages has no file for /profile/<name>, so 404.html moves
+      it to /profile/#<name>, and the script puts /profile/<name> back in the
+      address bar. Only a student with a LIVE profile link (made in the app,
+      not stopped) has a page; everybody else reads "not available", the same
+      as a name nobody holds. With no name at all, a signed-in student lands on
+      their own. See u/index.html for the rest of the reasoning.
+    -->
+    <title>Makullveny — a student's profile</title>
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../u/themes.css">
+    <link rel="stylesheet" href="../u/profile-view.css">
+    <link rel="stylesheet" href="../u/profile.css">
+    <link rel="stylesheet" href="../account/me.css">
+  </head>
+  <body>
+    <header class="pp-top">
+      <a class="pp-brand" href="../"><img src="../assets/site/mark.webp" alt="" width="28" height="28">Makullveny</a>
+      <div class="pp-actions"><a class="pp-get" href="../#download">Get the app</a></div>
+    </header>
+
+    <main class="pp-main" id="ppMain">
+      <p id="ppState" class="pp-state" role="status" aria-live="polite">Opening&#8230;</p>
+      <div id="ppProfile" class="pp-profile" hidden></div>
+    </main>
+
+    <footer class="pp-foot">
+      <p id="ppFoot">Shared from <a href="../">Makullveny</a>, a local-first study app. The student chose what this page shows and can turn it off at any time.</p>
+    </footer>
+
+    <script src="../read/config.js"></script>
+    <script src="../account/me.js"></script>
+    <script src="../u/profile-view.js"></script>
+    <script src="../u/profile.js"></script>
+  </body>
+</html>

@@ -65,6 +65,16 @@ const server = createServer((request, response) => {
   }
 
   if (!existsSync(filePath) || !statSync(filePath).isFile()) {
+    // GitHub Pages answers a missing path with the root 404.html (status
+    // 404), and that page's script is what moves /profile/<username>,
+    // /u/<token> and /g/<token> to the real pages -- so the preview does the
+    // same, or those addresses could only be tried in production.
+    const notFound = resolve(root, "404.html");
+    if (existsSync(notFound)) {
+      response.writeHead(404, { "Cache-Control": "no-store", "Content-Type": mimeTypes[".html"] });
+      createReadStream(notFound).pipe(response);
+      return;
+    }
     sendText(response, 404, "Not found");
     return;
   }

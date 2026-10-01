@@ -133,6 +133,53 @@ a { color: var(--accent); }
 
 .pv-side .pp-add b { color: var(--panel-heading); }
 
+/* ── add friend (2026-09-30) ── the block under a visitor's card. */
+.pv-side .pp-friend { display: grid; gap: 10px; justify-items: center; }
+.pp-friend-form, .pp-friend-status { justify-self: stretch; }
+.pp-friend-line, .pp-friend-hint, .pp-friend-status { margin: 0; }
+.pp-friend-hint { font-size: 13px; opacity: 0.78; }
+.pp-friend-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font: 700 15px/1 var(--pv-font, Inter, "Segoe UI", system-ui, sans-serif);
+  text-decoration: none;
+  cursor: pointer;
+}
+.pp-friend-btn:hover { filter: brightness(1.07); }
+.pp-friend-btn:focus-visible { outline: 3px solid var(--panel-heading); outline-offset: 3px; }
+.pp-friend-btn:disabled { cursor: default; filter: none; opacity: 0.7; }
+.pp-friend[data-mode="done"] > .pp-friend-btn {
+  background: transparent;
+  color: var(--panel-heading);
+  box-shadow: inset 0 0 0 1px var(--panel-border-strong, var(--panel-border));
+  opacity: 1;
+}
+.pp-friend-form { display: grid; gap: 8px; }
+.pp-friend-label { font-size: 13px; font-weight: 600; color: var(--panel-heading); text-align: left; }
+.pp-friend-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pp-friend-pass, .pp-friend-who {
+  flex: 1 1 10rem;
+  min-width: 0;
+  min-height: 42px;
+  padding: 0 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border-strong, var(--panel-border));
+  background: color-mix(in srgb, var(--panel-bg) 70%, var(--bg));
+  color: var(--panel-text);
+  font: 15px/1.2 var(--pv-font, Inter, "Segoe UI", system-ui, sans-serif);
+}
+.pp-friend-pass:focus, .pp-friend-who:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.pp-friend-status { font-size: 14px; font-weight: 600; color: var(--panel-heading); }
+.pp-friend-status[data-tone="warn"], .pp-friend-status[data-tone="error"] { color: var(--panel-text); }
+.pp-friend-status[data-tone="error"]::before { content: "! "; color: var(--accent); }
+
 /* ── foot ── */
 .pp-foot {
   padding: 18px 24px 28px;

@@ -33,6 +33,28 @@
   bookmarks and comes back to, and the student can switch the link off from
   the app at any time.
 */
+/*
+  /profile/<username> (2026-09-30, the owner): THE CANONICAL ADDRESS. The
+  same page, asked by username instead of by token: POST { action:
+  "profile_at", username } to the same function, which answers exactly what
+  the token read answers for that student's LIVE link (no live link reads as
+  not available, the same as a name nobody holds). GitHub Pages has no file
+  for /profile/<name>, so 404.html moves it to /profile/#<name> and this
+  script puts /profile/<name> back in the address bar (history.replaceState).
+  An old /u/#<token> link still opens by token, then shows the canonical
+  address the same way. profile/index.html is this page's second door; both
+  run this one script.
+
+  ADD FRIEND (2026-09-30): under a visitor's card. Signed out -> a sign-in
+  prompt. Your own page -> "This is you". Signed in -> Add friend, which asks
+  for your password once (this site keeps no session -- account/me.js) and
+  sends ONE request to mak-web-signup's "friend" action: it checks the
+  password, asks TDG where the two of you stand and sends the request only
+  when TDG allows it -- the same rule the app's Friends sheet uses. The answer
+  is one word (requested / friends / already_friends / already_asked / ...),
+  said here in one sentence. The password lives in the input and that one
+  request body, nowhere else.
+*/
 (function () {
   "use strict";
 
@@ -70,6 +92,51 @@
     for (var i = 0; i < parts.length; i += 1) if (parts[i]) last = parts[i];
     last = last.toLowerCase();
     return TOKEN_PATTERN.test(last) ? last : "";
+  }
+
+  /* tdg-core's username shape (the app's logic/tdgSocialService.js). */
+  var USERNAME = /^[A-Za-z0-9_]{3,20}$/;
+
+  /* Is this the /profile/ door (not u/)? */
+  function isProfilePath(pathname) {
+    return /\/profile\/(?:[^/]*\/?)?$/.test(String(pathname || ""));
+  }
+
+  /* The username a /profile/ address names: the path's last part
+     (/profile/<name>), or the fragment 404.html moved it into
+     (/profile/#<name>). Anything that is not a username is "". */
+  function usernameFromLocation(pathname, hash) {
+    var path = String(pathname || "");
+    var m = /\/profile\/([^/?#]+)\/?$/.exec(path);
+    var raw = m ? m[1] : String(hash || "").replace(/^#/, "").replace(/^@+/, "").split("/")[0];
+    try { raw = decodeURIComponent(raw); } catch (_e) { return ""; }
+    raw = raw.replace(/^@+/, "");
+    return USERNAME.test(raw) ? raw : "";
+  }
+
+  /* The site root, from this script's own address (it lives in u/). */
+  var ROOT = (function () {
+    var s = hasWindow && typeof document !== "undefined" && document.currentScript && document.currentScript.src;
+    return s ? s.replace(/u\/profile\.js(\?.*)?$/, "") : "/";
+  })();
+
+  /* The canonical address of a profile: <root>profile/<username>. */
+  function canonicalPath(username, root) {
+    var base = root != null ? String(root) : ROOT;
+    try { base = new URL(base, "https://www.makullveny.com/").pathname; } catch (_e) { base = "/"; }
+    if (!/\/$/.test(base)) base += "/";
+    return USERNAME.test(String(username || "")) ? base + "profile/" + username : "";
+  }
+
+  function showCanonical(username) {
+    var path = canonicalPath(username);
+    if (!path || !hasWindow || !window.history || typeof window.history.replaceState !== "function") return;
+    if (window.location.pathname === path && !window.location.hash) return;
+    try { window.history.replaceState(null, "", path); } catch (_e) { /* the old address still works */ }
+  }
+
+  function sameName(a, b) {
+    return Boolean(a) && Boolean(b) && String(a).toLowerCase() === String(b).toLowerCase();
   }
 
   /* The site's own avatar pictures, by the digit the account stores
@@ -193,20 +260,175 @@
         return bannerFile(key);
       }
     });
-    /* This page's own line under the sidebar card: how to add them. */
-    if (profile.username) {
-      var add = document.createElement("p");
-      add.className = "pp-add";
-      var b = document.createElement("b");
-      b.textContent = "@" + profile.username;
-      add.append(document.createTextNode("Have Makullveny? Add "), b, document.createTextNode(" in Friends."));
-      built.sidebar.side.append(add);
-    }
+    /* This page's own block under the sidebar card: Add friend, the
+       sign-in prompt, or "This is you". */
+    if (profile.username) built.sidebar.side.append(friendBlock(profile.username, currentMe()));
     var mount = el("ppProfile");
     mount.replaceChildren(built.host);
     setState("");
     mount.hidden = false;
     return built;
+  }
+
+  /* ── add friend ─────────────────────────────────────────────────────── */
+
+  /* mak-web-signup, on the same pinned origin as everything else here. */
+  var FRIEND_PATH = "/functions/v1/mak-web-signup";
+  function friendEndpoint(apiUrl) {
+    if (!apiOriginAllowed(apiUrl)) return "";
+    try { return new URL(String(apiUrl)).origin + FRIEND_PATH; } catch (_e) { return ""; }
+  }
+
+  function currentMe() {
+    return hasWindow && window.MakullvenyMe && typeof window.MakullvenyMe.get === "function" ? window.MakullvenyMe.get() : null;
+  }
+
+  /* Which block a visitor sees: "own", "signin" or "add". */
+  function friendMode(me, username) {
+    if (me && sameName(me.username, username)) return "own";
+    return me ? "add" : "signin";
+  }
+
+  /* One sentence per answer. `tone` colours it; `done` greys the button. */
+  function friendWords(answer, username) {
+    var at = "@" + username;
+    var outcome = answer && answer.ok === true ? String(answer.outcome || "") : "";
+    var error = answer && answer.ok !== true ? String(answer.error || "") : "";
+    var OUT = {
+      requested: { text: "Request sent. " + at + " will see it in Makullveny.", tone: "ok", done: "Requested" },
+      friends: { text: "You and " + at + " are friends now.", tone: "ok", done: "Friends" },
+      already_friends: { text: "You and " + at + " are already friends.", tone: "ok", done: "Friends" },
+      already_asked: { text: "You already asked. Waiting for " + at + " to say yes.", tone: "ok", done: "Requested" },
+      self: { text: "That is you.", tone: "ok", done: "You" },
+      not_taking: { text: at + " is not taking friend requests.", tone: "warn", done: "" },
+      not_found: { text: "You cannot add " + at + " right now.", tone: "warn", done: "" },
+      blocked: { text: "You blocked " + at + ". Unblock them in the app first.", tone: "warn", done: "" },
+      limit: { text: "A friend limit is full. Remove a friend or a request in the app first.", tone: "warn", done: "" }
+    };
+    if (OUT[outcome]) return OUT[outcome];
+    var ERR = {
+      invalid_credentials: "That password does not match. Try again.",
+      email_not_confirmed: "Confirm your email first, then try again.",
+      rate_limited: "Too many tries. Wait a few minutes and try again.",
+      bad_request: "Type your password to add a friend.",
+      offline: "Could not reach Makullveny. Check your connection and try again."
+    };
+    return { text: ERR[error] || "Something went wrong on our side. Try again in a minute.", tone: "error", done: "" };
+  }
+
+  function postJson(url, body, done) {
+    var request = new XMLHttpRequest();
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.timeout = 20000;
+    request.onload = function () {
+      var data = null;
+      try { data = JSON.parse(request.responseText || "null"); } catch (_e) { data = null; }
+      done(data && typeof data === "object" ? data : { ok: false, error: request.status === 429 ? "rate_limited" : "server_error" });
+    };
+    request.onerror = request.ontimeout = function () { done({ ok: false, error: "offline" }); };
+    request.send(JSON.stringify(body));
+  }
+
+  function friendBlock(username, me) {
+    var box = make("div", "pp-add pp-friend");
+    var mode = friendMode(me, username);
+    box.setAttribute("data-mode", mode);
+    var at = "@" + username;
+
+    if (mode === "own") {
+      ownShown = true;
+      box.append(make("p", "pp-friend-line", "This is you. Friends can add you right here, or as " + at + " in the app."));
+      return box;
+    }
+
+    if (mode === "signin") {
+      var line = make("p", "pp-friend-line");
+      var b = make("b", "", at);
+      line.append(document.createTextNode("Sign in to add "), b, document.createTextNode(" as a friend."));
+      var go = make("a", "pp-friend-btn", "Sign in");
+      go.href = ROOT + "account/#signin";
+      go.setAttribute("data-me-keep", "");
+      box.append(line, go, make("p", "pp-friend-hint", "Or add " + at + " in Makullveny's Friends."));
+      return box;
+    }
+
+    /* Signed in: the button, then a password row that opens under it. */
+    var add = make("button", "pp-friend-btn", "Add friend");
+    add.type = "button";
+    add.setAttribute("aria-expanded", "false");
+    var form = make("form", "pp-friend-form");
+    form.hidden = true;
+    form.setAttribute("novalidate", "");
+    var who = document.createElement("input");
+    who.type = "text";
+    who.autocomplete = "username";
+    who.value = me.username || "";
+    who.className = "pp-friend-who";
+    who.setAttribute("aria-label", "Your username or email");
+    who.placeholder = "Your username or email";
+    /* The username is known: a password manager still sees it, the student
+       does not have to. Without one (an email-only sign-in), they type it. */
+    if (me.username) { who.hidden = true; who.tabIndex = -1; }
+    var label = make("label", "pp-friend-label", "Your password, to send it as you");
+    var pass = document.createElement("input");
+    pass.type = "password";
+    pass.autocomplete = "current-password";
+    pass.required = true;
+    pass.className = "pp-friend-pass";
+    pass.id = "ppFriendPass";
+    label.htmlFor = pass.id;
+    var send = make("button", "pp-friend-btn", "Send request");
+    send.type = "submit";
+    var row = make("div", "pp-friend-row");
+    row.append(pass, send);
+    form.append(who, label, row, make("p", "pp-friend-hint", "Makullveny's website keeps no sign-in, so it asks each time."));
+    var status = make("p", "pp-friend-status");
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.hidden = true;
+
+    function say(words) {
+      status.textContent = words ? words.text : "";
+      status.setAttribute("data-tone", words ? words.tone : "");
+      status.hidden = !words;
+    }
+
+    add.addEventListener("click", function () {
+      form.hidden = !form.hidden;
+      add.setAttribute("aria-expanded", String(!form.hidden));
+      if (!form.hidden) (me.username ? pass : who).focus();
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var url = friendEndpoint(CONFIG.apiUrl);
+      var identifier = String(who.value || "").trim();
+      var password = String(pass.value || "");
+      if (!identifier || !password) { say(friendWords({ ok: false, error: "bad_request" }, username)); return; }
+      if (!url) { say(friendWords({ ok: false, error: "server_error" }, username)); return; }
+      send.disabled = true;
+      send.textContent = "Sending…";
+      postJson(url, { action: "friend", identifier: identifier, password: password, target: username }, function (answer) {
+        pass.value = "";
+        send.disabled = false;
+        send.textContent = "Send request";
+        var words = friendWords(answer, username);
+        say(words);
+        if (words.done) {
+          form.hidden = true;
+          add.textContent = words.done;
+          add.disabled = true;
+          add.setAttribute("aria-expanded", "false");
+          box.setAttribute("data-mode", "done");
+        } else if (answer && answer.error === "invalid_credentials") {
+          pass.focus();
+        }
+      });
+    });
+
+    box.append(add, form, status);
+    return box;
   }
 
   /* The line under a signed-in student's own card. */
@@ -216,7 +438,12 @@
       : "This is you. Pick a username in the Makullveny app so friends can add you.";
   }
 
+  /* Whether this page is the signed-in student's own (signing out then
+     leaves for the sign-in page; on anybody else's it just redraws). */
+  var ownShown = false;
+
   function renderOwn(me) {
+    ownShown = true;
     var built = render({ displayName: me.displayName, username: me.username, avatarId: me.avatarId }, Date.now());
     document.title = "Your profile — Makullveny";
     /* The app's renderer draws the card (2026-09-28 merge of the own-profile
@@ -246,20 +473,56 @@
       render(window.MAKULLVENY_PROFILE_FIXTURE, typeof window.MAKULLVENY_PROFILE_NOW === "number" ? window.MAKULLVENY_PROFILE_NOW : Date.now());
       return;
     }
-    var token = tokenFromHash();
-    if (!token) {
-      /* No token: the signed-in student's OWN page, from the three public
-         facts account/me.js keeps (name, @username, avatar digit) -- the
-         avatar in every top bar and account/'s "View your profile" land here. */
-      var me = window.MakullvenyMe && window.MakullvenyMe.get();
-      if (me) { renderOwn(me); return; }
-      setState("This link is not complete. Ask whoever sent it for the full address.");
-      var state = el("ppState");
-      var signin = make("a", "", "Sign in");
-      signin.href = "../account/#signin";
-      state.append(document.createElement("br"), signin, document.createTextNode(" to see your own profile."));
+    var me = currentMe();
+
+    /* THE /profile/ DOOR: by username. */
+    if (isProfilePath(window.location.pathname)) {
+      var name = usernameFromLocation(window.location.pathname, window.location.hash);
+      if (!name && me && me.username) name = me.username;
+      if (!name) {
+        if (me) { renderOwn(me); return; }
+        signInState();
+        return;
+      }
+      showCanonical(name);
+      fetchProfile({ action: "profile_at", username: name }, function (payload, status) {
+        if (payload) { render(payload, Date.now()); return; }
+        /* Your own address with no live link: your own card, as before. */
+        if (status === 404 && me && sameName(me.username, name)) { renderOwn(me); return; }
+        setState(stateForStatus(status));
+      });
       return;
     }
+
+    /* THE OLD u/ DOOR: by token, then the canonical address. */
+    var token = tokenFromHash();
+    if (!token) {
+      /* No token: the signed-in student's OWN page -- at its canonical
+         address when they have a username, else drawn here from the three
+         public facts account/me.js keeps. */
+      if (me && me.username) { window.location.replace(canonicalPath(me.username)); return; }
+      if (me) { renderOwn(me); return; }
+      signInState();
+      return;
+    }
+    fetchProfile({ action: "profile", token: token }, function (payload, status) {
+      if (!payload) { setState(stateForStatus(status)); return; }
+      render(payload, Date.now());
+      showCanonical(shapeProfile(payload).username);
+    });
+  }
+
+  function signInState() {
+    setState("This link is not complete. Ask whoever sent it for the full address.");
+    var state = el("ppState");
+    var signin = make("a", "", "Sign in");
+    signin.href = ROOT + "account/#signin";
+    state.append(document.createElement("br"), signin, document.createTextNode(" to see your own profile."));
+  }
+
+  /* ONE request to mak-share; done(payload) on success, done(null, status)
+     otherwise (0 = unreachable). */
+  function fetchProfile(body, done) {
     if (!CONFIG.apiUrl || !apiOriginAllowed(CONFIG.apiUrl)) {
       setState("Profile links are not open yet.");
       return;
@@ -269,16 +532,16 @@
     request.open("POST", CONFIG.apiUrl, true);
     request.setRequestHeader("Content-Type", "application/json");
     request.onload = function () {
-      if (request.status !== 200) { setState(stateForStatus(request.status)); return; }
+      if (request.status !== 200) { done(null, request.status); return; }
       var payload = null;
       try { payload = JSON.parse(request.responseText); } catch (error) { payload = null; }
-      if (!payload || payload.ok !== true) { setState(stateForStatus(404)); return; }
-      render(payload, Date.now());
+      if (!payload || payload.ok !== true) { done(null, 404); return; }
+      done(payload, 200);
     };
     request.onerror = function () { setState("This page could not be reached. Check your connection and try again."); };
     request.timeout = 20000;
     request.ontimeout = function () { setState("This is taking too long to open. Check your connection and reload the page."); };
-    request.send(JSON.stringify({ action: "profile", token: token }));
+    request.send(JSON.stringify(body));
   }
 
   if (typeof module !== "undefined" && module.exports) {
@@ -291,6 +554,12 @@
       colourFor: VIEW.colourFor,
       stateForStatus: stateForStatus,
       ownNote: ownNote,
+      isProfilePath: isProfilePath,
+      usernameFromLocation: usernameFromLocation,
+      canonicalPath: canonicalPath,
+      friendMode: friendMode,
+      friendWords: friendWords,
+      friendEndpoint: friendEndpoint,
       ALLOWED_API_ORIGINS: ALLOWED_API_ORIGINS,
       AVATARS: AVATARS,
       THEMES: THEMES,
@@ -300,9 +569,12 @@
 
   if (hasWindow && typeof document !== "undefined" && document.getElementById && document.getElementById("ppMain")) {
     window.addEventListener("hashchange", function () { window.location.reload(); });
-    /* Signed in or out in another tab while this shows the student's own page. */
-    window.addEventListener("storage", function (e) { if (e.key === "makullveny.me.v1" && !tokenFromHash()) window.location.reload(); });
-    window.addEventListener("makullveny-signout", function () { if (!tokenFromHash()) window.location.replace("../account/#signin"); });
+    /* Signed in or out in another tab: the own card, and the Add friend
+       block on anybody's page, both depend on who is signed in. */
+    window.addEventListener("storage", function (e) { if (e.key === "makullveny.me.v1") window.location.reload(); });
+    window.addEventListener("makullveny-signout", function () {
+      if (ownShown) window.location.replace(ROOT + "account/#signin"); else window.location.reload();
+    });
     open();
   }
 })();

@@ -101,7 +101,10 @@ test("me.js re-checks what it reads back: a bad handle, a bad avatar", function 
 
 test("the avatar opens the student's own Makullveny profile page, never TDG's", function () {
   var t = loadMe();
-  assert.equal(t.me.profileUrl({ username: "maya_r" }), "https://www.makullveny.com/u/");
+  // 2026-09-30: the canonical address, profile/<username> -- the page friends
+  // open; without a username, profile/ draws the student's own card.
+  assert.equal(t.me.profileUrl({ username: "maya_r" }), "https://www.makullveny.com/profile/maya_r");
+  assert.equal(t.me.profileUrl({ username: "", displayName: "Maya" }), "https://www.makullveny.com/profile/");
   assert.equal(t.me.profileUrl(null), "");
   assert.doesNotMatch(fs.readFileSync(path.join(ROOT, "account", "me.js"), "utf8"), /TDG-Site/);
   t.me.clear();

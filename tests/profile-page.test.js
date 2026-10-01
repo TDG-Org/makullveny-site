@@ -123,7 +123,102 @@ test("the page holds no key and renders nothing as markup", function () {
   assert.doesNotMatch(view, /fetch\(|XMLHttpRequest/);
   assert.doesNotMatch(source, /service_role|sk_live_|eyJ[A-Za-z0-9_-]{10}/);
   assert.doesNotMatch(source, /\?token=|\?p_token=/);
-  assert.match(source, /request\.send\(JSON\.stringify\(\{ action: "profile", token: token \}\)\)/);
+  // The token rides in a POST body (fetchProfile sends the body it is given).
+  assert.match(source, /fetchProfile\(\{ action: "profile", token: token \}/);
+  assert.match(source, /request\.send\(JSON\.stringify\(body\)\)/);
+  // The Add friend password is never kept: no storage write anywhere here.
+  assert.doesNotMatch(source, /localStorage|sessionStorage|document\.cookie/);
+});
+
+/* ── /profile/<username> and Add friend (2026-09-30) ─────────────────────── */
+
+test("a /profile/ address names its username from the path or from 404.html's fragment", function () {
+  assert.equal(P.usernameFromLocation("/profile/maya_r", ""), "maya_r");
+  assert.equal(P.usernameFromLocation("/profile/maya_r/", ""), "maya_r");
+  assert.equal(P.usernameFromLocation("/profile/", "#maya_r"), "maya_r");
+  assert.equal(P.usernameFromLocation("/profile/", "#@Maya_R"), "Maya_R");
+  assert.equal(P.usernameFromLocation("/profile/", ""), "");
+  assert.equal(P.usernameFromLocation("/profile/", "#no spaces"), "");
+  assert.equal(P.usernameFromLocation("/profile/", "#ab"), "");
+  assert.equal(P.usernameFromLocation("/profile/%3Cb%3E", ""), "");
+  assert.equal(P.isProfilePath("/profile/"), true);
+  assert.equal(P.isProfilePath("/profile/maya_r"), true);
+  assert.equal(P.isProfilePath("/u/"), false);
+});
+
+test("the canonical address is <root>profile/<username>, and nothing for a bad name", function () {
+  assert.equal(P.canonicalPath("maya_r", "https://www.makullveny.com/"), "/profile/maya_r");
+  assert.equal(P.canonicalPath("maya_r", "/"), "/profile/maya_r");
+  assert.equal(P.canonicalPath("maya_r", "https://tdg-org.github.io/makullveny-site/"), "/makullveny-site/profile/maya_r");
+  assert.equal(P.canonicalPath("../evil", "/"), "");
+  assert.equal(P.canonicalPath("", "/"), "");
+});
+
+test("Add friend: signed out is a sign-in prompt, your own page says so, anybody else can be added", function () {
+  assert.equal(P.friendMode(null, "leo"), "signin");
+  assert.equal(P.friendMode({ username: "Maya_R" }, "maya_r"), "own");
+  assert.equal(P.friendMode({ username: "maya_r" }, "leo"), "add");
+  assert.equal(P.friendMode({ username: "", displayName: "Maya" }, "leo"), "add");
+});
+
+test("Add friend: every answer the server gives has its own sentence, and the done ones settle the button", function () {
+  var outcomes = { requested: "Requested", friends: "Friends", already_friends: "Friends", already_asked: "Requested", self: "You",
+    not_taking: "", not_found: "", blocked: "", limit: "" };
+  var seen = {};
+  Object.keys(outcomes).forEach(function (outcome) {
+    var w = P.friendWords({ ok: true, outcome: outcome }, "leo");
+    assert.ok(w.text.length > 5, outcome);
+    assert.equal(w.done, outcomes[outcome], outcome);
+    assert.ok(!seen[w.text] || outcome === "already_friends" || outcome === "friends", "one sentence each: " + outcome);
+    seen[w.text] = true;
+  });
+  assert.match(P.friendWords({ ok: false, error: "invalid_credentials" }, "leo").text, /password/i);
+  assert.equal(P.friendWords({ ok: false, error: "invalid_credentials" }, "leo").done, "");
+  assert.match(P.friendWords({ ok: false, error: "rate_limited" }, "leo").text, /wait/i);
+  assert.match(P.friendWords({ ok: false, error: "weird" }, "leo").text, /our side/i);
+  // A blocked-by and a nobody read the same (the server already folds them).
+  assert.doesNotMatch(P.friendWords({ ok: true, outcome: "not_found" }, "leo").text, /block/i);
+});
+
+test("Add friend talks only to mak-web-signup on the one pinned origin", function () {
+  assert.equal(P.friendEndpoint("https://ddbksawvchsauiuiwvrl.supabase.co/functions/v1/mak-share"),
+    "https://ddbksawvchsauiuiwvrl.supabase.co/functions/v1/mak-web-signup");
+  assert.equal(P.friendEndpoint("https://evil.example/functions/v1/mak-share"), "");
+  assert.equal(P.friendEndpoint(""), "");
+});
+
+test("profile/ is the same page as u/: same CSP, same scripts in the same order", function () {
+  var u = fs.readFileSync(path.join(ROOT, "u", "index.html"), "utf8");
+  var prof = fs.readFileSync(path.join(ROOT, "profile", "index.html"), "utf8");
+  var csp = function (html) { return /http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(html)[1]; };
+  assert.equal(csp(prof), csp(u));
+  var scripts = (prof.match(/<script src="[^"]+"><\/script>/g) || []);
+  assert.deepEqual(scripts, [
+    '<script src="../read/config.js"></script>',
+    '<script src="../account/me.js"></script>',
+    '<script src="../u/profile-view.js"></script>',
+    '<script src="../u/profile.js"></script>'
+  ]);
+  assert.match(prof, /<main class="pp-main" id="ppMain">/);
+});
+
+test("404.html moves /profile/<username> and /u/<token> to the real pages, and nothing else new", function () {
+  var html = fs.readFileSync(path.join(ROOT, "404.html"), "utf8");
+  var script = /<script>([\s\S]*?)<\/script>/.exec(html)[1];
+  function landing(pathname) {
+    var moved = null;
+    var window = { location: { pathname: pathname, replace: function (to) { moved = to; } } };
+    new Function("window", script)(window);
+    return moved;
+  }
+  assert.equal(landing("/profile/maya_r"), "/profile/#maya_r");
+  assert.equal(landing("/profile/maya_r/"), "/profile/#maya_r");
+  assert.equal(landing("/profile/@maya_r"), "/profile/#maya_r");
+  assert.equal(landing("/u/abcdefghijkmnpqrstuvw"), "/u/#abcdefghijkmnpqrstuvw");
+  assert.equal(landing("/g/abcdefghijkmnpqrstuvw"), "/g/#abcdefghijkmnpqrstuvw");
+  assert.equal(landing("/profile/a"), null);
+  assert.equal(landing("/profile/<script>"), null);
+  assert.equal(landing("/nope"), null);
 });
 
 test("every avatar the page can draw exists on this site", function () {
