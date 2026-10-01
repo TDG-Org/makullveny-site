@@ -108,6 +108,8 @@ test("revoked, unknown and malformed all read the same sentence", function () {
   assert.equal(P.stateForStatus(404), P.stateForStatus(400));
   assert.equal(P.stateForStatus(404), P.stateForStatus(0));
   assert.doesNotMatch(P.stateForStatus(404), /revoked|expired|banned/i);
+  // A private profile (2026-10-01) says so, calmly, and only that.
+  assert.equal(P.stateForStatus("private"), "This profile is private.");
 });
 
 test("a class keeps one colour, from this page's own palette", function () {

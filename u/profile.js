@@ -183,6 +183,10 @@
 
   /* One sentence per state; revoked, unknown and malformed read the same. */
   function stateForStatus(status) {
+    /* PRIVATE (2026-10-01, Makullveny migration 20261001120000): the student
+       turned their profile private. Said calmly, and nothing else is drawn --
+       the server sent no data to draw. */
+    if (status === "private") return "This profile is private.";
     if (status === 429) return "This page is getting a lot of visits right now. Wait a moment and try again.";
     if (status === 502 || status === 500 || status === 503) return "Something went wrong on Makullveny's end. Try again shortly.";
     return "This profile is not available. The link may have been turned off, or it never existed.";
@@ -487,8 +491,9 @@
       showCanonical(name);
       fetchProfile({ action: "profile_at", username: name }, function (payload, status) {
         if (payload) { render(payload, Date.now()); return; }
-        /* Your own address with no live link: your own card, as before. */
-        if (status === 404 && me && sameName(me.username, name)) { renderOwn(me); return; }
+        /* Your own address with no live link -- or your own PRIVATE profile:
+           your own card, as before ("Only you see this page"). */
+        if ((status === 404 || status === "private") && me && sameName(me.username, name)) { renderOwn(me); return; }
         setState(stateForStatus(status));
       });
       return;
@@ -532,7 +537,12 @@
     request.open("POST", CONFIG.apiUrl, true);
     request.setRequestHeader("Content-Type", "application/json");
     request.onload = function () {
-      if (request.status !== 200) { done(null, request.status); return; }
+      if (request.status !== 200) {
+        var said = null;
+        try { said = JSON.parse(request.responseText); } catch (error) { said = null; }
+        done(null, request.status === 404 && said && said.error === "private" ? "private" : request.status);
+        return;
+      }
       var payload = null;
       try { payload = JSON.parse(request.responseText); } catch (error) { payload = null; }
       if (!payload || payload.ok !== true) { done(null, 404); return; }
