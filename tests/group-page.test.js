@@ -97,6 +97,62 @@ test("each person one colour by slot, four different ones, and the ink on a bloc
   assert.doesNotMatch(src, /\.c\b(?!\w)/);
 });
 
+test("a colour the member PICKED (0-7) wins; anything else falls back to the slot", function () {
+  var shaped = G.shapeGroup({
+    members: [
+      { name: "Maya", colorIndex: 0, color: 5, items: [] },
+      { name: "Leo", colorIndex: 1, color: 5, items: [] },
+      { name: "Ana", colorIndex: 2, color: "#ff0000", items: [] },
+      { name: "Sam", colorIndex: 3, color: "url(x)", items: [] }
+    ]
+  });
+  assert.deepEqual(shaped.members.map(function (m) { return m.colour; }), [5, undefined, undefined, undefined],
+    "a good pick is kept; a second claim, a hex and junk are not");
+  ["dark", "light"].forEach(function (tone) {
+    assert.equal(G.memberFill(shaped.members[0], tone), G.MEMBER_COLOURS[tone][5]);
+    assert.equal(G.memberFill(shaped.members[1], tone), G.personColour(1, tone));
+    var palette = G.paletteFor(shaped, tone);
+    assert.equal(palette[0], G.MEMBER_COLOURS[tone][5]);
+    assert.equal(palette[3], G.personColour(3, tone));
+  });
+  [8, -1, 2.5, "3", null].forEach(function (bad) {
+    assert.equal(G.shapeGroup({ members: [{ name: "X", colorIndex: 0, color: bad }] }).members[0].colour, undefined, String(bad));
+  });
+  assert.equal(G.shapeGroup({ members: [{ name: "X", colorIndex: 0, color: 0 }] }).members[0].colour, 0, "zero is a real pick");
+});
+
+test("someone who did not pick is moved off a slot colour another member picked", function () {
+  /* slot 0 is orange; Maya picked orange (1), so Leo, unpicked in slot 0, moves */
+  var shaped = G.shapeGroup({
+    members: [
+      { name: "Leo", colorIndex: 0, items: [] },
+      { name: "Maya", colorIndex: 1, color: 1, items: [] },
+      { name: "Ana", colorIndex: 2, items: [] }
+    ]
+  });
+  var leo = shaped.members[0];
+  var ana = shaped.members[2];
+  assert.equal(shaped.members[1].colour, 1);
+  assert.equal(leo.colour, 3, "the first spare colour nobody wears (green, not red beside rose)");
+  assert.equal(ana.colour, undefined, "violet slot, nobody picked violet: unchanged");
+  ["dark", "light"].forEach(function (tone) {
+    var fills = shaped.members.map(function (m) { return G.memberFill(m, tone); });
+    assert.equal(new Set(fills).size, 3, tone);
+  });
+});
+
+test("all eight pickable colours, both tones: distinct, and the ink on each reads", function () {
+  ["dark", "light"].forEach(function (tone) {
+    var set = G.MEMBER_COLOURS[tone];
+    assert.equal(set.length, 8);
+    assert.equal(new Set(set).size, 8);
+    set.forEach(function (fill) {
+      assert.match(fill, /^#[0-9a-f]{6}$/);
+      assert.ok(G.contrast(fill, G.inkFor(fill)) >= 4.5, tone + " " + fill);
+    });
+  });
+});
+
 test("the week: seven days from today, everyone in one column, overlaps side by side, hours fitted", function () {
   var group = G.shapeGroup({
     members: [

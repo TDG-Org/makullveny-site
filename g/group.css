@@ -6,7 +6,8 @@
   bar, the loading card, the footer. This file is only the calendar card and
   the "get the app" card. Every colour is a theme token, except a person's
   colour, which group.js sets as --gp-person / --gp-ink from its own
-  palette by slot (never a colour from the network).
+  palette by the colour number the member picked, else by slot (never a
+  colour from the network -- only ever an index into its own tables).
 
   Wide screens get the week grid (one lane per person per day, like the app)
   or the month grid; a phone gets the same days as a list.
