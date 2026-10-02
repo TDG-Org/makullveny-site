@@ -10,7 +10,8 @@
   WHAT IS ON IT, AND WHAT NEVER IS. The server function (mak-share's "group"
   action -> mak_group_link_read, service_role only) sends the group's name and
   theme KEY, the span, and per JOINED member a DISPLAY NAME, a colour slot
-  (0-3) and their items {t, s, e, k, c?} around now. Never an account id, a
+  (0-9), the colour they PICKED in the app if they did (`color`, a whole
+  number 0-9) and their items {t, s, e, k, c?} around now. Never an account id, a
   username, an email, a room or an assignment -- the app never publishes an
   assignment, the database drops a room from a public read, and the function
   forwards named fields only. This page re-checks every field again
@@ -21,8 +22,9 @@
   read/config.js, the same ALLOWED_API_ORIGINS, the same connect-src in
   g/index.html), the token in the FRAGMENT so no server and no Referer ever
   sees it, and every string from the network set with textContent. A colour
-  from the network is never used: a person's colour is picked here from their
-  slot. NO BUILD STEP.
+  from the network is never used: a person's colour is looked up HERE, from
+  the number they picked (MEMBER_COLOURS) or else from their slot
+  (PERSON_COLOURS). The network only ever names an index. NO BUILD STEP.
 
   An old link of the form /g/<token> (the app made those until 2026-09-30) is
   GitHub Pages' 404; ../404.html turns it into /g/#<token> and lands here.
@@ -73,17 +75,33 @@
     "aurora-glasshouse", "crimson-atelier", "ink-and-ivory"
   ];
 
-  /* THE FOUR PERSON COLOURS, by slot -- the app's own measured pair
-     (src/groupCalendarModel.js PERSON_COLOURS): the dark set on a dark panel,
-     the light set on a light one. Orange, teal, violet, rose. */
+  /* THE TEN COLOURS A MEMBER CAN PICK, by the number the app stores
+     (mak_group_calendar_members.color 0..9): red, orange, gold, green, teal,
+     blue, violet, pink, stone, brown. GENERATED, not hand-picked: printed by
+     a node script that require()s the app's own model
+     (Makullveny/src/groupCalendarModel.js, memberColour(index, "dark" |
+     "light") -- MEMBER_COLOURS at MEMBER_TONE, stone at chroma 0, brown at
+     its own darker tones), then pasted here. The ORDER is the server's, so it
+     never changes; regenerate from the app if the app's tones ever move. */
+  var MEMBER_COLOURS = {
+    dark: ["#fd968f", "#f0a556", "#cbb94c", "#80cd82", "#21d1ca", "#71bfff", "#b6aaff", "#ee95d1", "#b7b7b7", "#c39b81"],
+    light: ["#ab413e", "#955905", "#776a0a", "#267d30", "#007974", "#036eae", "#6a57b3", "#9b4382", "#696969", "#613f27"]
+  };
+  /* THE TEN SLOT COLOURS: the fallback for someone who has not picked, by the
+     colour SLOT the server hands out (colorIndex 0..9). Not a second palette:
+     slot s IS member colour SLOT_ORDER[s] (the app's SLOT_ORDER -- orange,
+     teal, violet, pink first, the four hues the old four-seat page had), so
+     PERSON_COLOURS below is the app's personColour(slot, tone), the same
+     generated values in slot order. */
+  var SLOT_ORDER = [1, 4, 6, 7, 3, 5, 2, 0, 9, 8];
   var PERSON_COLOURS = {
-    dark: ["#e8995a", "#4fb8a8", "#a791ec", "#ec8aa0"],
-    light: ["#b35f1d", "#1f7f73", "#6a4fc0", "#b4445e"]
+    dark: SLOT_ORDER.map(function (index) { return MEMBER_COLOURS.dark[index]; }),
+    light: SLOT_ORDER.map(function (index) { return MEMBER_COLOURS.light[index]; })
   };
   var INK_DARK = "#1b1426";
   var INK_LIGHT = "#ffffff";
 
-  var MAX_MEMBERS = 4;
+  var MAX_MEMBERS = 10;
   var MAX_ITEMS = 600;
   var MINUTE = 60000;
 
@@ -114,22 +132,58 @@
     var source = payload && typeof payload === "object" ? payload : {};
     var members = [];
     var seen = {};
+    var picked = {};
     var list = Array.isArray(source.members) ? source.members : [];
     for (var i = 0; i < list.length && members.length < MAX_MEMBERS; i += 1) {
       var raw = list[i];
       if (!raw || typeof raw !== "object") continue;
       var slot = Number(raw.colorIndex);
-      if (!Number.isInteger(slot) || slot < 0 || slot > 3 || seen[slot]) continue;
+      if (!Number.isInteger(slot) || slot < 0 || slot >= MAX_MEMBERS || seen[slot]) continue;
       seen[slot] = true;
-      members.push({ name: text(raw.name, 60) || "Friend", slot: slot, items: shapeItems(raw.items) });
+      var member = { name: text(raw.name, 60) || "Friend", slot: slot, items: shapeItems(raw.items) };
+      /* The picked colour: a whole NUMBER 0-9 that nobody before them wears.
+         A string, a hex, a fraction or anything else is ignored. */
+      var own = raw.color;
+      if (typeof own === "number" && Number.isInteger(own) && own >= 0 && own < MEMBER_COLOURS.dark.length && !picked[own]) {
+        picked[own] = true;
+        member.colour = own;
+      }
+      members.push(member);
     }
     members.sort(function (a, b) { return a.slot - b.slot; });
+    /* Someone who has not picked keeps their slot colour -- unless a member
+       PICKED that colour (or, failing that, an earlier member already took
+       it); then they take the first slot colour, in slot order, that nobody
+       wears yet. Ten colours, at most ten people: there is always one free,
+       and nobody on the page ever shares a colour. */
+    var taken = {};
+    Object.keys(picked).forEach(function (key) { taken[key] = true; });
+    var moved = [];
+    members.forEach(function (m) {
+      if (m.colour !== undefined) return;
+      var twin = SLOT_ORDER[m.slot];
+      if (taken[twin]) { moved.push(m); return; }
+      taken[twin] = true;
+    });
+    moved.forEach(function (m) {
+      for (var i = 0; i < SLOT_ORDER.length; i += 1) {
+        var c = SLOT_ORDER[i];
+        if (!taken[c]) { taken[c] = true; m.colour = c; return; }
+      }
+    });
     var theme = typeof source.theme === "string" && THEMES.indexOf(source.theme) >= 0 ? source.theme : "cozy-cabin";
+    /* THE STUDY TEAM INVITE (2026-10-02): a shared calendar IS its Study
+       Team, and its link offers "Join". Only the team code's exact shape
+       (the app's CODE_PATTERN) is ever put into the link. */
+    var code = typeof source.teamCode === "string" ? source.teamCode.trim().toUpperCase() : "";
+    var hasTeam = /^[A-HJ-NP-Z2-9]{8}$/.test(code);
     return {
       name: text(source.name, 40) || "A group calendar",
       theme: theme,
       span: source.span === "month" ? "month" : "week",
-      members: members
+      members: members,
+      teamCode: hasTeam ? code : "",
+      teamName: hasTeam ? (text(source.teamName, 32) || text(source.name, 32)) : ""
     };
   }
 
@@ -161,8 +215,15 @@
     return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
   }
 
+  /* The app's inkFor: dark or white, whichever reads better; pure black if
+     neither clears 4.5:1 and black does better (never needed by the twenty
+     colours here -- tests/group-page.test.js measures them -- but kept so the
+     page and the app can never disagree). */
   function inkFor(fill) {
-    return contrast(fill, INK_DARK) >= contrast(fill, INK_LIGHT) ? INK_DARK : INK_LIGHT;
+    var dark = contrast(fill, INK_DARK);
+    var light = contrast(fill, INK_LIGHT);
+    if (Math.max(dark, light) < 4.5 && contrast(fill, "#000000") > Math.max(dark, light)) return "#000000";
+    return dark >= light ? INK_DARK : INK_LIGHT;
   }
 
   /* "light" when the panel ink is dark (a light theme). */
@@ -173,7 +234,23 @@
 
   function personColour(slot, tone) {
     var set = PERSON_COLOURS[tone === "light" ? "light" : "dark"];
-    return set[Math.max(0, Math.min(3, Number(slot) || 0))];
+    return set[Math.max(0, Math.min(set.length - 1, Number(slot) || 0))];
+  }
+
+  /* A member's fill: the colour they picked (or were moved to), else their
+     slot's. Only ever an index into one of the two tables above. */
+  function memberFill(member, tone) {
+    var own = member ? member.colour : undefined;
+    if (Number.isInteger(own) && own >= 0 && own < MEMBER_COLOURS.dark.length) return MEMBER_COLOURS[tone === "light" ? "light" : "dark"][own];
+    return personColour(member ? member.slot : 0, tone);
+  }
+
+  /* Every member's fill by slot, for one render. Items and list rows carry
+     only the slot, so they are painted through this. */
+  function paletteFor(group, tone) {
+    var fills = {};
+    group.members.forEach(function (member) { fills[member.slot] = memberFill(member, tone); });
+    return fills;
   }
 
   /* ── time ───────────────────────────────────────────────────────────── */
@@ -357,8 +434,8 @@
     }
   }
 
-  function paint(node, slot, tone) {
-    var fill = personColour(slot, tone);
+  function paint(node, slot, palette) {
+    var fill = palette[slot] || personColour(slot, "dark");
     node.style.setProperty("--gp-person", fill);
     node.style.setProperty("--gp-ink", inkFor(fill));
   }
@@ -368,7 +445,7 @@
     return m ? m[0].toUpperCase() : "?";
   }
 
-  function drawKey(group, tone) {
+  function drawKey(group, palette) {
     var key = make("div", "gp-key");
     key.setAttribute("role", "list");
     key.setAttribute("aria-label", "Who is which colour");
@@ -377,7 +454,7 @@
       chip.setAttribute("role", "listitem");
       var swatch = make("span", "gp-key-swatch");
       swatch.setAttribute("aria-hidden", "true");
-      paint(swatch, member.slot, tone);
+      paint(swatch, member.slot, palette);
       chip.append(swatch, make("span", "gp-key-name", member.name));
       key.append(chip);
     });
@@ -386,7 +463,7 @@
     return key;
   }
 
-  function drawWeek(group, nowMs, tone, locale) {
+  function drawWeek(group, nowMs, palette, locale) {
     var week = weekLayout(group.members, nowMs);
     var wrap = make("div", "gp-week-wrap");
     var grid = make("div", "gp-week");
@@ -423,7 +500,7 @@
         var tall = Math.max(16, ((Math.min(item.endMin, week.endMin) - Math.max(item.startMin, week.startMin)) / 60) * HOUR_PX - 2);
         var block = make("div", "gp-block");
         block.dataset.kind = item.k;
-        paint(block, item.slot, tone);
+        paint(block, item.slot, palette);
         block.style.left = "calc(" + left + "% + 1px)";
         block.style.width = "calc(" + width + "% - 2px)";
         block.style.top = top + 1 + "px";
@@ -449,7 +526,7 @@
 
   /* The same week (or month) as a list, one day under the other: what a
      phone shows instead of the grid. */
-  function drawList(days, tone, locale, emptyWords) {
+  function drawList(days, palette, locale, emptyWords) {
     var list = make("div", "gp-list");
     var any = false;
     days.forEach(function (day) {
@@ -460,7 +537,7 @@
       day.entries.forEach(function (entry) {
         var row = make("div", "gp-list-row");
         row.dataset.kind = entry.k;
-        paint(row, entry.slot, tone);
+        paint(row, entry.slot, palette);
         var swatch = make("span", "gp-list-swatch");
         swatch.setAttribute("aria-hidden", "true");
         var words = make("span", "gp-list-words");
@@ -491,7 +568,7 @@
     return out;
   }
 
-  function drawMonth(group, nowMs, tone, locale) {
+  function drawMonth(group, nowMs, palette, locale) {
     var month = monthLayout(group.members, nowMs);
     var wrap = make("div", "gp-month");
     var head = make("div", "gp-month-head");
@@ -507,12 +584,26 @@
         day.entries.slice(0, 3).forEach(function (entry) {
           var line = make("span", "gp-month-entry");
           line.dataset.kind = entry.k;
-          paint(line, entry.slot, tone);
+          paint(line, entry.slot, palette);
           line.title = entry.name + ": " + entry.t + ", " + range(entry.startMin, entry.endMin, locale);
           line.append(make("span", "gp-month-dot"), make("span", "gp-month-text", clock(entry.startMin, locale).replace(/:00(?=\s|$)/, "") + " " + entry.t));
           cell.append(line);
         });
-        if (day.entries.length > 3) cell.append(make("span", "gp-month-more", "+" + (day.entries.length - 3) + " more"));
+        if (day.entries.length > 3) {
+          var more = make("span", "gp-month-more");
+          more.append(make("span", "gp-month-more-words", "+" + (day.entries.length - 3) + " more"));
+          var shown = {};
+          day.entries.slice(3).forEach(function (entry) {
+            if (shown[entry.slot]) return;
+            shown[entry.slot] = true;
+            var dot = make("span", "gp-month-more-dot");
+            dot.setAttribute("aria-hidden", "true");
+            paint(dot, entry.slot, palette);
+            more.append(dot);
+          });
+          more.title = day.entries.slice(3).map(function (entry) { return entry.name + ": " + entry.t; }).join("\n");
+          cell.append(more);
+        }
         gridNode.append(cell);
       });
     });
@@ -522,12 +613,27 @@
     return { node: wrap, count: month.count, listDays: listDays };
   }
 
+  /* "Join this Study Team": opens the app's own team preview, which decides
+     (a student already on a Study Team is told so and not offered Join). */
+  function drawJoin(group) {
+    var box = make("div", "gp-join");
+    box.append(make("p", "gp-join-words", "This calendar is the " + group.teamName + " Study Team."));
+    var actions = make("div", "gp-join-actions");
+    var go = make("a", "gp-join-go", "Join " + group.teamName + " in Makullveny");
+    go.href = "makullveny://team/" + group.teamCode + "?via=calendar";
+    var get = make("a", "gp-join-get", "Don't have the app? Get Makullveny");
+    get.href = "../#download";
+    actions.append(go, get);
+    box.append(actions);
+    return box;
+  }
+
   function render(payload, nowMs) {
     var group = shapeGroup(payload);
     document.documentElement.setAttribute("data-theme", group.theme);
     document.documentElement.setAttribute("data-bg", "on");
     document.title = group.name + " — a group calendar on Makullveny";
-    var tone = currentTone();
+    var palette = paletteFor(group, currentTone());
     var locale = (typeof navigator !== "undefined" && navigator.language) || undefined;
     var host = document.getElementById("gcGroup");
     var card = make("section", "gp-card");
@@ -540,19 +646,20 @@
       spanWords = "The next 7 days";
     }
     head.append(make("p", "gp-sub", spanWords + " · " + group.members.length + (group.members.length === 1 ? " person" : " people")));
-    card.append(head, drawKey(group, tone));
+    if (group.teamCode) head.append(drawJoin(group));
+    card.append(head, drawKey(group, palette));
     var empty = group.span === "month" ? "Nothing on this calendar this month." : "Nothing on this calendar in the next 7 days.";
     if (group.span === "month") {
-      var month = drawMonth(group, nowMs, tone, locale);
+      var month = drawMonth(group, nowMs, palette, locale);
       var mPanel = make("div", "gp-panel gp-desktop");
       mPanel.append(month.node);
-      card.append(mPanel, drawList(month.listDays, tone, locale, empty));
+      card.append(mPanel, drawList(month.listDays, palette, locale, empty));
     } else {
-      var week = drawWeek(group, nowMs, tone, locale);
+      var week = drawWeek(group, nowMs, palette, locale);
       var wPanel = make("div", "gp-panel gp-desktop");
       wPanel.append(week.node);
       if (!week.count) wPanel.append(make("p", "gp-empty", empty));
-      card.append(wPanel, drawList(weekListDays(group, nowMs), tone, locale, empty));
+      card.append(wPanel, drawList(weekListDays(group, nowMs), palette, locale, empty));
     }
     card.append(make("p", "gp-private", "Look only: nobody can change this calendar from here. Assignments are never on it."));
     host.replaceChildren(card, drawInvite());
@@ -566,7 +673,7 @@
   function drawInvite() {
     var box = make("aside", "gp-invite");
     box.append(make("h2", "gp-invite-title", "Plan your week with your friends"));
-    box.append(make("p", "gp-invite-text", "Makullveny is a free study app. Put your classes in, make a group with up to three friends, and see when you are all free."));
+    box.append(make("p", "gp-invite-text", "Makullveny is a free study app. Put your classes in, make a group with up to nine friends, and see when you are all free."));
     var actions = make("div", "gp-invite-actions");
     var get = make("a", "gp-btn gp-btn-main", "Get Makullveny");
     get.href = "../#download";
@@ -620,13 +727,18 @@
       monthLayout: monthLayout,
       itemsOnDay: itemsOnDay,
       personColour: personColour,
+      memberFill: memberFill,
+      paletteFor: paletteFor,
       inkFor: inkFor,
       contrast: contrast,
       toneFor: toneFor,
       stateForStatus: stateForStatus,
       ALLOWED_API_ORIGINS: ALLOWED_API_ORIGINS,
       THEMES: THEMES,
-      PERSON_COLOURS: PERSON_COLOURS
+      PERSON_COLOURS: PERSON_COLOURS,
+      SLOT_ORDER: SLOT_ORDER,
+      MAX_MEMBERS: MAX_MEMBERS,
+      MEMBER_COLOURS: MEMBER_COLOURS
     };
   }
 

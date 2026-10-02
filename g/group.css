@@ -6,7 +6,8 @@
   bar, the loading card, the footer. This file is only the calendar card and
   the "get the app" card. Every colour is a theme token, except a person's
   colour, which group.js sets as --gp-person / --gp-ink from its own
-  palette by slot (never a colour from the network).
+  palette by the colour number the member picked, else by slot (never a
+  colour from the network -- only ever an index into its own tables).
 
   Wide screens get the week grid (one lane per person per day, like the app)
   or the month grid; a phone gets the same days as a list.
@@ -166,6 +167,23 @@
 .gp-block-title { font-size: 12px; font-weight: 800; }
 .gp-block-time { font-size: 11px; font-weight: 650; opacity: 0.92; }
 
+/* NARROW LANES (ten seats, 2026-10-02). Up to ten people can overlap in one
+   day's column, so a block can be 25-50px wide. Each block is its own
+   container and reads its OWN width: under ~64px the initial sits ABOVE the
+   title (so the title gets the whole width, not 1 letter beside the dot) and
+   the time goes (it is in the tooltip and the label); under ~34px only the
+   initial is left. The colour and the initial still say whose it is. */
+.gp-block { container-type: inline-size; }
+@container (max-width: 64px) {
+  .gp-block-head { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .gp-block-title { font-size: 11px; }
+  .gp-block-time { display: none; }
+}
+@container (max-width: 34px) {
+  .gp-block-head { align-items: center; width: 100%; }
+  .gp-block-title { display: none; }
+}
+
 /* ── the month ── */
 .gp-month-head,
 .gp-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
@@ -191,7 +209,11 @@
 .gp-month-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--gp-person); }
 .gp-month-entry[data-kind="event"] .gp-month-dot { background: transparent; box-shadow: inset 0 0 0 2px var(--gp-person); }
 .gp-month-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gp-month-more { color: var(--panel-muted-strong); font-size: 11px; font-weight: 700; }
+.gp-month-more { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; color: var(--panel-muted-strong); font-size: 11px; font-weight: 700; }
+/* Whose the hidden ones are: one small dot per person, so "+9 more" on a
+   ten-person day still says who. */
+.gp-month-more-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gp-person); }
+.gp-month-more-dot:first-of-type { margin-left: 3px; }
 
 /* ── the list (phones) ── */
 .gp-list { display: none; gap: 14px; }
@@ -247,3 +269,28 @@
   .gp-card { padding: 18px 16px 14px; }
   .gp-key-note { flex-basis: 100%; margin-left: 0; }
 }
+
+/* THE STUDY TEAM INVITE (2026-10-02): under the calendar's name. */
+.gp-join {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.gp-join-words { margin: 0; font-weight: 700; }
+.gp-join-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.gp-join-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-weight: 800;
+  text-decoration: none;
+}
+.gp-join-get { color: inherit; font-size: 0.9rem; }
