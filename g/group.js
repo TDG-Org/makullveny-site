@@ -10,8 +10,8 @@
   WHAT IS ON IT, AND WHAT NEVER IS. The server function (mak-share's "group"
   action -> mak_group_link_read, service_role only) sends the group's name and
   theme KEY, the span, and per JOINED member a DISPLAY NAME, a colour slot
-  (0-3), the colour they PICKED in the app if they did (`color`, a whole
-  number 0-7) and their items {t, s, e, k, c?} around now. Never an account id, a
+  (0-9), the colour they PICKED in the app if they did (`color`, a whole
+  number 0-9) and their items {t, s, e, k, c?} around now. Never an account id, a
   username, an email, a room or an assignment -- the app never publishes an
   assignment, the database drops a room from a public read, and the function
   forwards named fields only. This page re-checks every field again
@@ -75,34 +75,33 @@
     "aurora-glasshouse", "crimson-atelier", "ink-and-ivory"
   ];
 
-  /* THE FOUR PERSON COLOURS, by slot -- the app's own measured pair
-     (src/groupCalendarModel.js PERSON_COLOURS): the dark set on a dark panel,
-     the light set on a light one. Orange, teal, violet, rose. */
-  var PERSON_COLOURS = {
-    dark: ["#e8995a", "#4fb8a8", "#a791ec", "#ec8aa0"],
-    light: ["#b35f1d", "#1f7f73", "#6a4fc0", "#b4445e"]
-  };
-  /* THE EIGHT COLOURS A MEMBER CAN PICK, by the number the app stores
-     (mak_group_calendar_members.color 0..7, src/groupCalendarModel.js
-     MEMBER_COLOURS: red, orange, gold, green, teal, blue, violet, pink).
-     These are the app's memberColour(index, tone) output, copied: one
-     lightness per tone, so with the ink below every one reads >= 5:1. The
-     ORDER is the server's, so it never changes. */
+  /* THE TEN COLOURS A MEMBER CAN PICK, by the number the app stores
+     (mak_group_calendar_members.color 0..9): red, orange, gold, green, teal,
+     blue, violet, pink, stone, brown. GENERATED, not hand-picked: printed by
+     a node script that require()s the app's own model
+     (Makullveny/src/groupCalendarModel.js, memberColour(index, "dark" |
+     "light") -- MEMBER_COLOURS at MEMBER_TONE, stone at chroma 0, brown at
+     its own darker tones), then pasted here. The ORDER is the server's, so it
+     never changes; regenerate from the app if the app's tones ever move. */
   var MEMBER_COLOURS = {
-    dark: ["#fd968f", "#f0a556", "#cbb94c", "#80cd82", "#21d1ca", "#71bfff", "#b6aaff", "#ee95d1"],
-    light: ["#ab413e", "#955905", "#776a0a", "#267d30", "#007974", "#036eae", "#6a57b3", "#9b4382"]
+    dark: ["#fd968f", "#f0a556", "#cbb94c", "#80cd82", "#21d1ca", "#71bfff", "#b6aaff", "#ee95d1", "#b7b7b7", "#c39b81"],
+    light: ["#ab413e", "#955905", "#776a0a", "#267d30", "#007974", "#036eae", "#6a57b3", "#9b4382", "#696969", "#613f27"]
   };
-  /* The picked colour each SLOT colour looks like (orange, teal, violet,
-     rose): someone who has not picked, whose slot colour someone else DID
-     pick, is moved to a free one instead of wearing a near-twin. */
-  var SLOT_TWIN = [1, 4, 6, 7];
-  /* Where a moved person goes: first the colours no slot looks like (green,
-     blue, gold), red last because it sits next to rose. */
-  var SPARE_ORDER = [3, 5, 2, 0, 1, 4, 6, 7];
+  /* THE TEN SLOT COLOURS: the fallback for someone who has not picked, by the
+     colour SLOT the server hands out (colorIndex 0..9). Not a second palette:
+     slot s IS member colour SLOT_ORDER[s] (the app's SLOT_ORDER -- orange,
+     teal, violet, pink first, the four hues the old four-seat page had), so
+     PERSON_COLOURS below is the app's personColour(slot, tone), the same
+     generated values in slot order. */
+  var SLOT_ORDER = [1, 4, 6, 7, 3, 5, 2, 0, 9, 8];
+  var PERSON_COLOURS = {
+    dark: SLOT_ORDER.map(function (index) { return MEMBER_COLOURS.dark[index]; }),
+    light: SLOT_ORDER.map(function (index) { return MEMBER_COLOURS.light[index]; })
+  };
   var INK_DARK = "#1b1426";
   var INK_LIGHT = "#ffffff";
 
-  var MAX_MEMBERS = 4;
+  var MAX_MEMBERS = 10;
   var MAX_ITEMS = 600;
   var MINUTE = 60000;
 
@@ -139,28 +138,36 @@
       var raw = list[i];
       if (!raw || typeof raw !== "object") continue;
       var slot = Number(raw.colorIndex);
-      if (!Number.isInteger(slot) || slot < 0 || slot > 3 || seen[slot]) continue;
+      if (!Number.isInteger(slot) || slot < 0 || slot >= MAX_MEMBERS || seen[slot]) continue;
       seen[slot] = true;
       var member = { name: text(raw.name, 60) || "Friend", slot: slot, items: shapeItems(raw.items) };
-      /* The picked colour: a whole NUMBER 0-7 that nobody before them wears.
+      /* The picked colour: a whole NUMBER 0-9 that nobody before them wears.
          A string, a hex, a fraction or anything else is ignored. */
       var own = raw.color;
-      if (typeof own === "number" && Number.isInteger(own) && own >= 0 && own < 8 && !picked[own]) {
+      if (typeof own === "number" && Number.isInteger(own) && own >= 0 && own < MEMBER_COLOURS.dark.length && !picked[own]) {
         picked[own] = true;
         member.colour = own;
       }
       members.push(member);
     }
     members.sort(function (a, b) { return a.slot - b.slot; });
-    /* Someone who has not picked keeps their slot colour -- unless someone
-       else picked its twin; then they take the first free SPARE_ORDER colour. */
+    /* Someone who has not picked keeps their slot colour -- unless a member
+       PICKED that colour (or, failing that, an earlier member already took
+       it); then they take the first slot colour, in slot order, that nobody
+       wears yet. Ten colours, at most ten people: there is always one free,
+       and nobody on the page ever shares a colour. */
     var taken = {};
     Object.keys(picked).forEach(function (key) { taken[key] = true; });
-    members.forEach(function (m) { if (m.colour === undefined && !picked[SLOT_TWIN[m.slot]]) taken[SLOT_TWIN[m.slot]] = true; });
+    var moved = [];
     members.forEach(function (m) {
-      if (m.colour !== undefined || !picked[SLOT_TWIN[m.slot]]) return;
-      for (var i = 0; i < SPARE_ORDER.length; i += 1) {
-        var c = SPARE_ORDER[i];
+      if (m.colour !== undefined) return;
+      var twin = SLOT_ORDER[m.slot];
+      if (taken[twin]) { moved.push(m); return; }
+      taken[twin] = true;
+    });
+    moved.forEach(function (m) {
+      for (var i = 0; i < SLOT_ORDER.length; i += 1) {
+        var c = SLOT_ORDER[i];
         if (!taken[c]) { taken[c] = true; m.colour = c; return; }
       }
     });
@@ -201,8 +208,15 @@
     return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
   }
 
+  /* The app's inkFor: dark or white, whichever reads better; pure black if
+     neither clears 4.5:1 and black does better (never needed by the twenty
+     colours here -- tests/group-page.test.js measures them -- but kept so the
+     page and the app can never disagree). */
   function inkFor(fill) {
-    return contrast(fill, INK_DARK) >= contrast(fill, INK_LIGHT) ? INK_DARK : INK_LIGHT;
+    var dark = contrast(fill, INK_DARK);
+    var light = contrast(fill, INK_LIGHT);
+    if (Math.max(dark, light) < 4.5 && contrast(fill, "#000000") > Math.max(dark, light)) return "#000000";
+    return dark >= light ? INK_DARK : INK_LIGHT;
   }
 
   /* "light" when the panel ink is dark (a light theme). */
@@ -213,14 +227,14 @@
 
   function personColour(slot, tone) {
     var set = PERSON_COLOURS[tone === "light" ? "light" : "dark"];
-    return set[Math.max(0, Math.min(3, Number(slot) || 0))];
+    return set[Math.max(0, Math.min(set.length - 1, Number(slot) || 0))];
   }
 
   /* A member's fill: the colour they picked (or were moved to), else their
      slot's. Only ever an index into one of the two tables above. */
   function memberFill(member, tone) {
     var own = member ? member.colour : undefined;
-    if (Number.isInteger(own) && own >= 0 && own < 8) return MEMBER_COLOURS[tone === "light" ? "light" : "dark"][own];
+    if (Number.isInteger(own) && own >= 0 && own < MEMBER_COLOURS.dark.length) return MEMBER_COLOURS[tone === "light" ? "light" : "dark"][own];
     return personColour(member ? member.slot : 0, tone);
   }
 
@@ -568,7 +582,21 @@
           line.append(make("span", "gp-month-dot"), make("span", "gp-month-text", clock(entry.startMin, locale).replace(/:00(?=\s|$)/, "") + " " + entry.t));
           cell.append(line);
         });
-        if (day.entries.length > 3) cell.append(make("span", "gp-month-more", "+" + (day.entries.length - 3) + " more"));
+        if (day.entries.length > 3) {
+          var more = make("span", "gp-month-more");
+          more.append(make("span", "gp-month-more-words", "+" + (day.entries.length - 3) + " more"));
+          var shown = {};
+          day.entries.slice(3).forEach(function (entry) {
+            if (shown[entry.slot]) return;
+            shown[entry.slot] = true;
+            var dot = make("span", "gp-month-more-dot");
+            dot.setAttribute("aria-hidden", "true");
+            paint(dot, entry.slot, palette);
+            more.append(dot);
+          });
+          more.title = day.entries.slice(3).map(function (entry) { return entry.name + ": " + entry.t; }).join("\n");
+          cell.append(more);
+        }
         gridNode.append(cell);
       });
     });
@@ -622,7 +650,7 @@
   function drawInvite() {
     var box = make("aside", "gp-invite");
     box.append(make("h2", "gp-invite-title", "Plan your week with your friends"));
-    box.append(make("p", "gp-invite-text", "Makullveny is a free study app. Put your classes in, make a group with up to three friends, and see when you are all free."));
+    box.append(make("p", "gp-invite-text", "Makullveny is a free study app. Put your classes in, make a group with up to nine friends, and see when you are all free."));
     var actions = make("div", "gp-invite-actions");
     var get = make("a", "gp-btn gp-btn-main", "Get Makullveny");
     get.href = "../#download";
@@ -685,6 +713,8 @@
       ALLOWED_API_ORIGINS: ALLOWED_API_ORIGINS,
       THEMES: THEMES,
       PERSON_COLOURS: PERSON_COLOURS,
+      SLOT_ORDER: SLOT_ORDER,
+      MAX_MEMBERS: MAX_MEMBERS,
       MEMBER_COLOURS: MEMBER_COLOURS
     };
   }

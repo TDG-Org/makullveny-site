@@ -167,6 +167,23 @@
 .gp-block-title { font-size: 12px; font-weight: 800; }
 .gp-block-time { font-size: 11px; font-weight: 650; opacity: 0.92; }
 
+/* NARROW LANES (ten seats, 2026-10-02). Up to ten people can overlap in one
+   day's column, so a block can be 25-50px wide. Each block is its own
+   container and reads its OWN width: under ~64px the initial sits ABOVE the
+   title (so the title gets the whole width, not 1 letter beside the dot) and
+   the time goes (it is in the tooltip and the label); under ~34px only the
+   initial is left. The colour and the initial still say whose it is. */
+.gp-block { container-type: inline-size; }
+@container (max-width: 64px) {
+  .gp-block-head { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .gp-block-title { font-size: 11px; }
+  .gp-block-time { display: none; }
+}
+@container (max-width: 34px) {
+  .gp-block-head { align-items: center; width: 100%; }
+  .gp-block-title { display: none; }
+}
+
 /* ── the month ── */
 .gp-month-head,
 .gp-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
@@ -192,7 +209,11 @@
 .gp-month-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--gp-person); }
 .gp-month-entry[data-kind="event"] .gp-month-dot { background: transparent; box-shadow: inset 0 0 0 2px var(--gp-person); }
 .gp-month-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gp-month-more { color: var(--panel-muted-strong); font-size: 11px; font-weight: 700; }
+.gp-month-more { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; color: var(--panel-muted-strong); font-size: 11px; font-weight: 700; }
+/* Whose the hidden ones are: one small dot per person, so "+9 more" on a
+   ten-person day still says who. */
+.gp-month-more-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gp-person); }
+.gp-month-more-dot:first-of-type { margin-left: 3px; }
 
 /* ── the list (phones) ── */
 .gp-list { display: none; gap: 14px; }
