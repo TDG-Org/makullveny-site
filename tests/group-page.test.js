@@ -73,7 +73,20 @@ test("shapeGroup keeps only what the page draws: never an id, a username, a room
     members: [
       { name: "Friend", slot: 0, items: [{ t: "Movie", s: 10, e: 70, k: "event" }] },
       { name: "Maya Reyes", slot: 1, items: [{ t: "BIO 110", s: 100, e: 150, k: "class" }] }
-    ]
+    ],
+    teamCode: "",
+    teamName: ""
+  });
+});
+
+test("the Study Team invite: only the exact code shape, and the link the app opens", function () {
+  var ok = G.shapeGroup({ name: "TDG", members: [], teamCode: "abcd2345", teamName: "TDG" });
+  assert.equal(ok.teamCode, "ABCD2345");
+  assert.equal(ok.teamName, "TDG");
+  ["ABCD234", "ABCD23456", "ABCI2345", "AB\"CD234", "javascript:x", 12345678, null].forEach(function (bad) {
+    var shaped = G.shapeGroup({ name: "TDG", members: [], teamCode: bad, teamName: "TDG" });
+    assert.equal(shaped.teamCode, "", String(bad));
+    assert.equal(shaped.teamName, "", String(bad));
   });
 });
 

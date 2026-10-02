@@ -269,3 +269,28 @@
   .gp-card { padding: 18px 16px 14px; }
   .gp-key-note { flex-basis: 100%; margin-left: 0; }
 }
+
+/* THE STUDY TEAM INVITE (2026-10-02): under the calendar's name. */
+.gp-join {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.gp-join-words { margin: 0; font-weight: 700; }
+.gp-join-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.gp-join-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-weight: 800;
+  text-decoration: none;
+}
+.gp-join-get { color: inherit; font-size: 0.9rem; }

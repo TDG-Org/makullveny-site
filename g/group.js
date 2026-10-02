@@ -172,11 +172,18 @@
       }
     });
     var theme = typeof source.theme === "string" && THEMES.indexOf(source.theme) >= 0 ? source.theme : "cozy-cabin";
+    /* THE STUDY TEAM INVITE (2026-10-02): a shared calendar IS its Study
+       Team, and its link offers "Join". Only the team code's exact shape
+       (the app's CODE_PATTERN) is ever put into the link. */
+    var code = typeof source.teamCode === "string" ? source.teamCode.trim().toUpperCase() : "";
+    var hasTeam = /^[A-HJ-NP-Z2-9]{8}$/.test(code);
     return {
       name: text(source.name, 40) || "A group calendar",
       theme: theme,
       span: source.span === "month" ? "month" : "week",
-      members: members
+      members: members,
+      teamCode: hasTeam ? code : "",
+      teamName: hasTeam ? (text(source.teamName, 32) || text(source.name, 32)) : ""
     };
   }
 
@@ -606,6 +613,21 @@
     return { node: wrap, count: month.count, listDays: listDays };
   }
 
+  /* "Join this Study Team": opens the app's own team preview, which decides
+     (a student already on a Study Team is told so and not offered Join). */
+  function drawJoin(group) {
+    var box = make("div", "gp-join");
+    box.append(make("p", "gp-join-words", "This calendar is the " + group.teamName + " Study Team."));
+    var actions = make("div", "gp-join-actions");
+    var go = make("a", "gp-join-go", "Join " + group.teamName + " in Makullveny");
+    go.href = "makullveny://team/" + group.teamCode + "?via=calendar";
+    var get = make("a", "gp-join-get", "Don't have the app? Get Makullveny");
+    get.href = "../#download";
+    actions.append(go, get);
+    box.append(actions);
+    return box;
+  }
+
   function render(payload, nowMs) {
     var group = shapeGroup(payload);
     document.documentElement.setAttribute("data-theme", group.theme);
@@ -624,6 +646,7 @@
       spanWords = "The next 7 days";
     }
     head.append(make("p", "gp-sub", spanWords + " · " + group.members.length + (group.members.length === 1 ? " person" : " people")));
+    if (group.teamCode) head.append(drawJoin(group));
     card.append(head, drawKey(group, palette));
     var empty = group.span === "month" ? "Nothing on this calendar this month." : "Nothing on this calendar in the next 7 days.";
     if (group.span === "month") {
