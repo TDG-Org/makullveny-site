@@ -510,12 +510,53 @@
 
   function el(id) { return document.getElementById(id); }
 
+  /*
+    ONE CALM CARD FOR EVERY STATE THAT IS NOT A READING -- opening, gone,
+    paused, unreachable. The words are still the only thing that changes per
+    state (stateForStatus() owns them); the tone picks the picture.
+
+    A "retry" state gets a Try again button, because every one of those
+    sentences ends in "try again" and the reader should not have to know that
+    means the reload button. Reloading is safe: captureToken() kept the token
+    in this tab, which is exactly what a reload needs.
+  */
   function setState(message, tone) {
     var node = el("readerState");
     if (!node) return;
     node.textContent = message;
     node.hidden = !message;
     node.className = "reader-state" + (tone ? " reader-state-" + tone : "");
+    /* The card around the sentence. Optional, so a page (or a test) that has
+       only the sentence still works exactly as before. */
+    var box = el("readerStateBox");
+    if (box) {
+      box.hidden = !message;
+      box.className = "reader-state-box" + (tone ? " reader-state-box-" + tone : "");
+      box.setAttribute("aria-busy", tone === "loading" ? "true" : "false");
+    }
+    var actions = el("readerStateActions");
+    if (!actions) return;
+    actions.textContent = "";
+    actions.hidden = true;
+    if (!message) return;
+    if (tone === "retry") {
+      var again = document.createElement("button");
+      again.type = "button";
+      again.className = "reader-state-action";
+      again.textContent = "Try again";
+      again.addEventListener("click", function () { window.location.reload(); });
+      actions.appendChild(again);
+      actions.hidden = false;
+    } else if (tone === "refused") {
+      /* A reading that is not there has no "again". It gets a way somewhere
+         instead of a dead end. */
+      var away = document.createElement("a");
+      away.className = "reader-state-action";
+      away.href = "../";
+      away.textContent = "Visit Makullveny";
+      actions.appendChild(away);
+      actions.hidden = false;
+    }
   }
 
   /*
@@ -721,7 +762,7 @@
       setState("Shared reading is not open yet. This link will work once Makullveny's sharing service is live.");
       return;
     }
-    setState("Opening…");
+    setState("Opening…", "loading");
 
     var request = new XMLHttpRequest();
     request.open("POST", CONFIG.apiUrl, true);

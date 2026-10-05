@@ -1437,6 +1437,127 @@
 .pbs-dialog-status[data-tone="bad"] { color: #f0a48c; }
 .pbs-dialog-status[data-tone="good"] { color: #a8cf9e; }
 
+/* ── READING IT: what a reader presses, and what a screen reader hears ────── */
+
+/* Read aloud, never drawn. The usual clip, so it keeps its place in the
+   accessibility tree (display:none would take it out of it). */
+.pbs-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* THE LETTER AND THE ANIMAL SHARE ONE CELL. .pbs-avatar is a grid, and with
+   two children and no placement the image fell into a second row under the
+   letter -- a half-drawn duck below an "N". Once the art loads the letter
+   steps aside (the scene adds .pbs-avatar-has-art), because the animals are
+   drawn on transparency and the letter showed through them. */
+.pbs-avatar > * { grid-area: 1 / 1; }
+.pbs-avatar-has-art .pbs-avatar-letter { visibility: hidden; }
+
+/* A FINGER CAN SCROLL THE PAGE PAST THE BOOK. `touch-action: none` on the
+   whole stage meant a phone reader whose thumb landed on the desk could not
+   scroll back up to the title -- the stage swallowed every gesture. While the
+   book fits the screen the browser keeps vertical panning; sideways is the
+   scene's (a page turn), and so is a pinch. Zoomed in, the scene takes
+   everything back so the reader can move around the page. */
+.pbs-stage.pbs-stage-fit { touch-action: pan-y; }
+
+/* THE EDGES THAT TURN. A tap or click on the right page goes forward and on
+   the left page goes back (one page on screen: the inner third goes back), so
+   those halves say so -- a pointer cursor, and a corner of the paper lifting a
+   little, stronger under the pointer. Only on a half that WILL turn: the
+   scene sets .pbs-can-prev / .pbs-can-next from the same test the arrow
+   buttons use. */
+.pbs-can-next .pbs-half-right,
+.pbs-can-prev .pbs-half-left { cursor: pointer; }
+.pbs-stage.pbs-dragging .pbs-half { cursor: grabbing; }
+
+.pbs-half::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateZ(1px);
+  transition: opacity 220ms ease;
+}
+
+.pbs-half-right::after {
+  right: 0;
+  border-radius: 0 0 3px 0;
+  background: linear-gradient(315deg, transparent 0 48%, rgba(120, 88, 52, 0.28) 49%, #e6d3b0 52%, #f6ead3 100%);
+}
+
+.pbs-half-left::after {
+  left: 0;
+  border-radius: 0 0 0 3px;
+  background: linear-gradient(45deg, transparent 0 48%, rgba(120, 88, 52, 0.28) 49%, #e6d3b0 52%, #f6ead3 100%);
+}
+
+.pbs-can-next .pbs-half-right::after,
+.pbs-can-prev .pbs-half-left::after { opacity: 0.6; }
+
+.pbs-can-next .pbs-half-right:hover::after,
+.pbs-can-prev .pbs-half-left:hover::after { opacity: 1; }
+
+/* A one-page view turns BACK from its inner edge, so the lifted corner there
+   is the left one of the same half. Drawn only when there is a page behind. */
+.pbs-open-single .pbs-half-right::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateZ(1px);
+  border-radius: 0 0 0 3px;
+  background: linear-gradient(45deg, transparent 0 48%, rgba(120, 88, 52, 0.28) 49%, #e6d3b0 52%, #f6ead3 100%);
+  transition: opacity 220ms ease;
+}
+
+.pbs-can-prev .pbs-open-single .pbs-half-right::before { opacity: 0.6; }
+
+/* An EMPTY BOOK says so, on the page it opens to. */
+.pbs-page-empty {
+  display: grid;
+  place-items: center;
+  min-height: 300px;
+  padding: 0 18px;
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.5;
+  color: rgba(45, 34, 24, 0.72);
+}
+
+.pbs-page-body a:focus-visible {
+  outline: 2px solid var(--pbs-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.pbs-reset-icon { font-size: 15px; line-height: 1; }
+
+/* A FINGER IS NOT A CURSOR. 32px is a fine target for a mouse and a small one
+   for a thumb; the HUD grows to 40 wherever the main pointer is coarse. */
+@media (pointer: coarse) {
+  .pbs-hud .pbs-btn { min-height: 40px; min-width: 40px; }
+}
+
+/* The printed copy is invisible on screen; see @media print at the end. */
+.pbs-print { display: none; }
+
 /* ── NARROW WINDOWS ───────────────────────────────────────────────────────
    The scene never becomes a different design on a phone -- it is the same
    desk, further away. Only the marquee restacks, because two columns of prose
@@ -1474,6 +1595,9 @@
     max-width: calc(100% - 32px);
     text-align: center;
   }
+  /* ...and only when there IS a badge. On a real published page there is
+     none, and the hint sat 50px down over the top of the book for nothing. */
+  .pbs-badge[hidden] + .pbs-hint { top: 12px; }
 }
 
 /* A WRAPPED HUD ORPHANS ITS DIVIDERS: below ~460px the buttons fall onto
@@ -1481,6 +1605,14 @@
    gap already separates them. */
 @media (max-width: 520px) {
   .pbs-hud-sep { display: none; }
+  /* ONE ROW ON A PHONE. The zoom trio and the words "Reset view" were what
+     wrapped the HUD onto a second row over the foot of the page. A finger
+     pinches (the hint says so), the keys still zoom, and Reset keeps its
+     icon and its accessible name. */
+  .pbs-hud .pbs-hud-zoom,
+  .pbs-reset .pbs-reset-text { display: none; }
+  .pbs-hud { gap: 4px; }
+  .pbs-indicator { min-width: 56px; }
 }
 
 /* ── REDUCED MOTION ───────────────────────────────────────────────────────
@@ -1493,4 +1625,43 @@
 @media (prefers-reduced-motion: reduce) {
   .pbs-lightpool, .pbs-candle-flame, .pbs-candle-halo { animation: none !important; }
   .pbs-hint { transition: none !important; }
+  .pbs-half::after, .pbs-half::before { transition: none; }
+}
+
+/* ── PRINT ────────────────────────────────────────────────────────────────
+   The book, not the desk. The scene fills .pbs-print with every page, flat
+   and in order, on `beforeprint` (publicBookScene.js buildPrintCopy) and
+   empties it afterwards; here everything else in the scene steps aside and
+   the ink goes black on white, so a reader printing from a dark room does not
+   print a dark rectangle. */
+
+@media print {
+  .pbs-root {
+    display: block;
+    height: auto !important;
+    overflow: visible;
+    background: #ffffff;
+    color: #000000;
+  }
+  .pbs-root > :not(.pbs-print) { display: none !important; }
+  .pbs-print { display: block; color: #000000; font-size: 11.5pt; line-height: 1.55; }
+  .pbs-print-title { margin: 0 0 4pt; font-size: 20pt; }
+  .pbs-print-byline { margin: 0 0 18pt; color: #444444; font-style: italic; }
+  .pbs-print-page { break-after: page; padding-top: 6pt; }
+  .pbs-print-page:last-child { break-after: auto; }
+  .pbs-print-label {
+    margin: 0 0 8pt;
+    padding-bottom: 4pt;
+    border-bottom: 1px solid #bbbbbb;
+    font-family: "Manrope", ui-sans-serif, system-ui, sans-serif;
+    font-size: 8pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #555555;
+  }
+  .pbs-print .pbs-page-body,
+  .pbs-print .pbs-page-body blockquote { color: #000000; }
+  .pbs-print .pbs-page-body a { color: #000000; }
+  .pbs-print .pbs-page-blank { display: block; height: auto; color: #777777; }
+  .pbs-print-number { margin: 10pt 0 0; text-align: center; font-size: 8pt; color: #777777; }
 }

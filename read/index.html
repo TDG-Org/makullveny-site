@@ -64,7 +64,13 @@
     </header>
 
     <main id="readerMain" class="reader-main">
-      <p id="readerState" class="reader-state" role="status" aria-live="polite">Opening&#8230;</p>
+      <!-- THE STATE CARD: one sentence (#readerState, the live region, and ONLY
+           the sentence) and, for some states, one way forward beside it -- a
+           Try again, or a way home. read.js setState() owns all three nodes. -->
+      <div id="readerStateBox" class="reader-state-box reader-state-box-loading">
+        <p id="readerState" class="reader-state" role="status" aria-live="polite">Opening&#8230;</p>
+        <div id="readerStateActions" class="reader-state-actions" hidden></div>
+      </div>
 
       <article id="readerArticle" class="reader-article" hidden>
         <p id="readerPreviewBadge" class="reader-preview-badge" hidden>Preview &mdash; not published</p>

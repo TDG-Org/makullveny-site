@@ -81,3 +81,45 @@
   min-height: 0;
   height: 100%;
 }
+
+/* ── ON A PHONE, THE DESK GETS ITS OWN HEIGHT ─────────────────────────────
+   Below 720px the scene's marquee (title, description, author, the social
+   row) restacks into a column ~290px tall, and it lives INSIDE the box above.
+   So min(78vh, 900px) was shared between the two and the desk got what was
+   left: measured at 375x812, a 340px stage with the book at 47% and the HUD
+   covering its lower quarter.
+
+   Here the box grows to fit its content instead, and the STAGE is given the
+   height -- most of a phone screen, but never all of it, so there is always
+   page above or below it for a thumb to scroll by. svh where the browser has
+   it, so the address bar collapsing does not resize the desk mid-read. */
+@media (max-width: 720px) {
+  #bookScene {
+    height: auto;
+    min-height: 0;
+  }
+  #bookScene > .pbs-root { height: auto; }
+  #bookScene .pbs-stage {
+    flex: 0 0 auto;
+    height: 72vh;
+    height: 72svh;
+    min-height: 400px;
+    max-height: 680px;
+  }
+  /* The reader's side gutters, given back to the desk: a book on a phone
+     wants every pixel of width it can have. */
+  .reader-main > .reader-article > #bookScene {
+    margin-left: -12px;
+    margin-right: -12px;
+  }
+}
+
+/* Printing: the scene prints its flat copy of the pages (see the copied
+   stylesheet's @media print), so the box must not hold it to a screen's
+   height. */
+@media print {
+  #bookScene {
+    height: auto;
+    min-height: 0;
+  }
+}

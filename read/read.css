@@ -112,6 +112,88 @@ body {
 .reader-state-refused { color: var(--muted); }
 .reader-state-retry { color: var(--link); }
 
+/*
+  THE STATE CARD. Every sentence that is not a reading -- opening, gone,
+  paused, unreachable -- sits on one calm card with a small closed book drawn
+  above it, so a reader who meets one of them sees a page that MEANT to say
+  this rather than a page that broke. Drawn in CSS: no image to fail to load
+  on the one screen that exists because something else did.
+
+  #readerState inside it stays the sentence and nothing else (the live region,
+  and what tests read); the way forward is #readerStateActions beside it.
+*/
+.reader-state-box[hidden],
+.reader-state-actions[hidden] { display: none; }
+
+.reader-state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: var(--measure);
+  margin: 48px auto;
+  padding: 30px 24px 28px;
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--card);
+}
+
+.reader-state-box .reader-state { margin: 0; line-height: 1.55; }
+
+.reader-state-box::before {
+  content: "";
+  width: 34px;
+  height: 44px;
+  border-radius: 3px 7px 7px 3px;
+  border-left: 5px solid var(--link);
+  background:
+    linear-gradient(90deg, transparent 0 62%, rgba(255, 255, 255, 0.16) 62% 66%, transparent 66%),
+    color-mix(in srgb, var(--link) 34%, var(--card));
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.16);
+  opacity: 0.85;
+}
+
+/* Opening: the book breathes, slowly. Nothing spins -- a spinner says
+   "machine", and this page is a desk. */
+.reader-state-box-loading::before { animation: reader-breathe 1.8s ease-in-out infinite; }
+
+@keyframes reader-breathe {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(-3px); opacity: 0.95; }
+}
+
+/* Gone or refused: the book lies quiet and faded. */
+.reader-state-box-refused::before { opacity: 0.45; filter: grayscale(0.6); }
+
+.reader-state-actions { display: flex; justify-content: center; }
+
+.reader-state-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 20px;
+  border: 1px solid var(--link);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--link);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.reader-state-action:hover { background: color-mix(in srgb, var(--link) 12%, transparent); }
+
+.reader-state-action:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reader-state-box-loading::before { animation: none; }
+}
+
 .reader-foot {
   border-top: 1px solid var(--rule);
   padding: 18px 20px 28px;

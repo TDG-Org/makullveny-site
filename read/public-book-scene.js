@@ -469,6 +469,9 @@
       els.badge.hidden = true;
       stage.appendChild(els.badge);
 
+      /* The words are written by paintHint(), because what the reader can do
+         changes with the book (open it, then turn it) and with the hand they
+         have (a mouse scrolls, a finger pinches). */
       els.hint = make("p", "pbs-hint", "Drag to move · scroll to zoom");
       stage.appendChild(els.hint);
 
@@ -556,32 +559,61 @@
       hud.appendChild(els.openBtn);
 
       els.prev = button("pbs-prev", "‹", "Previous page");
+      /* NOT a live region any more. It read "3–4 of 6" aloud, which says where
+         the reader is but not what is there; the announcement now lives in
+         els.announce, which names the page as well. Two live regions saying
+         the same thing is one sentence read twice. */
       els.indicator = make("span", "pbs-indicator");
-      els.indicator.setAttribute("aria-live", "polite");
       els.next = button("pbs-next", "›", "Next page");
       hud.appendChild(els.prev);
       hud.appendChild(els.indicator);
       hud.appendChild(els.next);
-      hud.appendChild(make("span", "pbs-hud-sep"));
+      hud.appendChild(make("span", "pbs-hud-sep pbs-hud-zoom"));
 
-      els.zoomOut = button("pbs-zoom-out", "−", "Zoom out");
+      /* The zoom trio carries .pbs-hud-zoom so a phone can drop it: a finger
+         pinches, and the three buttons were what pushed the HUD onto a second
+         row over the bottom of the page. */
+      els.zoomOut = button("pbs-zoom-out pbs-hud-zoom", "−", "Zoom out");
       /* "Fit the book to the window", NOT "Reset the zoom". It calls
          fitCamera(), which lands on whatever percentage FITS -- about 134% in a
          desktop preview, not 100% -- so the old label promised a number the
          button does not go to, sitting next to a second control also called
          reset. */
-      els.zoomLabel = button("pbs-zoom-label pbs-btn-quiet", "100%", "Fit the book to the window");
-      els.zoomIn = button("pbs-zoom-in", "+", "Zoom in");
+      els.zoomLabel = button("pbs-zoom-label pbs-btn-quiet pbs-hud-zoom", "100%", "Fit the book to the window");
+      els.zoomIn = button("pbs-zoom-in pbs-hud-zoom", "+", "Zoom in");
       hud.appendChild(els.zoomOut);
       hud.appendChild(els.zoomLabel);
       hud.appendChild(els.zoomIn);
       hud.appendChild(make("span", "pbs-hud-sep"));
 
-      els.reset = button("pbs-reset pbs-btn-quiet", "Reset view", "Put the camera back where it started");
+      /* An icon AND the words, so a phone can keep the icon alone. The
+         accessible name is the aria-label button() sets, either way. */
+      els.reset = button("pbs-reset pbs-btn-quiet", null, "Put the camera back where it started");
+      var resetIcon = make("span", "pbs-reset-icon", "⟲");
+      resetIcon.setAttribute("aria-hidden", "true");
+      els.reset.appendChild(resetIcon);
+      els.reset.appendChild(make("span", "pbs-reset-text", "Reset view"));
       hud.appendChild(els.reset);
 
       stage.appendChild(hud);
       root.appendChild(stage);
+
+      /* WHAT A SCREEN READER HEARS when the page changes under it. Visually
+         hidden, polite, and written only when a READER did something -- an
+         arrival is not news, and announcing every re-render of the app's live
+         preview would talk over the student typing. */
+      els.announce = make("p", "pbs-sr");
+      els.announce.setAttribute("role", "status");
+      els.announce.setAttribute("aria-live", "polite");
+      root.appendChild(els.announce);
+
+      /* THE PRINTED BOOK. Empty until the browser is about to print, then
+         every page laid out flat, in order -- see buildPrintCopy(). Printing a
+         3D desk gave one spread at an angle, cropped to the stage, which is
+         not a copy of anybody's book. */
+      els.print = make("div", "pbs-print");
+      els.print.setAttribute("aria-hidden", "true");
+      root.appendChild(els.print);
 
       /* -- the report dialog -------------------------------------------- */
       root.appendChild(buildReportDialog());
@@ -699,6 +731,10 @@
              typing a description. An own-property handler is collected with
              the node it is on, which is exactly the lifetime wanted. */
           img.onerror = function () { img.hidden = true; };
+          /* And once the art HAS landed, the letter steps out from under it.
+             The avatars are drawn on transparency, so a letter left there
+             showed through the animal. */
+          img.onload = function () { avatar.classList.add("pbs-avatar-has-art"); };
           avatar.appendChild(img);
         } else {
           avatar.appendChild(make("span", "pbs-avatar-letter", state.byline.slice(0, 1).toUpperCase()));
@@ -749,7 +785,14 @@
       if (!page) {
         /* Past the end of the book. Not an error and not a blank page the
            writer put there -- there simply is no leaf, so the half shows the
-           board under it. */
+           board under it.
+
+           UNLESS THE BOOK HAS NO PAGES AT ALL. Then the first page the reader
+           opens to says so, calmly, rather than showing two empty sheets that
+           look like a page that failed to load. */
+        if (!state.pages.length && pageIndex === 0 && leafFace !== true) {
+          sheet.appendChild(make("div", "pbs-page-empty", "Nothing has been written in this book yet."));
+        }
         host.appendChild(inner);
         host.appendChild(make("div", "pbs-page-gutter pbs-page-gutter-" + (side === "left" ? "right" : "left")));
         return;
@@ -904,12 +947,21 @@
 
     function paintIndicator() {
       var total = state.pages.length;
-      if (!total) { els.indicator.textContent = "No pages"; return; }
+      if (!total) {
+        els.indicator.textContent = "No pages";
+        /* Both arrows OFF. This returned before setting either, so an empty
+           book offered two live arrows that did nothing when pressed. */
+        els.prev.disabled = true;
+        els.next.disabled = true;
+        paintTurnable(false, false);
+        return;
+      }
       var last = Math.min(state.index + state.perSpread, total);
       var first = state.index + 1;
       els.indicator.textContent = (last > first ? first + "–" + last : String(first)) + " of " + total;
       els.prev.disabled = state.index <= 0 || state.animating;
       els.next.disabled = state.index + state.perSpread >= total || state.animating;
+      paintTurnable(state.open && !els.prev.disabled, state.open && !els.next.disabled);
       /* The labels follow what the button DOES. In a two-page spread these move
          the reader by two, and calling that "Previous page" beside an indicator
          reading "3-4 of 6" is the control disagreeing with the readout next to
@@ -919,6 +971,147 @@
       els.prev.setAttribute("aria-label", "Previous " + unit);
       els.next.title = "Next " + unit;
       els.next.setAttribute("aria-label", "Next " + unit);
+    }
+
+    /* WHICH EDGES OF THE OPEN BOOK CAN BE PRESSED. Two classes on the root, so
+       the stylesheet can show a page corner to lift and a pointer over a half
+       that will turn -- and show neither over a half that will not. */
+    function paintTurnable(canPrev, canNext) {
+      if (!els.root) return;
+      els.root.classList.toggle("pbs-can-prev", canPrev === true);
+      els.root.classList.toggle("pbs-can-next", canNext === true);
+    }
+
+    /* "Pages 3–4 of 6: Three things I still cannot answer". Says where the
+       reader is AND what is there, which the indicator alone never did. */
+    function placeSentence() {
+      var total = state.pages.length;
+      if (!total) return "This book has no pages yet.";
+      var first = state.index + 1;
+      var last = Math.min(state.index + state.perSpread, total);
+      var where = last > first
+        ? "Pages " + first + " and " + last + " of " + total
+        : "Page " + first + " of " + total;
+      var page = state.pages[state.index];
+      var label = page ? clampText(page.title, 120) : "";
+      return label ? where + ": " + label : where + ".";
+    }
+
+    function announce(message) {
+      if (!els.announce) return;
+      /* Cleared first, so the same sentence twice (Home pressed on page one)
+         is still a change a screen reader will speak. */
+      els.announce.textContent = "";
+      var text = String(message || "");
+      if (!text) return;
+      frame(function () { if (els.announce) els.announce.textContent = text; });
+    }
+
+    /* A JUMP, not a turn: Home and End. Flipping through forty leaves to get
+       to the end would be a show nobody asked for, so the spread is simply
+       replaced -- with the same short arrival fade the cover uses. */
+    function goTo(index) {
+      var total = state.pages.length;
+      if (!state.open || state.animating || !total) return false;
+      var target = clampNumber(index, 0, total - 1, 0);
+      if (state.perSpread === 2) target -= target % 2;
+      if (target === state.index) { announce(placeSentence()); return false; }
+      state.index = target;
+      paintSpread();
+      if (!prefersReducedMotion() && els.open) {
+        els.open.classList.remove("pbs-spread-arriving");
+        void els.open.offsetWidth;
+        els.open.classList.add("pbs-spread-arriving");
+        later(function () { if (els.open) els.open.classList.remove("pbs-spread-arriving"); }, 420);
+      }
+      announce(placeSentence());
+      return true;
+    }
+
+    /* Whether the reader has zoomed IN past the fitted view. At or below it the
+       book is whole on screen, so a finger's sideways swipe means "turn" and an
+       up-and-down one means "scroll the page I am on"; zoomed in, the same
+       finger is exploring the page and every drag pans. */
+    function zoomedIn() {
+      return state.camera.zoom > state.fitZoom * 1.12;
+    }
+
+    /* A TAP ON THE OPEN BOOK TURNS IT, the way a page is turned: the right page
+       goes forward, the left page goes back. With one page on screen the inner
+       third goes back and the rest goes forward, which is the convention every
+       reading app a student has used already follows.
+
+       Measured from the halves' own projected boxes, so it is right at any
+       camera angle, and a tap on the desk around the book does nothing. */
+    function tapTurn(x, y) {
+      if (!state.open || state.animating || !els.halfRight) return false;
+      var inside = function (node) {
+        if (!node || node.hidden || typeof node.getBoundingClientRect !== "function") return null;
+        var r = node.getBoundingClientRect();
+        if (!r || !r.width || !r.height) return null;
+        return (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) ? r : null;
+      };
+      var right = inside(els.halfRight);
+      if (state.perSpread === 1) {
+        if (!right) return false;
+        return turn(x < right.left + right.width / 3 ? -1 : 1);
+      }
+      if (right) return turn(1);
+      if (inside(els.halfLeft)) return turn(-1);
+      return false;
+    }
+
+    function coarsePointer() {
+      if (!win || typeof win.matchMedia !== "function") return false;
+      try { return win.matchMedia("(pointer: coarse)").matches === true; }
+      catch (error) { return false; }
+    }
+
+    /* The one line of help on the desk, written for the state the book is in
+       and the hand the reader has. Short, because it sits over the scene. */
+    function paintHint() {
+      if (!els.hint) return;
+      var touch = coarsePointer();
+      if (!state.open) {
+        els.hint.textContent = touch
+          ? "Tap the book to open it"
+          : "Click the book to open it · scroll to zoom";
+      } else if (!state.pages.length) {
+        els.hint.textContent = touch ? "Pinch to zoom" : "Drag to move · scroll to zoom";
+      } else {
+        els.hint.textContent = touch
+          ? "Swipe or tap a page to turn it"
+          : "Click a page or press ← → to turn · drag to move";
+      }
+    }
+
+    /* THE PRINTED COPY. Built when the browser is about to print and emptied
+       afterwards, so 500 pages of flat duplicate markup never sit in the live
+       document. Same sanitizer, same fail-closed fallback, as paintPage(). */
+    function buildPrintCopy() {
+      if (!els.print) return;
+      els.print.textContent = "";
+      if (!state.snapshot) return;
+      els.print.appendChild(make("h1", "pbs-print-title", clampText(state.snapshot.title, 200) || "Untitled"));
+      if (state.byline) els.print.appendChild(make("p", "pbs-print-byline", "by " + state.byline));
+      for (var i = 0; i < state.pages.length; i += 1) {
+        var page = state.pages[i] || {};
+        var section = make("section", "pbs-print-page");
+        var label = clampText(page.title, 200);
+        if (label) section.appendChild(make("p", "pbs-print-label", label));
+        var body = make("div", "pbs-page-body");
+        var html = page.html == null ? "" : String(page.html);
+        if (!html.replace(/<[^>]*>/g, "").trim()) body.appendChild(make("p", "pbs-page-blank", "This page was left blank"));
+        else if (sanitizeInto) sanitizeInto(body, html);
+        else body.textContent = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+        section.appendChild(body);
+        section.appendChild(make("p", "pbs-print-number", String(i + 1)));
+        els.print.appendChild(section);
+      }
+    }
+
+    function clearPrintCopy() {
+      if (els.print) els.print.textContent = "";
     }
 
     /* ── THE PAGE TURN ───────────────────────────────────────────────────
@@ -952,9 +1145,14 @@
       var frontIndex = forward ? state.index + (state.perSpread === 2 ? 1 : 0) : target + (state.perSpread === 2 ? 1 : 0);
       var backIndex = forward ? target : state.index;
 
+      /* A reader who has turned a page knows how; the help line has done its
+         job. */
+      fadeHint();
+
       if (prefersReducedMotion()) {
         state.index = target;
         paintSpread();
+        announce(placeSentence());
         return true;
       }
 
@@ -1020,6 +1218,7 @@
         state.animating = false;
         paintStacks();
         paintIndicator();
+        announce(placeSentence());
       };
       frame(tick);
       return true;
@@ -1043,6 +1242,9 @@
     function setOpen(next, how) {
       var wanted = next === true;
       if (state.open === wanted || state.coverOpening) return;
+      /* A READER did this (the same flag that plays the cover), so a screen
+         reader is told where it landed once the spread is actually there. */
+      if (how && how.animate === true) state.announceOpen = true;
       if (wanted && how && how.animate === true && !prefersReducedMotion() && els.book) {
         state.coverOpening = true;
         els.book.classList.add("pbs-cover-opening");
@@ -1061,8 +1263,15 @@
       if (wanted) {
         state.perSpread = computePerSpread();
         paintSpread();
+      } else {
+        paintTurnable(false, false);
       }
       paintOpenControls();
+      paintHint();
+      if (state.announceOpen) {
+        state.announceOpen = false;
+        announce(wanted ? "The book is open. " + placeSentence() : "The book is closed.");
+      }
       /* THE CAMERA IS NOT TOUCHED HERE, and that is the whole of the fix the
          owner asked for. Opening the book used to fly the camera overhead and
          closing it flew back, so a reader who had set their own angle lost it
@@ -1103,6 +1312,10 @@
          as a candle because the eye supplies the flame. */
       root.setProperty("--pbs-flame-face", (-camera.pitch).toFixed(2) + "deg");
       els.zoomLabel.textContent = Math.round(camera.zoom * 100) + "%";
+      /* `touch-action: pan-y` while the book fits (see .pbs-stage-fit): a
+         finger can scroll the page past the desk. Zoomed in, the stage takes
+         every gesture back so the reader can pan around the page. */
+      if (els.stage) els.stage.classList.toggle("pbs-stage-fit", !zoomedIn());
       if (typeof opt.onCameraChange === "function") opt.onCameraChange({
         pitch: camera.pitch, yaw: camera.yaw, zoom: camera.zoom, panX: camera.panX, panY: camera.panY
       });
@@ -1114,7 +1327,10 @@
     function fitCamera() {
       var width = (els.stage && els.stage.clientWidth) || 1000;
       var height = (els.stage && els.stage.clientHeight) || 620;
-      var modelWidth = state.open && state.perSpread === 2 ? 700 : 400;
+      /* One open page is 300 wide with nothing either side of it to frame, so
+         it gets 340 rather than the closed book's 400 -- on a phone that is
+         the difference between reading the page and squinting at it. */
+      var modelWidth = !state.open ? 400 : (state.perSpread === 2 ? 700 : 340);
       /* The book's on-screen height is its model height foreshortened by the
          pitch, plus room for the block's thickness and the shadow under it. */
       var pitchRadians = state.camera.pitch * Math.PI / 180;
@@ -1276,8 +1492,11 @@
            classic way a click never lands, because the capture moves the
            pointer events off the button mid-press. It also killed the camera
            hint on the very first press, before anybody had read it. */
+        /* A LINK IN A PAGE IS A LINK. Capturing the pointer on the stage moved
+           pointerup off the <a>, so the click landed on the stage and a link the
+           writer put in their page could not be followed at all. */
         if (event.target && typeof event.target.closest === "function"
-            && event.target.closest(".pbs-hud, .pbs-veil, .pbs-page-inner-more")) return;
+            && event.target.closest(".pbs-hud, .pbs-veil, .pbs-page-inner-more, a[href]")) return;
         pointers[event.pointerId] = { x: event.clientX, y: event.clientY };
         var ids = Object.keys(pointers);
         if (ids.length === 2) {
@@ -1297,13 +1516,23 @@
           /* Where the press started, so pointerup can tell a TAP from a DRAG.
              Kept separate from x/y, which move with the pointer. */
           fromX: event.clientX,
-          fromY: event.clientY
+          fromY: event.clientY,
+          at: Date.now(),
+          /* A FINGER ON AN OPEN BOOK THAT FITS THE SCREEN TURNS, IT DOES NOT
+             PAN. Sideways is a page turn (decided on release); up and down is
+             the browser's, through `touch-action: pan-y`, so a phone reader can
+             still scroll the page the book sits on. A mouse always pans -- it
+             has the page edges, the arrows and the keys to turn with. */
+          swipe: event.pointerType !== "mouse" && state.open && !zoomedIn()
         };
         els.stage.classList.add("pbs-dragging");
         if (els.stage.setPointerCapture) {
           try { els.stage.setPointerCapture(event.pointerId); } catch (error) { /* not capturable */ }
         }
-        fadeHint();
+        /* NOT faded here any more. A press is also how the book is OPENED, and
+           fading on the press hid the help line before a reader who tapped the
+           book open could see how to turn it. It fades on a real drag, a
+           wheel, a pinch or a turn instead. */
       });
 
       on(els.stage, "pointermove", function (event) {
@@ -1315,6 +1544,7 @@
           var distance = Math.hypot(a.x - b.x, a.y - b.y) || 1;
           var wanted = clampNumber(pinch.zoom * (distance / pinch.distance), ZOOM_MIN, ZOOM_MAX, state.camera.zoom);
           zoomBy(wanted / state.camera.zoom, 0, 0);
+          fadeHint();
           return;
         }
         if (!drag) return;
@@ -1322,6 +1552,10 @@
         var dy = event.clientY - drag.y;
         drag.x = event.clientX;
         drag.y = event.clientY;
+        /* A swipe is judged on release, from where it started. Nothing moves
+           under the finger in the meantime. */
+        if (drag.swipe) return;
+        if (Math.abs(event.clientX - drag.fromX) >= 5 || Math.abs(event.clientY - drag.fromY) >= 5) fadeHint();
         /* Same as zoomBy(): a drag takes the camera, and taking the camera ends
            the intro wherever it had got to. */
         state.cameraTouched = true;
@@ -1348,10 +1582,22 @@
            Discriminated by DISTANCE, not by time: under five pixels of travel
            is a tap, anything more was a drag and must not also open the book
            under the reader's hand. */
-        if (!cancelled && drag && drag.mode === "pan" && !state.open
-            && Math.abs(event.clientX - drag.fromX) < 5
-            && Math.abs(event.clientY - drag.fromY) < 5) {
-          setOpen(true, { animate: true });
+        var wasPinch = Object.keys(pointers).length > 1 || !!pinch;
+        if (!cancelled && drag && drag.mode === "pan" && !wasPinch) {
+          var travelX = event.clientX - drag.fromX;
+          var travelY = event.clientY - drag.fromY;
+          var tap = Math.abs(travelX) < 5 && Math.abs(travelY) < 5;
+          if (tap && !state.open) {
+            setOpen(true, { animate: true });
+          } else if (tap) {
+            /* The same tap on an OPEN book turns the page it landed on. */
+            tapTurn(event.clientX, event.clientY);
+          } else if (drag.swipe && Math.abs(travelX) >= 40
+              && Math.abs(travelX) > Math.abs(travelY) * 1.3
+              && Date.now() - drag.at < 900) {
+            /* Right-to-left is forward, as with paper. */
+            turn(travelX < 0 ? 1 : -1);
+          }
         }
         delete pointers[event.pointerId];
         if (Object.keys(pointers).length < 2) pinch = null;
@@ -1442,6 +1688,8 @@
         else if (event.key === "ArrowLeft" || event.key === "PageUp") { turn(-1); }
         else if (event.key === "+" || event.key === "=") { zoomBy(ZOOM_STEP, 0, 0); }
         else if (event.key === "-") { zoomBy(1 / ZOOM_STEP, 0, 0); }
+        else if (event.key === "Home" && state.open) { goTo(0); }
+        else if (event.key === "End" && state.open) { goTo(state.pages.length - 1); }
         else if (event.key === "0") { resetCamera(); }
         else if (event.key === "Enter" && !state.open) { setOpen(true, { animate: true }); }
         else return;
@@ -1449,6 +1697,9 @@
       });
 
       if (win) {
+        /* Print the BOOK, not a photograph of the desk. */
+        on(win, "beforeprint", buildPrintCopy);
+        on(win, "afterprint", clearPrintCopy);
         on(win, "resize", function () {
           var next = computePerSpread();
           if (next !== state.perSpread) {
@@ -1870,6 +2121,7 @@
          reader. It is one boolean and it is the difference between handing
          somebody a book and handing them an open book. */
       state.open = false;
+      state.announceOpen = false;
       els.closed.hidden = false;
       els.open.hidden = true;
       setOpen(keep ? keep.open : seen.openByDefault === true);
@@ -1883,6 +2135,9 @@
         paintIndicator();
       }
       paintOpenControls();
+      paintHint();
+      /* A print copy built for an earlier snapshot must not outlive it. */
+      clearPrintCopy();
       if (keep) {
         /* setOpen() above may have launched a pitch flight. The reader's own
            camera is about to be restored over the top of it, so retire it --
@@ -1954,6 +2209,7 @@
       open: function () { setOpen(true); },
       close: function () { setOpen(false); },
       turn: turn,
+      goTo: goTo,
       resetCamera: resetCamera,
       openReport: openReport,
       closeReport: closeReport,
