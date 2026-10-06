@@ -31,6 +31,11 @@
       A STUDY TEAM INVITE (2026-10-06): /t/<CODE> (the code pasted into the
       path, with or without its dash) moves to /t/#<CODE>; t/team.js checks
       the code against the app's alphabet before it is used anywhere.
+
+      A TEAM PAGE AND A SCHOOL BOARD (2026-10-06): /team/<slug> and
+      /school/<slug> move to /team/#<slug> and /school/#<slug>. The slug is
+      still percent-encoded here (a name may hold any letter); team/page.js
+      decodes and checks it against the server's shape before it is used.
     -->
     <script>
       (function () {
@@ -42,7 +47,9 @@
         m = /^\/u\/([a-z2-9]{16,64})\/?$/i.exec(path);
         if (m) { window.location.replace("/u/#" + m[1].toLowerCase()); return; }
         m = /^\/t\/([A-Za-z0-9]{4}-?[A-Za-z0-9]{4})\/?$/.exec(path);
-        if (m) window.location.replace("/t/#" + m[1].replace("-", "").toUpperCase());
+        if (m) { window.location.replace("/t/#" + m[1].replace("-", "").toUpperCase()); return; }
+        m = /^\/(team|school)\/([^\/?#]{8,180})\/?$/.exec(path);
+        if (m) window.location.replace("/" + m[1] + "/#" + m[2]);
       })();
     </script>
     <meta name="robots" content="noindex, follow">

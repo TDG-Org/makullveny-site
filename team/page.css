@@ -1,0 +1,167 @@
+/* A LISTED STUDY TEAM'S PAGE and A SCHOOL'S BOARD (team/, school/,
+   2026-10-06). Self-contained like t/team.css: the same cozy palette, no
+   import from the landing page's styles. Every width set by script goes
+   through a custom property (CSSOM), so the CSP's style-src 'self' holds. */
+
+:root {
+  color-scheme: light dark;
+  --bg: #f6f1e7;
+  --panel: #fffdf8;
+  --ink: #2b2117;
+  --muted: #6b5c4a;
+  --line: #e2d6c2;
+  --accent: #8a5a2b;
+  --on-accent: #fffdf8;
+  --soft: #efe4d2;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #191512;
+    --panel: #221d18;
+    --ink: #f2e9dc;
+    --muted: #b6a795;
+    --line: #38302a;
+    --accent: #d9a066;
+    --on-accent: #191512;
+    --soft: #2d261f;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 16px 16px 40px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.top { max-width: 46rem; margin: 0 auto 14px; }
+.top a { display: inline-flex; align-items: center; gap: 8px; color: var(--ink); font-weight: 700; text-decoration: none; }
+
+main {
+  max-width: 46rem;
+  margin: 0 auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 26px clamp(16px, 4vw, 30px) 24px;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 8%);
+}
+
+h1 { margin: 0 0 6px; font-size: clamp(1.4rem, 4vw, 1.9rem); line-height: 1.2; overflow-wrap: anywhere; }
+h2 { margin: 0 0 10px; font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+p { margin: 0 0 12px; color: var(--muted); }
+.lead { color: var(--ink); }
+.fine { font-size: 0.86rem; margin: 14px 0 0; }
+.fine a { color: inherit; }
+.kicker { margin: 0 0 4px; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.motto { margin: 0 0 10px; font-style: italic; }
+
+.team-head { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.team-words { flex: 1 1 14rem; min-width: 0; }
+
+.mascot {
+  --size: 44px;
+  flex: none;
+  width: var(--size);
+  height: var(--size);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--soft);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: calc(var(--size) * 0.42);
+  overflow: hidden;
+}
+.mascot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.pill {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+}
+a.pill:hover, a.pill:focus-visible { border-color: var(--accent); }
+
+.ring {
+  --fill: 0deg;
+  flex: none;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background:
+    radial-gradient(closest-side, var(--panel) 78%, transparent 79%),
+    conic-gradient(var(--accent) var(--fill), var(--line) 0);
+}
+.ring-num { font-size: 1.7rem; font-weight: 800; line-height: 1; }
+.ring-word { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: 10px; margin: 20px 0 14px; }
+.stat { background: var(--soft); border-radius: 14px; padding: 12px 14px; }
+.stat strong { display: block; font-size: 1.45rem; line-height: 1.2; }
+.stat span { font-size: 0.82rem; color: var(--muted); }
+
+.people { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; }
+.face {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent); color: var(--on-accent); font-weight: 800; font-size: 0.9rem;
+}
+.face.is-quiet { background: var(--line); }
+.people-count { margin-left: 6px; font-size: 0.86rem; color: var(--muted); }
+
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 14px; }
+.chart { border: 1px solid var(--line); border-radius: 14px; padding: 14px; min-width: 0; }
+.hbar { display: grid; grid-template-columns: minmax(0, 7.5rem) 1fr auto; align-items: center; gap: 8px; margin: 6px 0; font-size: 0.88rem; }
+.hbar-name, .col-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.is-quiet { color: var(--muted); }
+.hbar-track { height: 10px; border-radius: 6px; background: var(--soft); overflow: hidden; }
+.hbar-fill { --w: 0%; display: block; height: 100%; width: var(--w); background: var(--accent); border-radius: 6px; }
+.hbar-num { font-variant-numeric: tabular-nums; color: var(--muted); }
+.cols { display: flex; align-items: flex-end; gap: 8px; height: 150px; }
+.col { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.78rem; }
+.col-bar { --h: 0%; display: block; width: 70%; max-width: 30px; height: var(--h); min-height: 2px; background: var(--accent); border-radius: 6px 6px 2px 2px; }
+.col-num { color: var(--muted); font-variant-numeric: tabular-nums; }
+.col-name { max-width: 100%; }
+
+.join { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); text-align: center; }
+a.button {
+  display: inline-block;
+  margin: 4px 0 6px;
+  padding: 12px 22px;
+  min-height: 44px;
+  border-radius: 11px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
+a.button:hover { filter: brightness(1.06); }
+a.button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+
+.board { list-style: none; margin: 0; padding: 0; }
+.board-row { display: flex; align-items: center; gap: 12px; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+.board-row:last-child { border-bottom: 0; }
+.board-rank { width: 2.4rem; flex: none; font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; }
+.board-words { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.board-name { font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+a.board-name { text-decoration: none; }
+a.board-name:hover { text-decoration: underline; }
+.board-fine { font-size: 0.82rem; color: var(--muted); }
+.board-num { flex: none; font-weight: 800; font-variant-numeric: tabular-nums; }
+.board-empty { padding: 14px 4px; color: var(--muted); }
