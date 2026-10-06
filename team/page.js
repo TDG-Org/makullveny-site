@@ -358,7 +358,11 @@
     });
   }
 
-  if (hasWindow && typeof document !== "undefined" && document.getElementById && document.getElementById("page")) boot();
+  if (hasWindow && typeof document !== "undefined" && document.getElementById && document.getElementById("page")) {
+    boot();
+    // A new address pasted over this one is a new page.
+    window.addEventListener("hashchange", function () { window.location.reload(); });
+  }
 
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {

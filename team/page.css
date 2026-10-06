@@ -135,7 +135,7 @@ a.pill:hover, a.pill:focus-visible { border-color: var(--accent); }
 .hbar-num { font-variant-numeric: tabular-nums; color: var(--muted); }
 .cols { display: flex; align-items: flex-end; gap: 8px; height: 150px; }
 .col { flex: 1 1 0; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.78rem; }
-.col-bar { --h: 0%; display: block; width: 70%; max-width: 30px; height: var(--h); min-height: 2px; background: var(--accent); border-radius: 6px 6px 2px 2px; }
+.col-bar { --h: 0%; display: block; width: 70%; max-width: 30px; height: calc(var(--h) * 0.72); min-height: 2px; background: var(--accent); border-radius: 6px 6px 2px 2px; }
 .col-num { color: var(--muted); font-variant-numeric: tabular-nums; }
 .col-name { max-width: 100%; }
 
