@@ -27,6 +27,10 @@
       address bar. And /u/<token> (a profile link with its token pasted into
       the path) moves to /u/#<token>, which opens it and then shows the
       canonical address too.
+
+      A STUDY TEAM INVITE (2026-10-06): /t/<CODE> (the code pasted into the
+      path, with or without its dash) moves to /t/#<CODE>; t/team.js checks
+      the code against the app's alphabet before it is used anywhere.
     -->
     <script>
       (function () {
@@ -36,7 +40,9 @@
         m = /^\/profile\/@?([A-Za-z0-9_]{3,20})\/?$/.exec(path);
         if (m) { window.location.replace("/profile/#" + m[1]); return; }
         m = /^\/u\/([a-z2-9]{16,64})\/?$/i.exec(path);
-        if (m) window.location.replace("/u/#" + m[1].toLowerCase());
+        if (m) { window.location.replace("/u/#" + m[1].toLowerCase()); return; }
+        m = /^\/t\/([A-Za-z0-9]{4}-?[A-Za-z0-9]{4})\/?$/.exec(path);
+        if (m) window.location.replace("/t/#" + m[1].replace("-", "").toUpperCase());
       })();
     </script>
     <meta name="robots" content="noindex, follow">

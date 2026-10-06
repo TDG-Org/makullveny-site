@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--
+      A STUDY TEAM INVITE (2026-10-06). The app copies
+      https://www.makullveny.com/t/#<CODE> (src/studyTeamsModel.js inviteUrl)
+      and, until this page existed, every one of those links landed on the
+      404. The code lives in the fragment, so it never reaches a server log.
+      This page shows the code big, hands off to makullveny://team/<CODE>
+      (the app shows the team and waits for Join), and offers the download.
+      Same strict CSP as open/: no inline style or script, no network.
+    -->
+    <meta name="robots" content="noindex, follow">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <title>Makullveny — you're invited to a Study Team</title>
+    <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./team.css">
+  </head>
+  <body>
+    <main>
+      <img class="logo" src="../assets/icons/apple-touch-icon.png" width="72" height="72" alt="">
+      <p class="kicker">Study Team invite</p>
+      <h1 id="title">You&#8217;re invited to a Study Team</h1>
+      <p class="code" id="code" hidden></p>
+      <p class="lead" id="lead">Open Makullveny to see the team, then press Join.</p>
+      <a class="button" id="open" href="makullveny://open">Join in Makullveny</a>
+      <hr>
+      <p class="fine">
+        Don&#8217;t have the app? <a href="../#download">Get Makullveny</a> &mdash; it is free.
+      </p>
+      <p class="fine" id="paste">Already have it? Paste this code in Community.</p>
+    </main>
+    <script src="./team.js"></script>
+  </body>
+</html>
