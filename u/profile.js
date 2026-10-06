@@ -1,7 +1,16 @@
 /*
-  A STUDENT'S PROFILE PAGE: the fetch, the shape check and the drawing for
+  A STUDENT'S PROFILE PAGE: the fetch and the host for
   https://www.makullveny.com/u/#<token>. No build step, no framework, no
-  dependency; ES5-compatible like read/read.js.
+  dependency.
+
+  THE PAGE ITSELF IS DRAWN BY ./profile-view.js, A BYTE COPY OF THE APP'S
+  src/publicProfileView.js (with ./profile-view.css <- the app's
+  src/styles/modules/public-profile-view.css). The student edits their profile
+  in the app on exactly that renderer, so what they see there is what a
+  visitor sees here: the same sidebar, the same widgets in the same order and
+  widths, their theme's colours and art (./themes.css, read out of the app),
+  or just the colours when they switched the art off. Never edit the two
+  copied files here -- change them in the app and copy them over.
 
   IT MAKES EXACTLY ONE REQUEST: a POST of { action: "profile", token } to the
   mak-share function (the URL comes from read/config.js, and its ORIGIN must be
@@ -9,24 +18,49 @@
   connect-src u/index.html carries). No key: mak-share runs with verify_jwt
   off, and the token in the fragment is the whole authorization.
 
-  WHAT COMES BACK is re-checked field by field here (shapeProfile) even though
-  the server already shapes it: a name, an @username, an avatar DIGIT (1-7,
-  mapped to this site's own pictures -- never a URL from the network), and,
-  only when the student chose them, a bio, class and event items of exactly
-  {t, s, e} (title, epoch minutes), and an achievements count. Every string is
-  set with textContent; nothing from the network is ever parsed as markup or
-  used as a URL or a colour.
+  WHAT COMES BACK is re-checked field by field (the view's shapeProfile) even
+  though the server already shapes it: a name, an @username, an avatar DIGIT
+  (1-7, mapped to this site's own pictures -- never a URL from the network),
+  the look (a theme KEY, matched against ./themes.css's own list, never used
+  as a URL or a colour), and, only when the student chose them, a bio, class
+  and event items of exactly {t, s, e}, an achievements count and Selah's
+  numbers. Every string is set with textContent; nothing from the network is
+  ever parsed as markup.
 
   THE TOKEN is read from the fragment (never sent to a web server, never in a
-  Referer) and goes in the POST body, never a query string. Unlike a book link
-  the fragment is left in the address bar on purpose: a profile is something a
-  friend bookmarks and comes back to, and the student can switch the link off
-  from the app at any time.
+  Referer) and goes in the POST body, never a query string. The fragment is
+  left in the address bar on purpose: a profile is something a friend
+  bookmarks and comes back to, and the student can switch the link off from
+  the app at any time.
+*/
+/*
+  /profile/<username> (2026-09-30, the owner): THE CANONICAL ADDRESS. The
+  same page, asked by username instead of by token: POST { action:
+  "profile_at", username } to the same function, which answers exactly what
+  the token read answers for that student's LIVE link (no live link reads as
+  not available, the same as a name nobody holds). GitHub Pages has no file
+  for /profile/<name>, so 404.html moves it to /profile/#<name> and this
+  script puts /profile/<name> back in the address bar (history.replaceState).
+  An old /u/#<token> link still opens by token, then shows the canonical
+  address the same way. profile/index.html is this page's second door; both
+  run this one script.
+
+  ADD FRIEND (2026-09-30): under a visitor's card. Signed out -> a sign-in
+  prompt. Your own page -> "This is you". Signed in -> Add friend, which asks
+  for your password once (this site keeps no session -- account/me.js) and
+  sends ONE request to mak-web-signup's "friend" action: it checks the
+  password, asks TDG where the two of you stand and sends the request only
+  when TDG allows it -- the same rule the app's Friends sheet uses. The answer
+  is one word (requested / friends / already_friends / already_asked / ...),
+  said here in one sentence. The password lives in the input and that one
+  request body, nowhere else.
 */
 (function () {
   "use strict";
 
   var hasWindow = typeof window !== "undefined";
+
+  var VIEW = (hasWindow && window.MakullvenyProfileView) || (typeof require === "function" ? require("./profile-view.js") : null);
 
   var CONFIG = { apiUrl: "" };
   if (hasWindow && window.MAKULLVENY_READER_CONFIG && window.MAKULLVENY_READER_CONFIG.apiUrl) {
@@ -60,54 +94,81 @@
     return TOKEN_PATTERN.test(last) ? last : "";
   }
 
+  /* tdg-core's username shape (the app's logic/tdgSocialService.js). */
+  var USERNAME = /^[A-Za-z0-9_]{3,20}$/;
+
+  /* Is this the /profile/ door (not u/)? */
+  function isProfilePath(pathname) {
+    return /\/profile\/(?:[^/]*\/?)?$/.test(String(pathname || ""));
+  }
+
+  /* The username a /profile/ address names: the path's last part
+     (/profile/<name>), or the fragment 404.html moved it into
+     (/profile/#<name>). Anything that is not a username is "". */
+  function usernameFromLocation(pathname, hash) {
+    var path = String(pathname || "");
+    var m = /\/profile\/([^/?#]+)\/?$/.exec(path);
+    var raw = m ? m[1] : String(hash || "").replace(/^#/, "").replace(/^@+/, "").split("/")[0];
+    try { raw = decodeURIComponent(raw); } catch (_e) { return ""; }
+    raw = raw.replace(/^@+/, "");
+    return USERNAME.test(raw) ? raw : "";
+  }
+
+  /* The site root, from this script's own address (it lives in u/). */
+  var ROOT = (function () {
+    var s = hasWindow && typeof document !== "undefined" && document.currentScript && document.currentScript.src;
+    return s ? s.replace(/u\/profile\.js(\?.*)?$/, "") : "/";
+  })();
+
+  /* The canonical address of a profile: <root>profile/<username>. */
+  function canonicalPath(username, root) {
+    var base = root != null ? String(root) : ROOT;
+    try { base = new URL(base, "https://www.makullveny.com/").pathname; } catch (_e) { base = "/"; }
+    if (!/\/$/.test(base)) base += "/";
+    return USERNAME.test(String(username || "")) ? base + "profile/" + username : "";
+  }
+
+  function showCanonical(username) {
+    var path = canonicalPath(username);
+    if (!path || !hasWindow || !window.history || typeof window.history.replaceState !== "function") return;
+    if (window.location.pathname === path && !window.location.hash) return;
+    try { window.history.replaceState(null, "", path); } catch (_e) { /* the old address still works */ }
+  }
+
+  function sameName(a, b) {
+    return Boolean(a) && Boolean(b) && String(a).toLowerCase() === String(b).toLowerCase();
+  }
+
   /* The site's own avatar pictures, by the digit the account stores
-     (src/avatarChoices.js in the app is the owner of this order). */
+     (src/avatarChoices.js in the app is the owner of this order, and of each
+     picture's ground colour). */
   var AVATARS = {
-    1: { file: "mak-avatar-1-turtle-duck.png", label: "Turtle duck" },
-    2: { file: "mak-avatar-2-frog.png", label: "Frog" },
-    3: { file: "mak-avatar-3-duck-on-water.png", label: "Duck on water" },
-    4: { file: "mak-avatar-4-glider.png", label: "Glider" },
-    5: { file: "mak-avatar-5-tree.png", label: "Tree" },
-    6: { file: "mak-avatar-6-jellyfish.png", label: "Jellyfish" },
-    7: { file: "mak-avatar-7-mushroom.png", label: "Mushroom" }
+    1: { file: "mak-avatar-1-turtle-duck.png", label: "Turtle duck", ground: "#dcefdc" },
+    2: { file: "mak-avatar-2-frog.png", label: "Frog", ground: "#dff0d8" },
+    3: { file: "mak-avatar-3-duck-on-water.png", label: "Duck on water", ground: "#cfe3f4" },
+    4: { file: "mak-avatar-4-glider.png", label: "Glider", ground: "#e3eef8" },
+    5: { file: "mak-avatar-5-tree.png", label: "Tree", ground: "#e6f0dc" },
+    6: { file: "mak-avatar-6-jellyfish.png", label: "Jellyfish", ground: "#f6dcec" },
+    7: { file: "mak-avatar-7-mushroom.png", label: "Mushroom", ground: "#f8e7db" }
   };
   var AVATAR_BASE = "../assets/site/avatars/";
+  var STAGE_BASE = "../assets/site/profile/selah-stage-";
 
-  function text(value, max) {
-    return typeof value === "string" ? value.replace(/\s+/g, " ").replace(/^\s+|\s+$/g, "").slice(0, max) : "";
-  }
+  /* Every theme ./themes.css paints. A key not on this list is drawn as Cozy
+     Cabin, the app's default -- the key only ever selects one of these. */
+  var THEMES = [
+    "cozy-cabin", "snow-cabin", "terminal-hacker", "cherry-blossom", "rainy-cafe",
+    "garden-of-eden", "woodland-library", "lantern-study", "moonlit-observatory",
+    "on-the-rock", "cotton-candy", "skyline-loft", "abyssal-aquarium", "gilded-arcana",
+    "aurora-glasshouse", "crimson-atelier", "ink-and-ivory"
+  ];
 
-  function items(value) {
-    var out = [];
-    if (Object.prototype.toString.call(value) !== "[object Array]") return out;
-    for (var i = 0; i < value.length && out.length < 300; i += 1) {
-      var raw = value[i];
-      if (!raw || typeof raw !== "object") continue;
-      var t = text(raw.t, 40);
-      var s = raw.s;
-      var e = raw.e;
-      if (!t || typeof s !== "number" || typeof e !== "number" || Math.floor(s) !== s || Math.floor(e) !== e) continue;
-      if (e <= s || e - s > 1440) continue;
-      out.push({ t: t, s: s, e: e });
-    }
-    return out;
-  }
-
-  /* Everything this page will draw, and nothing else. */
   function shapeProfile(payload) {
-    var p = payload && typeof payload === "object" ? payload : {};
-    var avatar = typeof p.avatarId === "number" && AVATARS[p.avatarId] ? p.avatarId : 0;
-    var username = text(p.username, 40).replace(/[^A-Za-z0-9_.-]/g, "");
-    var out = {
-      displayName: text(p.displayName, 60) || (username ? "@" + username : "A Makullveny student"),
-      username: username,
-      avatarId: avatar
-    };
-    if (typeof p.bio === "string") out.bio = text(p.bio, 160);
-    if (Object.prototype.toString.call(p.classes) === "[object Array]") out.classes = items(p.classes);
-    if (Object.prototype.toString.call(p.events) === "[object Array]") out.events = items(p.events);
-    if (typeof p.achievements === "number" && isFinite(p.achievements)) out.achievements = Math.max(0, Math.min(1000, Math.floor(p.achievements)));
-    return out;
+    var shaped = VIEW.shapeProfile(payload);
+    if (THEMES.indexOf(shaped.look.theme) < 0) shaped.look.theme = "cozy-cabin";
+    if (shaped.look.theme !== "terminal-hacker") delete shaped.look.accent;
+    if (!shaped.displayName) shaped.displayName = "A Makullveny student";
+    return shaped;
   }
 
   function classCount(list) {
@@ -120,151 +181,12 @@
     return n;
   }
 
-  /* ── the week ───────────────────────────────────────────────────────────── */
-
-  function midnightOf(ms) {
-    var d = new Date(ms);
-    d.setHours(0, 0, 0, 0);
-    return d.getTime();
-  }
-
-  function dayStart(startMs, index) {
-    var d = new Date(startMs);
-    d.setDate(d.getDate() + index);
-    return d.getTime();
-  }
-
-  /*
-    Lay the items out on the NEXT SEVEN DAYS, today first, in THIS browser's
-    time zone. Not Monday-to-Sunday: the app sends what is coming up (the next
-    14 days), so a calendar week viewed on a Thursday would show Monday and
-    Tuesday empty when they were not. A Saturday or Sunday column appears only
-    when something is on it. Titled "This week" when the first column is a Monday.
-    Returns { label, days: [{ start, dow }], hours, firstHour, lastHour, blocks }
-    where block.day is the COLUMN. Pure (nowMs is passed in), so tests/ pin it.
-  */
-  function weekLayout(classes, events, nowMs) {
-    var all = [];
-    var i;
-    for (i = 0; i < (classes || []).length; i += 1) all.push({ t: classes[i].t, s: classes[i].s, e: classes[i].e, kind: "class" });
-    for (i = 0; i < (events || []).length; i += 1) all.push({ t: events[i].t, s: events[i].s, e: events[i].e, kind: "event" });
-
-    var start = midnightOf(nowMs);
-    var end = dayStart(start, 7);
-
-    var raw = [];
-    var used = {};
-    for (i = 0; i < all.length; i += 1) {
-      var item = all[i];
-      var sMs = item.s * 60000;
-      if (!(item.e * 60000 > start && sMs < end)) continue;
-      /* The calendar day the item STARTS on (DST-safe); an item that began
-         before today's midnight is drawn from midnight. */
-      var offset = 0;
-      for (var d = 0; d < 7; d += 1) {
-        if (sMs >= dayStart(start, d) && sMs < dayStart(start, d + 1)) { offset = d; break; }
-      }
-      var dayOrigin = dayStart(start, offset);
-      var startMin = Math.max(0, Math.round((sMs - dayOrigin) / 60000));
-      var endMin = Math.min(1440, Math.round((item.e * 60000 - dayOrigin) / 60000));
-      if (endMin <= startMin) continue;
-      used[offset] = true;
-      raw.push({ t: item.t, kind: item.kind, offset: offset, startMin: startMin, endMin: endMin, s: item.s, e: item.e });
-    }
-
-    /* Weekdays always; a weekend day only when something is on it. */
-    var days = [];
-    var column = {};
-    for (i = 0; i < 7; i += 1) {
-      var dayMs = dayStart(start, i);
-      var dow = new Date(dayMs).getDay();
-      if ((dow === 0 || dow === 6) && !used[i]) continue;
-      column[i] = days.length;
-      days.push({ start: dayMs, dow: dow });
-    }
-    /* Monday first (today is Monday, or a quiet weekend was skipped) reads as
-       a week; anything else is honestly "the next 7 days". */
-    var label = days.length && days[0].dow === 1 ? "This week" : "Next 7 days";
-    var blocks = [];
-    for (i = 0; i < raw.length; i += 1) {
-      raw[i].day = column[raw[i].offset];
-      blocks.push(raw[i]);
-    }
-
-    var firstHour = 8;
-    var lastHour = 17;
-    if (blocks.length) {
-      firstHour = 23;
-      lastHour = 1;
-      for (i = 0; i < blocks.length; i += 1) {
-        firstHour = Math.min(firstHour, Math.floor(blocks[i].startMin / 60));
-        lastHour = Math.max(lastHour, Math.ceil(blocks[i].endMin / 60));
-      }
-      if (lastHour - firstHour < 6) lastHour = Math.min(24, firstHour + 6);
-      if (lastHour - firstHour < 6) firstHour = Math.max(0, lastHour - 6);
-    }
-
-    var hours = [];
-    for (i = firstHour; i < lastHour; i += 1) hours.push(i);
-
-    /* Side by side when two things overlap on one day. */
-    blocks.sort(function (a, b) { return a.day - b.day || a.startMin - b.startMin || a.endMin - b.endMin; });
-    var cluster = [];
-    var clusterEnd = -1;
-    var clusterDay = -1;
-    function closeCluster() {
-      var lanes = [];
-      for (var c = 0; c < cluster.length; c += 1) {
-        var b = cluster[c];
-        var lane = 0;
-        while (lane < lanes.length && lanes[lane] > b.startMin) lane += 1;
-        lanes[lane] = b.endMin;
-        b.lane = lane;
-      }
-      for (var k = 0; k < cluster.length; k += 1) cluster[k].lanes = lanes.length;
-      cluster = [];
-    }
-    for (i = 0; i < blocks.length; i += 1) {
-      var block = blocks[i];
-      if (cluster.length && (block.day !== clusterDay || block.startMin >= clusterEnd)) closeCluster();
-      if (!cluster.length) { clusterDay = block.day; clusterEnd = block.endMin; }
-      cluster.push(block);
-      clusterEnd = Math.max(clusterEnd, block.endMin);
-    }
-    if (cluster.length) closeCluster();
-
-    return { label: label, start: start, days: days, hours: hours, firstHour: firstHour, lastHour: lastHour, blocks: blocks };
-  }
-
-  function clock(totalMinutes, withSuffix) {
-    var h = Math.floor(totalMinutes / 60) % 24;
-    var m = totalMinutes % 60;
-    var h12 = h % 12 === 0 ? 12 : h % 12;
-    var out = h12 + ":" + (m < 10 ? "0" : "") + m;
-    return withSuffix ? out + (h < 12 ? " AM" : " PM") : out;
-  }
-
-  function hourLabel(h) {
-    var h12 = h % 12 === 0 ? 12 : h % 12;
-    return h12 + (h < 12 || h === 24 ? " AM" : " PM");
-  }
-
-  var DAY_NAMES = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
-  var DAY_LONG = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-  /* A class keeps its colour all week: picked from THIS page's own palette by
-     a hash of its name, never from the network. */
-  var CLASS_COLOURS = ["#6fae7a", "#6c9bd2", "#e0a458", "#d98080", "#5fb3a8", "#b194d8", "#c9a15a", "#8fb0c9"];
-  function colourFor(title) {
-    var h = 5381;
-    var s = String(title || "").toLowerCase();
-    for (var i = 0; i < s.length; i += 1) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
-    return CLASS_COLOURS[h % CLASS_COLOURS.length];
-  }
-
   /* One sentence per state; revoked, unknown and malformed read the same. */
   function stateForStatus(status) {
+    /* PRIVATE (2026-10-01, Makullveny migration 20261001120000): the student
+       turned their profile private. Said calmly, and nothing else is drawn --
+       the server sent no data to draw. */
+    if (status === "private") return "This profile is private.";
     if (status === 429) return "This page is getting a lot of visits right now. Wait a moment and try again.";
     if (status === 502 || status === 500 || status === 503) return "Something went wrong on Makullveny's end. Try again shortly.";
     return "This profile is not available. The link may have been turned off, or it never existed.";
@@ -288,131 +210,263 @@
     node.hidden = !message;
   }
 
-  var PX_PER_MIN = 1;
+  /* The look lands on <html>: themes.css keys every token off these. */
+  function wearLook(look) {
+    var root = document.documentElement;
+    root.setAttribute("data-theme", look.theme);
+    if (look.accent) root.setAttribute("data-accent", look.accent); else root.removeAttribute("data-accent");
+    root.setAttribute("data-bg", look.bg ? "on" : "off");
+  }
 
-  function drawWeek(profile, nowMs) {
-    var section = el("ppWeek");
-    var hasClasses = Object.prototype.toString.call(profile.classes) === "[object Array]";
-    var hasEvents = Object.prototype.toString.call(profile.events) === "[object Array]";
-    if (!hasClasses && !hasEvents) { section.hidden = true; return; }
-    section.hidden = false;
-    var week = weekLayout(profile.classes || [], profile.events || [], nowMs);
-    el("ppWeekTitle").textContent = week.label;
-    var grid = el("ppGrid");
-    var list = el("ppList");
-    grid.replaceChildren();
-    list.replaceChildren();
-    el("ppEmpty").hidden = week.blocks.length > 0;
-    if (!week.blocks.length) {
-      grid.hidden = true;
-      list.hidden = true;
-      return;
-    }
-    grid.hidden = false;
-    list.hidden = false;
-
-    var head = make("div", "pp-grid-days");
-    for (var d = 0; d < week.days.length; d += 1) {
-      var date = new Date(week.days[d].start);
-      var dayHead = make("div", "pp-grid-day");
-      dayHead.append(make("span", "pp-grid-day-name", DAY_NAMES[week.days[d].dow]), make("span", "pp-grid-day-date", String(date.getDate())));
-      head.append(dayHead);
-    }
-    var body = make("div", "pp-grid-body");
-    body.style.setProperty("height", ((week.lastHour - week.firstHour) * 60 * PX_PER_MIN) + "px");
-    for (var h = 0; h < week.hours.length; h += 1) {
-      var line = make("div", "pp-grid-hour");
-      line.style.setProperty("top", (h * 60 * PX_PER_MIN) + "px");
-      line.append(make("span", "pp-grid-hour-label", hourLabel(week.hours[h])));
-      body.append(line);
-    }
-    var lanes = make("div", "pp-grid-lanes");
-    var width = 100 / week.days.length;
-    for (var b = 0; b < week.blocks.length; b += 1) {
-      var block = week.blocks[b];
-      var node = make("div", "pp-block pp-block-" + block.kind);
-      var laneWidth = width / (block.lanes || 1);
-      node.style.setProperty("left", (block.day * width + (block.lane || 0) * laneWidth) + "%");
-      node.style.setProperty("width", laneWidth + "%");
-      node.style.setProperty("top", ((block.startMin - week.firstHour * 60) * PX_PER_MIN) + "px");
-      node.style.setProperty("height", Math.max(24, (block.endMin - block.startMin) * PX_PER_MIN) + "px");
-      if (block.kind === "class") node.style.setProperty("--pp-c", colourFor(block.t));
-      var inner = make("div", "pp-block-inner");
-      inner.append(make("span", "pp-block-title", block.t), make("span", "pp-block-time", clock(block.startMin) + "–" + clock(block.endMin)));
-      inner.title = block.t + ", " + clock(block.startMin, true) + " to " + clock(block.endMin, true);
-      node.append(inner);
-      lanes.append(node);
-    }
-    body.append(lanes);
-    grid.append(head, body);
-
-    /* The phone view: the same week as a list, one day at a time. */
-    for (var day = 0; day < week.days.length; day += 1) {
-      var todays = week.blocks.filter(function (x) { return x.day === day; });
-      if (!todays.length) continue;
-      var when = new Date(week.days[day].start);
-      var group = make("li", "pp-list-day");
-      group.append(make("h3", "pp-list-day-name", DAY_LONG[week.days[day].dow] + ", " + MONTHS[when.getMonth()] + " " + when.getDate()));
-      var rows = make("ul", "pp-list-rows");
-      for (var r = 0; r < todays.length; r += 1) {
-        var row = make("li", "pp-list-row pp-block-" + todays[r].kind);
-        if (todays[r].kind === "class") row.style.setProperty("--pp-c", colourFor(todays[r].t));
-        row.append(make("span", "pp-list-time", clock(todays[r].startMin, true) + " – " + clock(todays[r].endMin, true)), make("span", "pp-list-title", todays[r].t));
-        rows.append(row);
-      }
-      group.append(rows);
-      list.append(group);
-    }
+  /* A theme key -> its scenery in assets/themes/ (the same pictures the
+     page's own background uses). An unknown key draws no banner. */
+  var BANNER_FILES = {
+    "cozy-cabin": "cabin-background.webp",
+    "terminal-hacker": "neon-terminal-background.webp",
+    "abyssal-aquarium": "abyssal-aquarium-illustrated-background.webp",
+    "aurora-glasshouse": "aurora-glasshouse-illustrated-background.webp",
+    "cotton-candy": "cotton-candy-illustrated-background.webp",
+    "crimson-atelier": "crimson-atelier-illustrated-background.webp",
+    "gilded-arcana": "gilded-arcana-illustrated-background.webp",
+    "ink-and-ivory": "ink-and-ivory-illustrated-background.webp",
+    "skyline-loft": "skyline-loft-illustrated-background.webp",
+    "cherry-blossom": "cherry-blossom-background.webp",
+    "garden-of-eden": "garden-of-eden-background.webp",
+    "lantern-study": "lantern-study-background.webp",
+    "moonlit-observatory": "moonlit-observatory-background.webp",
+    "on-the-rock": "on-the-rock-background.webp",
+    "rainy-cafe": "rainy-cafe-background.webp",
+    "snow-cabin": "snow-cabin-background.webp",
+    "woodland-library": "woodland-library-background.webp"
+  };
+  function bannerFile(key) {
+    var base = String(key || "").replace(/-(pink|blue)$/, "");
+    return Object.prototype.hasOwnProperty.call(BANNER_FILES, base) ? "../assets/themes/" + BANNER_FILES[base] : "";
   }
 
   function render(payload, nowMs) {
     var profile = shapeProfile(payload);
-    el("ppName").textContent = profile.displayName;
+    wearLook(profile.look);
     document.title = profile.displayName + " on Makullveny";
-    var handle = el("ppHandle");
-    handle.hidden = !profile.username;
-    handle.textContent = profile.username ? "@" + profile.username : "";
-
-    var avatar = el("ppAvatar");
-    avatar.setAttribute("data-avatar", String(profile.avatarId));
-    var old = avatar.querySelector("img");
-    if (old) old.remove();
-    el("ppInitial").textContent = profile.avatarId ? "" : profile.displayName.replace(/^@/, "").charAt(0).toUpperCase();
-    if (profile.avatarId) {
-      var img = document.createElement("img");
-      img.alt = "";
-      img.src = AVATAR_BASE + AVATARS[profile.avatarId].file;
-      avatar.append(img);
-    }
-
-    var bio = el("ppBio");
-    bio.hidden = !profile.bio;
-    bio.textContent = profile.bio || "";
-
-    var stats = el("ppStats");
-    stats.replaceChildren();
-    function stat(value, label) {
-      var box = make("div", "pp-stat");
-      box.append(make("span", "pp-stat-value", String(value)), make("span", "pp-stat-label", label));
-      stats.append(box);
-    }
-    if (profile.classes) {
-      var n = classCount(profile.classes);
-      stat(n, n === 1 ? "class" : "classes");
-    }
-    if (typeof profile.achievements === "number") stat(profile.achievements, profile.achievements === 1 ? "achievement" : "achievements");
-    stats.hidden = !stats.childNodes.length;
-
-    var add = el("ppAdd");
-    add.hidden = !profile.username;
-    if (profile.username) {
-      add.replaceChildren();
-      add.append(document.createTextNode("Have Makullveny? Add "), make("b", "", "@" + profile.username), document.createTextNode(" in Friends."));
-    }
-
-    drawWeek(profile, nowMs);
+    var built = VIEW.buildPage(document, profile, {
+      now: nowMs,
+      avatar: function (id) {
+        var a = AVATARS[id];
+        return a ? { src: AVATAR_BASE + a.file, ground: a.ground } : null;
+      },
+      stageArt: function (stage) {
+        var n = Math.max(1, Math.min(5, Math.floor(Number(stage) || 1)));
+        return STAGE_BASE + n + ".webp";
+      },
+      /* The banner the student picked in the app (look.banner, else their
+         theme): that theme's own scenery from assets/themes/. */
+      bannerArt: function (key) {
+        return bannerFile(key);
+      }
+    });
+    /* This page's own block under the sidebar card: Add friend, the
+       sign-in prompt, or "This is you". */
+    if (profile.username) built.sidebar.side.append(friendBlock(profile.username, currentMe()));
+    var mount = el("ppProfile");
+    mount.replaceChildren(built.host);
     setState("");
-    el("ppProfile").hidden = false;
+    mount.hidden = false;
+    return built;
+  }
+
+  /* ── add friend ─────────────────────────────────────────────────────── */
+
+  /* mak-web-signup, on the same pinned origin as everything else here. */
+  var FRIEND_PATH = "/functions/v1/mak-web-signup";
+  function friendEndpoint(apiUrl) {
+    if (!apiOriginAllowed(apiUrl)) return "";
+    try { return new URL(String(apiUrl)).origin + FRIEND_PATH; } catch (_e) { return ""; }
+  }
+
+  function currentMe() {
+    return hasWindow && window.MakullvenyMe && typeof window.MakullvenyMe.get === "function" ? window.MakullvenyMe.get() : null;
+  }
+
+  /* Which block a visitor sees: "own", "signin" or "add". */
+  function friendMode(me, username) {
+    if (me && sameName(me.username, username)) return "own";
+    return me ? "add" : "signin";
+  }
+
+  /* One sentence per answer. `tone` colours it; `done` greys the button. */
+  function friendWords(answer, username) {
+    var at = "@" + username;
+    var outcome = answer && answer.ok === true ? String(answer.outcome || "") : "";
+    var error = answer && answer.ok !== true ? String(answer.error || "") : "";
+    var OUT = {
+      requested: { text: "Request sent. " + at + " will see it in Makullveny.", tone: "ok", done: "Requested" },
+      friends: { text: "You and " + at + " are friends now.", tone: "ok", done: "Friends" },
+      already_friends: { text: "You and " + at + " are already friends.", tone: "ok", done: "Friends" },
+      already_asked: { text: "You already asked. Waiting for " + at + " to say yes.", tone: "ok", done: "Requested" },
+      self: { text: "That is you.", tone: "ok", done: "You" },
+      not_taking: { text: at + " is not taking friend requests.", tone: "warn", done: "" },
+      not_found: { text: "You cannot add " + at + " right now.", tone: "warn", done: "" },
+      blocked: { text: "You blocked " + at + ". Unblock them in the app first.", tone: "warn", done: "" },
+      limit: { text: "A friend limit is full. Remove a friend or a request in the app first.", tone: "warn", done: "" }
+    };
+    if (OUT[outcome]) return OUT[outcome];
+    var ERR = {
+      invalid_credentials: "That password does not match. Try again.",
+      email_not_confirmed: "Confirm your email first, then try again.",
+      rate_limited: "Too many tries. Wait a few minutes and try again.",
+      bad_request: "Type your password to add a friend.",
+      offline: "Could not reach Makullveny. Check your connection and try again."
+    };
+    return { text: ERR[error] || "Something went wrong on our side. Try again in a minute.", tone: "error", done: "" };
+  }
+
+  function postJson(url, body, done) {
+    var request = new XMLHttpRequest();
+    request.open("POST", url, true);
+    request.setRequestHeader("Content-Type", "application/json");
+    request.timeout = 20000;
+    request.onload = function () {
+      var data = null;
+      try { data = JSON.parse(request.responseText || "null"); } catch (_e) { data = null; }
+      done(data && typeof data === "object" ? data : { ok: false, error: request.status === 429 ? "rate_limited" : "server_error" });
+    };
+    request.onerror = request.ontimeout = function () { done({ ok: false, error: "offline" }); };
+    request.send(JSON.stringify(body));
+  }
+
+  function friendBlock(username, me) {
+    var box = make("div", "pp-add pp-friend");
+    var mode = friendMode(me, username);
+    box.setAttribute("data-mode", mode);
+    var at = "@" + username;
+
+    if (mode === "own") {
+      ownShown = true;
+      box.append(make("p", "pp-friend-line", "This is you. Friends can add you right here, or as " + at + " in the app."));
+      return box;
+    }
+
+    if (mode === "signin") {
+      var line = make("p", "pp-friend-line");
+      var b = make("b", "", at);
+      line.append(document.createTextNode("Sign in to add "), b, document.createTextNode(" as a friend."));
+      var go = make("a", "pp-friend-btn", "Sign in");
+      go.href = ROOT + "account/#signin";
+      go.setAttribute("data-me-keep", "");
+      box.append(line, go, make("p", "pp-friend-hint", "Or add " + at + " in Makullveny's Friends."));
+      return box;
+    }
+
+    /* Signed in: the button, then a password row that opens under it. */
+    var add = make("button", "pp-friend-btn", "Add friend");
+    add.type = "button";
+    add.setAttribute("aria-expanded", "false");
+    var form = make("form", "pp-friend-form");
+    form.hidden = true;
+    form.setAttribute("novalidate", "");
+    var who = document.createElement("input");
+    who.type = "text";
+    who.autocomplete = "username";
+    who.value = me.username || "";
+    who.className = "pp-friend-who";
+    who.setAttribute("aria-label", "Your username or email");
+    who.placeholder = "Your username or email";
+    /* The username is known: a password manager still sees it, the student
+       does not have to. Without one (an email-only sign-in), they type it. */
+    if (me.username) { who.hidden = true; who.tabIndex = -1; }
+    var label = make("label", "pp-friend-label", "Your password, to send it as you");
+    var pass = document.createElement("input");
+    pass.type = "password";
+    pass.autocomplete = "current-password";
+    pass.required = true;
+    pass.className = "pp-friend-pass";
+    pass.id = "ppFriendPass";
+    label.htmlFor = pass.id;
+    var send = make("button", "pp-friend-btn", "Send request");
+    send.type = "submit";
+    var row = make("div", "pp-friend-row");
+    row.append(pass, send);
+    form.append(who, label, row, make("p", "pp-friend-hint", "Makullveny's website keeps no sign-in, so it asks each time."));
+    var status = make("p", "pp-friend-status");
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+    status.hidden = true;
+
+    function say(words) {
+      status.textContent = words ? words.text : "";
+      status.setAttribute("data-tone", words ? words.tone : "");
+      status.hidden = !words;
+    }
+
+    add.addEventListener("click", function () {
+      form.hidden = !form.hidden;
+      add.setAttribute("aria-expanded", String(!form.hidden));
+      if (!form.hidden) (me.username ? pass : who).focus();
+    });
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var url = friendEndpoint(CONFIG.apiUrl);
+      var identifier = String(who.value || "").trim();
+      var password = String(pass.value || "");
+      if (!identifier || !password) { say(friendWords({ ok: false, error: "bad_request" }, username)); return; }
+      if (!url) { say(friendWords({ ok: false, error: "server_error" }, username)); return; }
+      send.disabled = true;
+      send.textContent = "Sending…";
+      postJson(url, { action: "friend", identifier: identifier, password: password, target: username }, function (answer) {
+        pass.value = "";
+        send.disabled = false;
+        send.textContent = "Send request";
+        var words = friendWords(answer, username);
+        say(words);
+        if (words.done) {
+          form.hidden = true;
+          add.textContent = words.done;
+          add.disabled = true;
+          add.setAttribute("aria-expanded", "false");
+          box.setAttribute("data-mode", "done");
+        } else if (answer && answer.error === "invalid_credentials") {
+          pass.focus();
+        }
+      });
+    });
+
+    box.append(add, form, status);
+    return box;
+  }
+
+  /* The line under a signed-in student's own card. */
+  function ownNote(me) {
+    return me && me.username
+      ? "This is you. Friends can add you as @" + me.username + " in the app. To show your classes and calendar here, make a profile link in Makullveny."
+      : "This is you. Pick a username in the Makullveny app so friends can add you.";
+  }
+
+  /* Whether this page is the signed-in student's own (signing out then
+     leaves for the sign-in page; on anybody else's it just redraws). */
+  var ownShown = false;
+
+  function renderOwn(me) {
+    ownShown = true;
+    var built = render({ displayName: me.displayName, username: me.username, avatarId: me.avatarId }, Date.now());
+    document.title = "Your profile — Makullveny";
+    /* The app's renderer draws the card (2026-09-28 merge of the own-profile
+       view onto the profile-parity page): the line under it says it is you,
+       in place of the "Have Makullveny? Add @x" a visitor reads. */
+    var side = built && built.sidebar && built.sidebar.side;
+    if (side) {
+      Array.prototype.forEach.call(side.querySelectorAll(".pp-add"), function (node) { node.remove(); });
+      var add = document.createElement("p");
+      add.className = "pp-add";
+      add.textContent = ownNote(me);
+      side.append(add);
+    }
+    var foot = el("ppFoot");
+    if (foot) {
+      foot.replaceChildren(document.createTextNode("Only you see this page, in this browser. "), make("a", "", "Your account"));
+      foot.lastChild.href = "../account/";
+      foot.lastChild.setAttribute("data-me-keep", "");
+    }
   }
 
   function open() {
@@ -423,11 +477,57 @@
       render(window.MAKULLVENY_PROFILE_FIXTURE, typeof window.MAKULLVENY_PROFILE_NOW === "number" ? window.MAKULLVENY_PROFILE_NOW : Date.now());
       return;
     }
-    var token = tokenFromHash();
-    if (!token) {
-      setState("This link is not complete. Ask whoever sent it for the full address.");
+    var me = currentMe();
+
+    /* THE /profile/ DOOR: by username. */
+    if (isProfilePath(window.location.pathname)) {
+      var name = usernameFromLocation(window.location.pathname, window.location.hash);
+      if (!name && me && me.username) name = me.username;
+      if (!name) {
+        if (me) { renderOwn(me); return; }
+        signInState();
+        return;
+      }
+      showCanonical(name);
+      fetchProfile({ action: "profile_at", username: name }, function (payload, status) {
+        if (payload) { render(payload, Date.now()); return; }
+        /* Your own address with no live link -- or your own PRIVATE profile:
+           your own card, as before ("Only you see this page"). */
+        if ((status === 404 || status === "private") && me && sameName(me.username, name)) { renderOwn(me); return; }
+        setState(stateForStatus(status));
+      });
       return;
     }
+
+    /* THE OLD u/ DOOR: by token, then the canonical address. */
+    var token = tokenFromHash();
+    if (!token) {
+      /* No token: the signed-in student's OWN page -- at its canonical
+         address when they have a username, else drawn here from the three
+         public facts account/me.js keeps. */
+      if (me && me.username) { window.location.replace(canonicalPath(me.username)); return; }
+      if (me) { renderOwn(me); return; }
+      signInState();
+      return;
+    }
+    fetchProfile({ action: "profile", token: token }, function (payload, status) {
+      if (!payload) { setState(stateForStatus(status)); return; }
+      render(payload, Date.now());
+      showCanonical(shapeProfile(payload).username);
+    });
+  }
+
+  function signInState() {
+    setState("This link is not complete. Ask whoever sent it for the full address.");
+    var state = el("ppState");
+    var signin = make("a", "", "Sign in");
+    signin.href = ROOT + "account/#signin";
+    state.append(document.createElement("br"), signin, document.createTextNode(" to see your own profile."));
+  }
+
+  /* ONE request to mak-share; done(payload) on success, done(null, status)
+     otherwise (0 = unreachable). */
+  function fetchProfile(body, done) {
     if (!CONFIG.apiUrl || !apiOriginAllowed(CONFIG.apiUrl)) {
       setState("Profile links are not open yet.");
       return;
@@ -437,16 +537,21 @@
     request.open("POST", CONFIG.apiUrl, true);
     request.setRequestHeader("Content-Type", "application/json");
     request.onload = function () {
-      if (request.status !== 200) { setState(stateForStatus(request.status)); return; }
+      if (request.status !== 200) {
+        var said = null;
+        try { said = JSON.parse(request.responseText); } catch (error) { said = null; }
+        done(null, request.status === 404 && said && said.error === "private" ? "private" : request.status);
+        return;
+      }
       var payload = null;
       try { payload = JSON.parse(request.responseText); } catch (error) { payload = null; }
-      if (!payload || payload.ok !== true) { setState(stateForStatus(404)); return; }
-      render(payload, Date.now());
+      if (!payload || payload.ok !== true) { done(null, 404); return; }
+      done(payload, 200);
     };
     request.onerror = function () { setState("This page could not be reached. Check your connection and try again."); };
     request.timeout = 20000;
     request.ontimeout = function () { setState("This is taking too long to open. Check your connection and reload the page."); };
-    request.send(JSON.stringify({ action: "profile", token: token }));
+    request.send(JSON.stringify(body));
   }
 
   if (typeof module !== "undefined" && module.exports) {
@@ -454,18 +559,32 @@
       tokenFromHash: tokenFromHash,
       apiOriginAllowed: apiOriginAllowed,
       shapeProfile: shapeProfile,
-      weekLayout: weekLayout,
+      weekLayout: VIEW.weekLayout,
       classCount: classCount,
-      colourFor: colourFor,
+      colourFor: VIEW.colourFor,
       stateForStatus: stateForStatus,
-      clock: clock,
+      ownNote: ownNote,
+      isProfilePath: isProfilePath,
+      usernameFromLocation: usernameFromLocation,
+      canonicalPath: canonicalPath,
+      friendMode: friendMode,
+      friendWords: friendWords,
+      friendEndpoint: friendEndpoint,
       ALLOWED_API_ORIGINS: ALLOWED_API_ORIGINS,
-      AVATARS: AVATARS
+      AVATARS: AVATARS,
+      THEMES: THEMES,
+      STAGE_BASE: STAGE_BASE
     };
   }
 
   if (hasWindow && typeof document !== "undefined" && document.getElementById && document.getElementById("ppMain")) {
     window.addEventListener("hashchange", function () { window.location.reload(); });
+    /* Signed in or out in another tab: the own card, and the Add friend
+       block on anybody's page, both depend on who is signed in. */
+    window.addEventListener("storage", function (e) { if (e.key === "makullveny.me.v1") window.location.reload(); });
+    window.addEventListener("makullveny-signout", function () {
+      if (ownShown) window.location.replace(ROOT + "account/#signin"); else window.location.reload();
+    });
     open();
   }
 })();

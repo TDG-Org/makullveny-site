@@ -139,6 +139,13 @@ test("404 exists at the repository root, where Pages actually looks", function (
   // stylesheet on the page that explains a broken link is a bad joke.
   var notFound = fs.readFileSync(path.join(__dirname, "..", "404.html"), "utf8");
   assert.match(notFound, /<style>/, "the 404 must not depend on an external stylesheet");
-  assert.doesNotMatch(notFound, /<script/i, "the 404 needs no script");
+  // ONE inline script, and only the old group-link move (2026-09-30): the app
+  // made /g/<token> links, which Pages can only answer with this page. No
+  // external script, ever -- it must stand alone.
+  var scripts = notFound.match(/<script[^>]*>[\s\S]*?<\/script>/gi) || [];
+  assert.equal(scripts.length, 1, "the 404 carries exactly one script");
+  assert.doesNotMatch(scripts[0], /<script[^>]*\ssrc=/i, "the 404's script is inline");
+  assert.match(scripts[0], /\^\\\/g\\\/\(\[a-z2-9\]\{16,64\}\)\\\/\?\$/);
+  assert.match(scripts[0], /window\.location\.replace\("\/g\/#" \+ m\[1\]\.toLowerCase\(\)\)/);
   assert.match(notFound, /That page isn/);
 });

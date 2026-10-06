@@ -844,7 +844,7 @@
 
     /* ══ THE DOWNLOAD WARNING: read it first ══════════════════════════ */
     /* The line under "Windows will warn you once" draws itself once, and the
-       download button waits 1.25 s with a spinner (site.js), so the warning
+       download button waits 2.25 s with a spinner (site.js), so the warning
        is the first thing read -- not the button. */
     .dl-uline { background-image:linear-gradient(90deg,#e7a061,#f0c88f); background-repeat:no-repeat;
       background-position:0 100%; background-size:0% 2px; padding-bottom:5px;
@@ -857,7 +857,7 @@
     .dl-guide-go.is-waiting::before { content:""; position:absolute; left:22px; top:50%; width:15px; height:15px; margin-top:-8.5px;
       border-radius:50%; border:2px solid rgba(36,21,5,.28); border-top-color:#241505; animation:dl-spin .75s linear infinite; }
     .dl-guide-go.is-waiting::after { content:""; position:absolute; left:0; bottom:0; height:3px; border-radius:0 0 999px 999px;
-      background:rgba(36,21,5,.35); animation:dl-wait 1.25s linear forwards; }
+      background:rgba(36,21,5,.35); animation:dl-wait 2.25s linear forwards; }
     @keyframes dl-spin { to { transform:rotate(360deg); } }
     @keyframes dl-wait { from { width:0; } to { width:100%; } }
     @media (prefers-reduced-motion:reduce) {
@@ -1081,13 +1081,18 @@
     /* card to the LEFT of the arrow, not under it: the arrow's tail starts at
        the card's edge, and the pair stays short enough to leave the dialog
        where it is on most screens */
-    .dl-where { position:fixed; inset:4px 12px auto auto; margin:0; padding:0; border:0; background:transparent;
+    /* Chrome's download icon sits left of the profile and menu buttons, and
+       further left again with extension pills -- owner's screenshot,
+       2026-09-30: ~215px in from the right edge. The tip aims about there
+       (190px in), and steeply up at the toolbar rather than into the corner;
+       a narrow window slides it back toward the edge so the card stays on. */
+    .dl-where { position:fixed; inset:2px clamp(12px, calc(100vw - 340px), 168px) auto auto; margin:0; padding:0; border:0; background:transparent;
       overflow:visible; color:inherit; max-width:calc(100vw - 24px);
       display:flex; flex-direction:row; align-items:flex-start; pointer-events:none; }
     .dl-where[hidden] { display:none; }
     .dl-where-arrow { order:2; flex:none; display:block; margin-left:-10px; filter:drop-shadow(0 0 10px rgba(255,154,60,.55)) drop-shadow(0 4px 8px rgba(0,0,0,.6));
       animation:dl-where-bob 1.1s cubic-bezier(.45,0,.55,1) infinite; }
-    @keyframes dl-where-bob { 0%,100% { transform:translate(0,0); } 50% { transform:translate(9px,-9px); } }
+    @keyframes dl-where-bob { 0%,100% { transform:translate(0,0); } 50% { transform:translate(5px,-8px); } }
     .dl-where-card { order:1; width:236px; margin-top:34px; padding:12px 15px 13px; border-radius:15px;
       background:linear-gradient(160deg,#3a2410,#241608); border:1.5px solid rgba(255,197,138,.55);
       box-shadow:0 18px 44px rgba(0,0,0,.6), 0 0 0 5px rgba(255,154,60,.1);
@@ -2286,7 +2291,7 @@
          right of the viewport is directly under the browser's toolbar. site.js words
          the line for the browser it can recognise. -->
     <div class="dl-where" popover="manual" data-dl-where hidden>
-      <svg class="dl-where-arrow" width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true"><path d="M12 80C18 56 40 34 74 16" stroke="#ff9a3c" stroke-width="6" stroke-linecap="round"/><path d="M52 11 77 14 70 38" stroke="#ff9a3c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg class="dl-where-arrow" width="88" height="88" viewBox="0 0 88 88" fill="none" aria-hidden="true"><path d="M14 84C18 62 47 36 64 11" stroke="#ff9a3c" stroke-width="6" stroke-linecap="round"/><path d="M43 16 66 8 66 32" stroke="#ff9a3c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       <div class="dl-where-card" role="status">
         <b>Your download is up here</b>
         <span data-dl-where-say>Open it from here when it&#8217;s done.</span>

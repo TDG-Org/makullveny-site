@@ -1,5 +1,5 @@
 /* The signed-in chip in every page's top bar (account/me.js). */
-.topbar nav a.me-chip, .ac-top a.me-chip {
+.topbar nav a.me-chip, .ac-top a.me-chip, .pp-actions a.me-chip {
   display: inline-flex; align-items: center; gap: 9px;
   padding: 4px 14px 4px 4px; min-height: 40px;
   border-radius: 999px; border: 1px solid rgba(255, 236, 203, .22);
@@ -9,7 +9,7 @@
   transition: border-color .25s ease, background .25s ease;
 }
 .topbar nav a.me-chip::after { display: none; }
-.topbar nav a.me-chip:hover, .ac-top a.me-chip:hover { border-color: rgba(240, 200, 143, .55); background: rgba(40, 26, 16, .75); color: #fff3e0; }
+.topbar nav a.me-chip:hover, .ac-top a.me-chip:hover, .pp-actions a.me-chip:hover { border-color: rgba(240, 200, 143, .55); background: rgba(40, 26, 16, .75); color: #fff3e0; }
 .me-disc {
   width: 32px; height: 32px; flex: none; border-radius: 50%; overflow: hidden;
   display: grid; place-items: center;
@@ -25,7 +25,7 @@
 .me-disc[data-avatar="6"] { background: #f6dcec; }
 .me-disc[data-avatar="7"] { background: #f8e7db; }
 .me-initial { font: 700 15px/1 Lora, Georgia, serif; color: #241505; }
-.ac-top .me-out { margin-left: -6px; }
+.ac-top .me-out, .pp-actions .me-out { margin-left: -6px; }
 .me-name { max-width: 16ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .me-out {
   width: 34px; height: 34px; margin-left: -18px; padding: 0; flex: none;
@@ -36,7 +36,17 @@
 .me-out:focus-visible, .me-chip:focus-visible { outline: 2px solid #f0c88f; outline-offset: 3px; }
 @media (max-width: 980px) {
   .topbar nav a.me-chip { margin-top: 12px; justify-content: flex-start; border-top: 1px solid rgba(255, 236, 203, .22); }
-  .me-out { margin-left: 0; width: auto; height: 44px; justify-content: start; }
-  .me-out::after { content: "Sign out"; margin-left: 8px; font: 600 13.5px/1 Manrope, system-ui, sans-serif; }
-  .me-out { grid-auto-flow: column; }
+  /* In the phone menu, sign-out is a labelled row. */
+  .topbar .me-out { margin-left: 0; width: auto; height: 44px; justify-content: start; }
+  .topbar .me-out::after { content: "Sign out"; margin-left: 8px; font: 600 13.5px/1 Manrope, system-ui, sans-serif; }
+  .topbar .me-out { grid-auto-flow: column; }
+}
+/* The one-row top bars of account/ and u/: the chip and sign-out sit beside
+   Get the app, and on a phone the chip is the avatar alone so the row fits. */
+.ac-top a.me-chip { margin-left: auto; }
+.pp-actions { display: flex; align-items: center; gap: 12px; }
+@media (max-width: 640px) {
+  .pp-actions { gap: 8px; }
+  .ac-top .me-name, .pp-actions .me-name { display: none; }
+  .ac-top a.me-chip, .pp-actions a.me-chip { padding: 3px; }
 }

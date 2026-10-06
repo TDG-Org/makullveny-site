@@ -880,9 +880,10 @@
 
     // READ THE WARNING FIRST. Owner, 2026-09-27: the line under "Windows will
     // warn you once" draws itself once, and the download button holds for
-    // 1.25 s with a spinner before it can be pressed -- long enough to read
-    // the heading, short enough not to feel broken. Every opening replays it.
-    var HOLD_MS = 1250;
+    // 2.25 s with a spinner before it can be pressed -- long enough to read
+    // the heading, short enough not to feel broken (1.25 s was too quick,
+    // owner, 2026-09-30). Every opening replays it.
+    var HOLD_MS = 2250;
     var holdTimer = 0;
     function readFirst(panel) {
       var h = panel && panel.querySelector("h3");

@@ -1,0 +1,296 @@
+/*
+  A GROUP CALENDAR, SHARED BY LINK (g/) -- the calendar on the frame u/ uses.
+
+  ../u/themes.css gives every theme's tokens (read out of the app) and
+  ../u/profile.css the page around it: the theme's background, the brand
+  bar, the loading card, the footer. This file is only the calendar card and
+  the "get the app" card. Every colour is a theme token, except a person's
+  colour, which group.js sets as --gp-person / --gp-ink from its own
+  palette by the colour number the member picked, else by slot (never a
+  colour from the network -- only ever an index into its own tables).
+
+  Wide screens get the week grid (one lane per person per day, like the app)
+  or the month grid; a phone gets the same days as a list.
+*/
+
+.gp { display: grid; gap: 18px; max-width: 1180px; margin: 0 auto; }
+
+.gp-card,
+.gp-invite {
+  border-radius: 22px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow, 0 18px 40px rgba(0, 0, 0, 0.25));
+  color: var(--panel-text);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.gp-card { padding: 22px 22px 18px; min-width: 0; }
+
+.gp-kicker {
+  margin: 0 0 4px;
+  color: var(--panel-muted-strong);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.gp-title {
+  margin: 0;
+  color: var(--panel-heading);
+  font-family: "Lora", Georgia, serif;
+  font-size: clamp(26px, 4vw, 34px);
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.gp-sub { margin: 6px 0 0; color: var(--panel-muted-strong); font-size: 15px; }
+
+/* ── who is which colour ── */
+.gp-key { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 14px; }
+
+.gp-key-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 16rem;
+  padding: 5px 12px 5px 6px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-soft-bg);
+  color: var(--panel-heading);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.gp-key-swatch { flex: none; width: 18px; height: 18px; border-radius: 6px; background: var(--gp-person); }
+.gp-key-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-key-note { color: var(--panel-muted-strong); font-size: 13px; margin-left: 4px; }
+
+/* ── the week ── */
+.gp-panel { min-width: 0; }
+.gp-week-wrap { overflow-x: auto; }
+.gp-week { min-width: 680px; }
+
+.gp-week-head {
+  display: grid;
+  grid-template-columns: 52px repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.gp-week-day { display: grid; justify-items: center; gap: 2px; }
+.gp-week-dayname { color: var(--panel-muted-strong); font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.gp-week-date {
+  display: grid;
+  place-items: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  color: var(--panel-heading);
+  font-size: 18px;
+  font-weight: 800;
+}
+.gp-week-day[data-today="true"] .gp-week-date { background: var(--accent); color: var(--on-accent); }
+
+.gp-week-body {
+  position: relative;
+  display: grid;
+  grid-template-columns: 52px repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.gp-week-ruler { position: relative; }
+.gp-week-hour {
+  position: absolute;
+  left: 0;
+  transform: translateY(-2px);
+  color: var(--panel-muted-strong);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.gp-week-col {
+  position: relative;
+  border-radius: 10px;
+  background: var(--panel-softer-bg, rgba(255, 255, 255, 0.04));
+}
+
+.gp-week-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--panel-border);
+}
+
+.gp-block {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  overflow: hidden;
+  padding: 3px 4px;
+  border-radius: 7px;
+  line-height: 1.15;
+}
+.gp-block[data-kind="class"] { background: var(--gp-person); color: var(--gp-ink); }
+.gp-block[data-kind="event"] {
+  border: 2px solid var(--gp-person);
+  background: color-mix(in srgb, var(--gp-person) 16%, transparent);
+  color: var(--panel-heading);
+}
+
+.gp-block-dot {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+.gp-block[data-kind="class"] .gp-block-dot { background: var(--gp-ink); color: var(--gp-person); }
+.gp-block[data-kind="event"] .gp-block-dot { background: var(--gp-person); color: var(--gp-ink); }
+
+.gp-block-head { display: flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; }
+.gp-block-title,
+.gp-block-time { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-block-title { font-size: 12px; font-weight: 800; }
+.gp-block-time { font-size: 11px; font-weight: 650; opacity: 0.92; }
+
+/* NARROW LANES (ten seats, 2026-10-02). Up to ten people can overlap in one
+   day's column, so a block can be 25-50px wide. Each block is its own
+   container and reads its OWN width: under ~64px the initial sits ABOVE the
+   title (so the title gets the whole width, not 1 letter beside the dot) and
+   the time goes (it is in the tooltip and the label); under ~34px only the
+   initial is left. The colour and the initial still say whose it is. */
+.gp-block { container-type: inline-size; }
+@container (max-width: 64px) {
+  .gp-block-head { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .gp-block-title { font-size: 11px; }
+  .gp-block-time { display: none; }
+}
+@container (max-width: 34px) {
+  .gp-block-head { align-items: center; width: 100%; }
+  .gp-block-title { display: none; }
+}
+
+/* ── the month ── */
+.gp-month-head,
+.gp-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.gp-month-head { margin-bottom: 6px; }
+.gp-month-weekday { color: var(--panel-muted-strong); font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-align: center; text-transform: uppercase; }
+
+.gp-month-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  min-height: 92px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-softer-bg, rgba(255, 255, 255, 0.04));
+}
+.gp-month-cell[data-outside="true"] { opacity: 0.45; }
+.gp-month-cell[data-today="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.gp-month-num { color: var(--panel-heading); font-size: 13px; font-weight: 800; }
+
+.gp-month-entry { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--panel-heading); font-size: 12px; font-weight: 650; }
+.gp-month-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--gp-person); }
+.gp-month-entry[data-kind="event"] .gp-month-dot { background: transparent; box-shadow: inset 0 0 0 2px var(--gp-person); }
+.gp-month-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gp-month-more { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; color: var(--panel-muted-strong); font-size: 11px; font-weight: 700; }
+/* Whose the hidden ones are: one small dot per person, so "+9 more" on a
+   ten-person day still says who. */
+.gp-month-more-dot { flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--gp-person); }
+.gp-month-more-dot:first-of-type { margin-left: 3px; }
+
+/* ── the list (phones) ── */
+.gp-list { display: none; gap: 14px; }
+.gp-list-day { display: grid; gap: 6px; }
+.gp-list-date { margin: 0; color: var(--panel-heading); font-size: 15px; font-weight: 800; }
+
+.gp-list-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-soft-bg);
+}
+.gp-list-swatch { flex: none; align-self: stretch; width: 6px; min-height: 30px; border-radius: 4px; background: var(--gp-person); }
+.gp-list-row[data-kind="event"] .gp-list-swatch { background: transparent; box-shadow: inset 0 0 0 2px var(--gp-person); }
+.gp-list-words { display: grid; gap: 1px; min-width: 0; }
+.gp-list-title { color: var(--panel-heading); font-size: 15px; font-weight: 750; overflow-wrap: anywhere; }
+.gp-list-meta { color: var(--panel-muted-strong); font-size: 13px; }
+
+.gp-empty { margin: 14px 0 4px; color: var(--panel-muted-strong); font-size: 15px; text-align: center; }
+.gp-private { margin: 14px 0 0; color: var(--panel-muted-strong); font-size: 13px; }
+
+/* ── for someone without the app ── */
+.gp-invite { padding: 20px 22px; }
+.gp-invite-title { margin: 0 0 6px; color: var(--panel-heading); font-family: "Lora", Georgia, serif; font-size: 22px; }
+.gp-invite-text { margin: 0 0 14px; color: var(--panel-text); font-size: 15px; max-width: 46rem; }
+.gp-invite-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+.gp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border-strong, var(--panel-border));
+  background: var(--panel-soft-bg);
+  color: var(--panel-heading);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.gp-btn:hover { border-color: var(--accent); }
+.gp-btn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.gp-btn-main { border-color: transparent; background: var(--accent); color: var(--on-accent); }
+.gp-btn-main:hover { filter: brightness(1.06); }
+
+@media (max-width: 760px) {
+  .gp-desktop { display: none; }
+  .gp-list { display: grid; }
+  .gp-card { padding: 18px 16px 14px; }
+  .gp-key-note { flex-basis: 100%; margin-left: 0; }
+}
+
+/* THE STUDY TEAM INVITE (2026-10-02): under the calendar's name. */
+.gp-join {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.gp-join-words { margin: 0; font-weight: 700; }
+.gp-join-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.gp-join-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent, #fff);
+  font-weight: 800;
+  text-decoration: none;
+}
+.gp-join-get { color: inherit; font-size: 0.9rem; }

@@ -12,6 +12,33 @@
       the page that explains a broken link is a bad joke. No external CSS, no
       script, no fonts.
     -->
+    <!--
+      THE ONE SCRIPT HERE (2026-09-30): the Makullveny app made group calendar
+      links as /g/<token> until it learned to make /g/#<token>. GitHub Pages
+      has no page for the first shape, so it lands HERE -- "That page isn't
+      here" -- which is exactly what the owner saw. Only that one exact shape
+      is moved to the real page, with the token in the fragment; every other
+      missing path still gets the page below. Inline on purpose: this file
+      must work when nothing else on the site loads.
+
+      TWO MORE SHAPES (2026-09-30): a profile's canonical address is
+      /profile/<username>, which has no file either -- it moves to
+      /profile/#<username>, and that page puts /profile/<username> back in the
+      address bar. And /u/<token> (a profile link with its token pasted into
+      the path) moves to /u/#<token>, which opens it and then shows the
+      canonical address too.
+    -->
+    <script>
+      (function () {
+        var path = window.location.pathname;
+        var m = /^\/g\/([a-z2-9]{16,64})\/?$/i.exec(path);
+        if (m) { window.location.replace("/g/#" + m[1].toLowerCase()); return; }
+        m = /^\/profile\/@?([A-Za-z0-9_]{3,20})\/?$/.exec(path);
+        if (m) { window.location.replace("/profile/#" + m[1]); return; }
+        m = /^\/u\/([a-z2-9]{16,64})\/?$/i.exec(path);
+        if (m) window.location.replace("/u/#" + m[1].toLowerCase());
+      })();
+    </script>
     <meta name="robots" content="noindex, follow">
     <title>Makullveny — page not found</title>
     <link rel="icon" href="/assets/icons/icon.svg" type="image/svg+xml">

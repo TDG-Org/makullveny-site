@@ -72,6 +72,7 @@ function loadMe() {
       readyState: "complete",
       currentScript: { src: "https://www.makullveny.com/account/me.js" },
       querySelector: function () { return null; },
+      querySelectorAll: function () { return []; },
       addEventListener: function () {}
     }
   };
@@ -94,14 +95,44 @@ test("me.js re-checks what it reads back: a bad handle, a bad avatar", function 
   var me = t.me.get();
   assert.equal(me.username, "");
   assert.equal(me.avatarId, 0);
-  assert.equal(t.me.profileUrl(me), "");
   t.store["makullveny.me.v1"] = "not json";
   assert.equal(t.me.get(), null);
 });
 
-test("the avatar opens the TDG profile page for that handle", function () {
+test("the avatar opens the student's own Makullveny profile page, never TDG's", function () {
   var t = loadMe();
-  assert.equal(t.me.profileUrl({ username: "maya_r" }), "https://tdg-org.github.io/TDG-Site/#/user/maya_r");
+  // 2026-09-30: the canonical address, profile/<username> -- the page friends
+  // open; without a username, profile/ draws the student's own card.
+  assert.equal(t.me.profileUrl({ username: "maya_r" }), "https://www.makullveny.com/profile/maya_r");
+  assert.equal(t.me.profileUrl({ username: "", displayName: "Maya" }), "https://www.makullveny.com/profile/");
+  assert.equal(t.me.profileUrl(null), "");
+  assert.doesNotMatch(fs.readFileSync(path.join(ROOT, "account", "me.js"), "utf8"), /TDG-Site/);
   t.me.clear();
   assert.equal(t.store["makullveny.me.v1"], undefined);
+});
+
+test("every local link and file on every page exists", function () {
+  var bad = [];
+  var files = [];
+  (function walk(dir) {
+    for (var name of fs.readdirSync(dir)) {
+      if (name === "node_modules" || name === "design" || name.charAt(0) === ".") continue;
+      var full = path.join(dir, name);
+      if (fs.statSync(full).isDirectory()) walk(full);
+      else if (/\.html$/.test(name)) files.push(full);
+    }
+  })(ROOT);
+  for (var file of files) {
+    var html = fs.readFileSync(file, "utf8");
+    for (var m of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
+      var url = m[1];
+      if (/^(?:[a-z][a-z0-9+.-]*:|#|\$\{)/i.test(url)) continue;
+      url = url.split("#")[0].split("?")[0];
+      if (!url) continue;
+      var target = path.join(path.dirname(file), url);
+      if (fs.existsSync(target) && fs.statSync(target).isDirectory()) target = path.join(target, "index.html");
+      if (!fs.existsSync(target)) bad.push(path.relative(ROOT, file) + " -> " + m[1]);
+    }
+  }
+  assert.deepEqual(bad, []);
 });

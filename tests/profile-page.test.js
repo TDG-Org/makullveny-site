@@ -50,6 +50,7 @@ test("shapeProfile keeps only what the page draws, and never an id, email or roo
     displayName: "Maya Reyes",
     username: "mayareads",
     avatarId: 3,
+    look: { v: 1, theme: "cozy-cabin", bg: true, order: ["calendar", "classes", "selah", "achievements"], wide: ["calendar"] },
     bio: "Bio major.",
     classes: [{ t: "BIO 110", s: 100, e: 150 }],
     achievements: 12
@@ -107,6 +108,8 @@ test("revoked, unknown and malformed all read the same sentence", function () {
   assert.equal(P.stateForStatus(404), P.stateForStatus(400));
   assert.equal(P.stateForStatus(404), P.stateForStatus(0));
   assert.doesNotMatch(P.stateForStatus(404), /revoked|expired|banned/i);
+  // A private profile (2026-10-01) says so, calmly, and only that.
+  assert.equal(P.stateForStatus("private"), "This profile is private.");
 });
 
 test("a class keeps one colour, from this page's own palette", function () {
@@ -117,13 +120,184 @@ test("a class keeps one colour, from this page's own palette", function () {
 test("the page holds no key and renders nothing as markup", function () {
   var source = fs.readFileSync(path.join(ROOT, "u", "profile.js"), "utf8");
   assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML/);
+  var view = fs.readFileSync(path.join(ROOT, "u", "profile-view.js"), "utf8");
+  assert.doesNotMatch(view, /innerHTML|outerHTML|insertAdjacentHTML|document\.write/);
+  assert.doesNotMatch(view, /fetch\(|XMLHttpRequest/);
   assert.doesNotMatch(source, /service_role|sk_live_|eyJ[A-Za-z0-9_-]{10}/);
   assert.doesNotMatch(source, /\?token=|\?p_token=/);
-  assert.match(source, /request\.send\(JSON\.stringify\(\{ action: "profile", token: token \}\)\)/);
+  // The token rides in a POST body (fetchProfile sends the body it is given).
+  assert.match(source, /fetchProfile\(\{ action: "profile", token: token \}/);
+  assert.match(source, /request\.send\(JSON\.stringify\(body\)\)/);
+  // The Add friend password is never kept: no storage write anywhere here.
+  assert.doesNotMatch(source, /localStorage|sessionStorage|document\.cookie/);
+});
+
+/* ── /profile/<username> and Add friend (2026-09-30) ─────────────────────── */
+
+test("a /profile/ address names its username from the path or from 404.html's fragment", function () {
+  assert.equal(P.usernameFromLocation("/profile/maya_r", ""), "maya_r");
+  assert.equal(P.usernameFromLocation("/profile/maya_r/", ""), "maya_r");
+  assert.equal(P.usernameFromLocation("/profile/", "#maya_r"), "maya_r");
+  assert.equal(P.usernameFromLocation("/profile/", "#@Maya_R"), "Maya_R");
+  assert.equal(P.usernameFromLocation("/profile/", ""), "");
+  assert.equal(P.usernameFromLocation("/profile/", "#no spaces"), "");
+  assert.equal(P.usernameFromLocation("/profile/", "#ab"), "");
+  assert.equal(P.usernameFromLocation("/profile/%3Cb%3E", ""), "");
+  assert.equal(P.isProfilePath("/profile/"), true);
+  assert.equal(P.isProfilePath("/profile/maya_r"), true);
+  assert.equal(P.isProfilePath("/u/"), false);
+});
+
+test("the canonical address is <root>profile/<username>, and nothing for a bad name", function () {
+  assert.equal(P.canonicalPath("maya_r", "https://www.makullveny.com/"), "/profile/maya_r");
+  assert.equal(P.canonicalPath("maya_r", "/"), "/profile/maya_r");
+  assert.equal(P.canonicalPath("maya_r", "https://tdg-org.github.io/makullveny-site/"), "/makullveny-site/profile/maya_r");
+  assert.equal(P.canonicalPath("../evil", "/"), "");
+  assert.equal(P.canonicalPath("", "/"), "");
+});
+
+test("Add friend: signed out is a sign-in prompt, your own page says so, anybody else can be added", function () {
+  assert.equal(P.friendMode(null, "leo"), "signin");
+  assert.equal(P.friendMode({ username: "Maya_R" }, "maya_r"), "own");
+  assert.equal(P.friendMode({ username: "maya_r" }, "leo"), "add");
+  assert.equal(P.friendMode({ username: "", displayName: "Maya" }, "leo"), "add");
+});
+
+test("Add friend: every answer the server gives has its own sentence, and the done ones settle the button", function () {
+  var outcomes = { requested: "Requested", friends: "Friends", already_friends: "Friends", already_asked: "Requested", self: "You",
+    not_taking: "", not_found: "", blocked: "", limit: "" };
+  var seen = {};
+  Object.keys(outcomes).forEach(function (outcome) {
+    var w = P.friendWords({ ok: true, outcome: outcome }, "leo");
+    assert.ok(w.text.length > 5, outcome);
+    assert.equal(w.done, outcomes[outcome], outcome);
+    assert.ok(!seen[w.text] || outcome === "already_friends" || outcome === "friends", "one sentence each: " + outcome);
+    seen[w.text] = true;
+  });
+  assert.match(P.friendWords({ ok: false, error: "invalid_credentials" }, "leo").text, /password/i);
+  assert.equal(P.friendWords({ ok: false, error: "invalid_credentials" }, "leo").done, "");
+  assert.match(P.friendWords({ ok: false, error: "rate_limited" }, "leo").text, /wait/i);
+  assert.match(P.friendWords({ ok: false, error: "weird" }, "leo").text, /our side/i);
+  // A blocked-by and a nobody read the same (the server already folds them).
+  assert.doesNotMatch(P.friendWords({ ok: true, outcome: "not_found" }, "leo").text, /block/i);
+});
+
+test("Add friend talks only to mak-web-signup on the one pinned origin", function () {
+  assert.equal(P.friendEndpoint("https://ddbksawvchsauiuiwvrl.supabase.co/functions/v1/mak-share"),
+    "https://ddbksawvchsauiuiwvrl.supabase.co/functions/v1/mak-web-signup");
+  assert.equal(P.friendEndpoint("https://evil.example/functions/v1/mak-share"), "");
+  assert.equal(P.friendEndpoint(""), "");
+});
+
+test("profile/ is the same page as u/: same CSP, same scripts in the same order", function () {
+  var u = fs.readFileSync(path.join(ROOT, "u", "index.html"), "utf8");
+  var prof = fs.readFileSync(path.join(ROOT, "profile", "index.html"), "utf8");
+  var csp = function (html) { return /http-equiv="Content-Security-Policy" content="([^"]+)"/.exec(html)[1]; };
+  assert.equal(csp(prof), csp(u));
+  var scripts = (prof.match(/<script src="[^"]+"><\/script>/g) || []);
+  assert.deepEqual(scripts, [
+    '<script src="../read/config.js"></script>',
+    '<script src="../account/me.js"></script>',
+    '<script src="../u/profile-view.js"></script>',
+    '<script src="../u/profile.js"></script>'
+  ]);
+  assert.match(prof, /<main class="pp-main" id="ppMain">/);
+});
+
+test("404.html moves /profile/<username> and /u/<token> to the real pages, and nothing else new", function () {
+  var html = fs.readFileSync(path.join(ROOT, "404.html"), "utf8");
+  var script = /<script>([\s\S]*?)<\/script>/.exec(html)[1];
+  function landing(pathname) {
+    var moved = null;
+    var window = { location: { pathname: pathname, replace: function (to) { moved = to; } } };
+    new Function("window", script)(window);
+    return moved;
+  }
+  assert.equal(landing("/profile/maya_r"), "/profile/#maya_r");
+  assert.equal(landing("/profile/maya_r/"), "/profile/#maya_r");
+  assert.equal(landing("/profile/@maya_r"), "/profile/#maya_r");
+  assert.equal(landing("/u/abcdefghijkmnpqrstuvw"), "/u/#abcdefghijkmnpqrstuvw");
+  assert.equal(landing("/g/abcdefghijkmnpqrstuvw"), "/g/#abcdefghijkmnpqrstuvw");
+  assert.equal(landing("/profile/a"), null);
+  assert.equal(landing("/profile/<script>"), null);
+  assert.equal(landing("/nope"), null);
 });
 
 test("every avatar the page can draw exists on this site", function () {
   Object.keys(P.AVATARS).forEach(function (id) {
     assert.ok(fs.existsSync(path.join(ROOT, "assets", "site", "avatars", P.AVATARS[id].file)), P.AVATARS[id].file);
+  });
+});
+
+test("opened with no link while signed in, the page draws the student's own card", function () {
+  var html = fs.readFileSync(path.join(ROOT, "u", "index.html"), "utf8");
+  // me.js must run before profile.js, which asks it who is signed in.
+  assert.ok(html.indexOf('src="../account/me.js"') > 0);
+  assert.ok(html.indexOf('src="../account/me.js"') < html.indexOf('src="./profile.js"'));
+  assert.match(P.ownNote({ username: "maya_r" }), /@maya_r/);
+  assert.doesNotMatch(P.ownNote({ username: "", displayName: "Maya" }), /@/);
+});
+
+/* ── the look (2026-09-28, "profile parity") ─────────────────────────────── */
+
+test("the look is a theme KEY from this site's own list, never a URL or a colour", function () {
+  var shaped = P.shapeProfile({ displayName: "Maya", look: { theme: "snow-cabin", bg: false, order: ["selah"], wide: [] } });
+  assert.deepEqual(shaped.look, { v: 1, theme: "snow-cabin", bg: false, order: ["selah", "calendar", "classes", "achievements"], wide: [] });
+  assert.equal(P.shapeProfile({ look: { theme: "not-a-theme" } }).look.theme, "cozy-cabin");
+  assert.equal(P.shapeProfile({ look: { theme: "url(x)" } }).look.theme, "cozy-cabin");
+  assert.equal(P.shapeProfile({ look: { theme: "snow-cabin", accent: "pink" } }).look.accent, undefined);
+  assert.equal(P.shapeProfile({ look: { theme: "terminal-hacker", accent: "pink" } }).look.accent, "pink");
+});
+
+test("an old link with no look draws the first-time look (Cozy Cabin, art on)", function () {
+  var shaped = P.shapeProfile({ displayName: "Maya", classes: [] });
+  assert.equal(shaped.look.theme, "cozy-cabin");
+  assert.equal(shaped.look.bg, true);
+});
+
+test("every theme on the list has its colours in themes.css, and every picture it names exists", function () {
+  var css = fs.readFileSync(path.join(ROOT, "u", "themes.css"), "utf8");
+  P.THEMES.forEach(function (theme) {
+    if (theme === "cozy-cabin") assert.match(css, /:root,\s*:root\[data-theme="cozy-cabin"\] \{/);
+    else assert.ok(css.indexOf(':root[data-theme="' + theme + '"] {') >= 0, theme);
+  });
+  var urls = css.match(/url\("[^"]+"\)/g) || [];
+  assert.ok(urls.length >= P.THEMES.length);
+  urls.forEach(function (u) {
+    var rel = u.slice(5, -2).replace(/^\.\.\//, "");
+    assert.ok(fs.existsSync(path.join(ROOT, rel)), rel);
+  });
+});
+
+test("Selah's library art exists for every stage", function () {
+  for (var n = 1; n <= 5; n += 1) {
+    assert.ok(fs.existsSync(path.join(ROOT, "assets", "site", "profile", "selah-stage-" + n + ".webp")), "stage " + n);
+  }
+});
+
+test("Selah's numbers are clamped and its name is plain text", function () {
+  var shaped = P.shapeProfile({ selah: { name: " <b>Willow</b>  Hall ", stage: 3, coins: 1e12, diamonds: -1, evil: "x" } });
+  assert.equal(shaped.selah.name, "<b>Willow</b> Hall");
+  assert.equal(shaped.selah.coins, 1e9);
+  assert.equal(shaped.selah.diamonds, 0);
+  assert.equal("evil" in shaped.selah, false);
+});
+
+test("the page loads the app's renderer before its own script, and no fixture ships", function () {
+  var html = fs.readFileSync(path.join(ROOT, "u", "index.html"), "utf8");
+  assert.ok(html.indexOf('<script src="./profile-view.js">') < html.indexOf('<script src="./profile.js">'));
+  assert.match(html, /<link rel="stylesheet" href="\.\/themes\.css">/);
+  assert.match(html, /<link rel="stylesheet" href="\.\/profile-view\.css">/);
+  assert.equal(fs.existsSync(path.join(ROOT, "u", "_fixture.js")), false);
+});
+
+/* THE MERGE OF 2026-09-28: main's own-profile view (renderOwn) landed on the
+   profile-parity page, which had dropped the `make` helper the signed-out
+   "Sign in" line and renderOwn both call -- a ReferenceError the moment a
+   signed-in student opened u/. Caught in a jsdom run before it went live. */
+test("the own-profile view's helpers are all defined on the new page", function () {
+  var src = fs.readFileSync(path.join(ROOT, "u", "profile.js"), "utf8");
+  ["make", "el", "render", "renderOwn", "ownNote", "setState"].forEach(function (name) {
+    assert.ok(new RegExp("function " + name + "\\(").test(src), name);
   });
 });

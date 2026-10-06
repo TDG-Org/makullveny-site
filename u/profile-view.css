@@ -1,0 +1,687 @@
+/*
+  A STUDENT'S PROFILE PAGE -- THE ONE STYLESHEET (2026-09-28, "profile parity").
+
+  Draws what src/publicProfileView.js builds. COPIED BYTE FOR BYTE to the
+  site as u/profile-view.css; tests/publicProfileParity.test.js fails the app
+  suite when the copies differ.
+
+  COLOURS ARE THE THEME'S OWN TOKENS ONLY (--panel-bg, --panel-text,
+  --accent ...). In the app they come from the theme the student is wearing;
+  on the site u/themes.css declares the same tokens per theme, read out of
+  the app. So one rule paints both, and no colour is typed twice.
+
+  Every size is on a class this file owns (pv-*), and every margin the app's
+  base styles or a browser might add is zeroed here, so neither host leaks in.
+  Layout reads the HOST's width (container queries), not the window's: the
+  app page and a phone browser both get the stacked layout at the same width.
+*/
+
+.pv-host {
+  container: pv-host / inline-size;
+  width: 100%;
+  min-width: 0;
+}
+
+.pv-page {
+  display: grid;
+  grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+  width: 100%;
+  margin: 0 auto;
+  color: var(--panel-text);
+}
+
+.pv-page[data-alone="true"] {
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
+}
+
+.pv-page h1,
+.pv-page h2,
+.pv-page h3,
+.pv-page p,
+.pv-page ul,
+.pv-page ol {
+  margin: 0;
+  padding: 0;
+}
+
+.pv-page ul,
+.pv-page ol {
+  list-style: none;
+}
+
+.pv-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 22px;
+  background: var(--panel-bg);
+  color: var(--panel-text);
+  box-shadow: var(--panel-shadow, 0 18px 50px rgba(0, 0, 0, 0.22));
+}
+
+.pv-icon {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.pv-icon svg {
+  display: block;
+}
+
+/* ── the sidebar ──────────────────────────────────────────────────────── */
+
+.pv-side {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.pv-who {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 30px 24px 26px;
+  text-align: center;
+  background:
+    radial-gradient(120% 70% at 50% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
+    var(--panel-bg);
+}
+
+.pv-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--pv-ground, linear-gradient(160deg, color-mix(in srgb, var(--accent) 80%, #fff), var(--accent)));
+  border: 4px solid color-mix(in srgb, var(--accent) 55%, var(--panel-border));
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.pv-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pv-avatar-initial {
+  color: var(--on-accent, #fff);
+  font-family: "Lora", Georgia, serif;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pv-page .pv-name {
+  margin-top: 6px;
+  color: var(--panel-heading);
+  font-family: "Lora", Georgia, serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.pv-handle {
+  color: var(--panel-muted-strong);
+  font-size: 15px;
+}
+
+.pv-handle[hidden] {
+  display: none;
+}
+
+.pv-bio {
+  width: 100%;
+  margin-top: 6px !important;
+  padding-top: 14px !important;
+  border-top: 1px solid var(--panel-border);
+  color: var(--panel-text);
+  font-size: 15px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+/* ── the widgets ──────────────────────────────────────────────────────── */
+
+.pv-main {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+  min-width: 0;
+}
+
+.pv-main[hidden] {
+  display: none;
+}
+
+.pv-widget {
+  container: pv-widget / inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  padding: 18px 20px 20px;
+}
+
+.pv-widget[data-wide="true"] {
+  grid-column: 1 / -1;
+}
+
+.pv-widget-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+}
+
+.pv-widget-head > .pv-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  color: var(--accent);
+}
+
+.pv-page .pv-widget-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--panel-heading);
+  font-family: "Lora", Georgia, serif;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.pv-widget-note {
+  color: var(--panel-muted-strong);
+  font-size: 12px;
+}
+
+.pv-widget-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.pv-empty,
+.pv-more {
+  color: var(--panel-muted-strong);
+  font-size: 14px;
+}
+
+.pv-empty {
+  padding: 18px;
+  border-radius: 14px;
+  background: var(--panel-soft-bg);
+  text-align: center;
+}
+
+/* Calendar: the week grid, or the list when the widget is narrow. */
+.pv-week-days {
+  display: flex;
+  padding-left: 52px;
+  margin-bottom: 8px;
+}
+
+.pv-week-day {
+  flex: 1 1 0;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+}
+
+.pv-week-day-name {
+  color: var(--panel-muted-strong);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pv-week-day-date {
+  color: var(--panel-heading);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.pv-week-body {
+  position: relative;
+  border-radius: 14px;
+  background: var(--panel-soft-bg);
+  border: 1px solid var(--panel-border);
+  overflow: hidden;
+}
+
+.pv-week-hour {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid color-mix(in srgb, var(--panel-border) 70%, transparent);
+}
+
+.pv-week-hour:first-child {
+  border-top-color: transparent;
+}
+
+.pv-week-hour-label {
+  position: absolute;
+  left: 8px;
+  top: 4px;
+  color: var(--panel-muted-strong);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.pv-week-lanes {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 52px;
+  right: 6px;
+}
+
+.pv-block {
+  position: absolute;
+  padding: 2px;
+}
+
+.pv-block-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 5px 8px;
+  border-radius: 9px;
+  border-left: 3px solid var(--pv-c, var(--accent-2, var(--accent)));
+  background: color-mix(in srgb, var(--pv-c, var(--accent-2, var(--accent))) 26%, transparent);
+  overflow: hidden;
+}
+
+.pv-block-event .pv-block-inner {
+  border-left-style: dashed;
+  background: color-mix(in srgb, var(--panel-text) 9%, transparent);
+}
+
+.pv-block-title {
+  color: var(--panel-heading);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pv-block-time {
+  color: var(--panel-muted-strong);
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pv-week-list {
+  display: none;
+}
+
+.pv-list-day {
+  margin: 0 0 12px;
+}
+
+.pv-list-day:last-child {
+  margin-bottom: 0;
+}
+
+.pv-page .pv-list-day-name {
+  margin-bottom: 6px;
+  color: var(--panel-muted-strong);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pv-list-rows {
+  display: grid;
+  gap: 6px;
+}
+
+.pv-list-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border-left: 3px solid var(--pv-c, var(--accent-2, var(--accent)));
+  background: color-mix(in srgb, var(--pv-c, var(--accent-2, var(--accent))) 18%, transparent);
+}
+
+.pv-list-row.pv-block-event {
+  border-left-style: dashed;
+  background: color-mix(in srgb, var(--panel-text) 8%, transparent);
+}
+
+.pv-list-time {
+  color: var(--panel-muted-strong);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.pv-list-title {
+  color: var(--panel-heading);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+@container pv-widget (max-width: 520px) {
+  .pv-week-grid {
+    display: none;
+  }
+
+  .pv-week-list {
+    display: block;
+  }
+}
+
+/* Classes */
+.pv-class-list {
+  display: grid;
+  gap: 8px;
+}
+
+.pv-class {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--panel-soft-bg);
+}
+
+.pv-class-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pv-c, var(--accent));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--pv-c, var(--accent)) 25%, transparent);
+}
+
+.pv-class-words {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pv-class-name {
+  color: var(--panel-heading);
+  font-size: 15px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pv-class-when {
+  color: var(--panel-muted-strong);
+  font-size: 12px;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Achievements */
+.pv-trophy {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.pv-trophy-value {
+  color: var(--panel-heading);
+  font-family: "Lora", Georgia, serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pv-trophy-label {
+  color: var(--panel-muted-strong);
+  font-size: 14px;
+}
+
+.pv-stars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  color: var(--accent);
+}
+
+/* Selah */
+.pv-selah {
+  display: grid;
+  grid-template-columns: minmax(0, 160px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+
+.pv-selah-art {
+  aspect-ratio: 1;
+  border-radius: 18px;
+  background:
+    radial-gradient(70% 60% at 50% 70%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+    var(--panel-soft-bg);
+  overflow: hidden;
+}
+
+.pv-selah-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.pv-selah-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pv-selah-name {
+  color: var(--panel-heading);
+  font-family: "Lora", Georgia, serif;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.pv-selah-stage {
+  color: var(--panel-muted-strong);
+  font-size: 13px;
+}
+
+.pv-selah-meter {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--panel-soft-bg);
+  overflow: hidden;
+}
+
+.pv-selah-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
+}
+
+.pv-selah-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 4px !important;
+}
+
+.pv-selah-stat {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 8px;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 12px;
+  background: var(--panel-soft-bg);
+}
+
+.pv-selah-stat > .pv-icon {
+  grid-row: 1 / 3;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.pv-selah-stat[data-stat="coins"] > .pv-icon { color: #e0a458; background: color-mix(in srgb, #e0a458 18%, transparent); }
+.pv-selah-stat[data-stat="diamonds"] > .pv-icon { color: #6fc3df; background: color-mix(in srgb, #6fc3df 18%, transparent); }
+.pv-selah-stat[data-stat="sapphires"] > .pv-icon { color: #6c86e0; background: color-mix(in srgb, #6c86e0 18%, transparent); }
+.pv-selah-stat[data-stat="points"] > .pv-icon { color: var(--accent); background: color-mix(in srgb, var(--accent) 18%, transparent); }
+.pv-selah-stat[data-stat="streak"] > .pv-icon { color: #e07a4f; background: color-mix(in srgb, #e07a4f 18%, transparent); }
+
+.pv-selah-value {
+  color: var(--panel-heading);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+
+.pv-selah-label {
+  color: var(--panel-muted-strong);
+  font-size: 11px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@container pv-widget (max-width: 380px) {
+  .pv-selah {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pv-selah-art {
+    max-width: 200px;
+    width: 100%;
+    justify-self: center;
+  }
+}
+
+/* ── narrower hosts ───────────────────────────────────────────────────── */
+
+/* The main column is one widget wide until it has room for two. */
+@container pv-host (max-width: 1040px) {
+  .pv-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A phone, or a narrow app window: the sidebar sits on top, avatar beside
+   the name. */
+@container pv-host (max-width: 720px) {
+  .pv-page,
+  .pv-page[data-alone="true"] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .pv-side {
+    position: static;
+  }
+
+  .pv-who {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "avatar name" "avatar handle" "bio bio";
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 2px;
+    padding: 20px;
+    text-align: left;
+  }
+
+  .pv-avatar {
+    grid-area: avatar;
+    width: 88px;
+    height: 88px;
+    border-width: 3px;
+  }
+
+  .pv-avatar-initial {
+    font-size: 38px;
+  }
+
+  .pv-page .pv-name {
+    grid-area: name;
+    align-self: end;
+    margin-top: 0;
+    font-size: 24px;
+  }
+
+  .pv-handle {
+    grid-area: handle;
+    align-self: start;
+  }
+
+  .pv-bio {
+    grid-area: bio;
+    margin-top: 12px !important;
+  }
+}
+
+/* ── the banner (2026-09-28) ──────────────────────────────────────────────
+   A theme's scenery across the top of the card, fading into it; the avatar
+   sits over its lower edge. Only when the host names the picture. */
+.pv-who.has-banner {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding-top: 76px;
+}
+
+.pv-banner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: -1;
+  height: 150px;
+  pointer-events: none;
+}
+
+.pv-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, transparent 45%, var(--panel-bg) 100%);
+}
+
+.pv-banner-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
