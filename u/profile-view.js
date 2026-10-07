@@ -46,6 +46,10 @@
     classes: "Classes",
     achievements: "Achievements",
     selah: "Selah",
+    collection: "Collection",
+    collectionLine: "A visible record of all the time you locked in.",
+    kindsFound: "{count} kinds found",
+    kindFound: "1 kind found",
     thisWeek: "This week",
     next7: "Next 7 days",
     yourTime: "Times in your time zone",
@@ -74,6 +78,7 @@
     classes: [["path", { d: "M2.5 9 12 4.5 21.5 9 12 13.5z" }], ["path", { d: "M6.5 11v4.6c0 1.4 2.5 2.9 5.5 2.9s5.5-1.5 5.5-2.9V11M21.5 9v5" }]],
     achievements: [["path", { d: "M8 4h8v5a4 4 0 0 1-8 0z" }], ["path", { d: "M8 6H4.5a3 3 0 0 0 3.6 3.4M16 6h3.5a3 3 0 0 1-3.6 3.4M12 13v3.5M8.5 20h7M10 16.5h4" }]],
     selah: [["path", { d: "M3.5 20.5h17M5 20.5V11l7-5.5 7 5.5v9.5" }], ["path", { d: "M10 20.5v-5h4v5M9 11h6" }]],
+    collection: [["circle", { cx: "12", cy: "8.6", r: "2" }], ["path", { d: "M12 6.6c-1.6-2.9 0-4.6 0-4.6s1.6 1.7 0 4.6M14 8c2.5-2 4.6-.8 4.6-.8s-.6 2.3-3.8 2.2M10 8C7.5 6 5.4 7.2 5.4 7.2s.6 2.3 3.8 2.2" }], ["path", { d: "M12 10.6V21M12 17.2c1.8-2.4 4.4-2.4 4.4-2.4s-.4 2.9-4.4 3.6" }]],
     star: "fill",
     coins: [["path", { d: "M12 3.6a8.4 8.4 0 1 0 0 16.8 8.4 8.4 0 0 0 0-16.8" }], ["path", { d: "M12 7.6a4.4 4.4 0 1 0 0 8.8 4.4 4.4 0 0 0 0-8.8" }]],
     diamonds: [["path", { d: "M12 3.2 21 9.4 12 20.8 3 9.4z" }], ["path", { d: "M3 9.4h18M8.6 3.2 12 9.4l3.4-6.2" }]],
@@ -181,7 +186,23 @@
     if (typeof p.achievements === "number" && isFinite(p.achievements)) out.achievements = Math.max(0, Math.min(1000, Math.floor(p.achievements)));
     var selah = shapeSelah(p.selah);
     if (selah) out.selah = selah;
+    var collection = shapeCollection(p.collection);
+    if (collection) out.collection = collection;
     return out;
+  }
+
+  /* THE COLLECTION (2026-10-06): flower kinds and counts only -- a kind key
+     [a-z0-9-]{1,40} and a whole count, at most 20. Never a task name. */
+  function shapeCollection(value) {
+    if (!isObject(value)) return null;
+    var out = [];
+    Object.keys(value).sort().forEach(function (key) {
+      var n = value[key];
+      if (out.length >= 20 || !/^[a-z0-9-]{1,40}$/.test(key) || typeof n !== "number" || !isFinite(n)) return;
+      out.push({ key: key, count: Math.max(0, Math.min(100000, Math.floor(n))) });
+    });
+    out = out.filter(function (kind) { return kind.count > 0; });
+    return out.length ? out : null;
   }
 
   /* Which widgets a profile CAN draw: the data it carries decides. */
@@ -191,6 +212,7 @@
     if (key === "classes") return isArray(profile.classes);
     if (key === "achievements") return typeof profile.achievements === "number";
     if (key === "selah") return isObject(profile.selah);
+    if (key === "collection") return isArray(profile.collection) && profile.collection.length > 0;
     return false;
   }
 
@@ -655,6 +677,24 @@
     body.append(world);
   }
 
+  // A kind's key is its name in our world ("lantern-bud" -> "Lantern Bud").
+  function kindName(key) {
+    return String(key).split("-").map(function (w) { return w ? w.charAt(0).toUpperCase() + w.slice(1) : ""; }).join(" ");
+  }
+
+  function drawCollection(make, say, body, profile, locale) {
+    var kinds = profile.collection || [];
+    body.append(make("p", "pv-collection-line", say("collectionLine")));
+    var list = make("ul", "pv-collection");
+    kinds.forEach(function (kind) {
+      var li = make("li", "pv-collection-kind");
+      li.setAttribute("data-kind", kind.key);
+      li.append(icon(make, "collection"), make("span", "pv-collection-name", kindName(kind.key)), make("b", "pv-collection-count", "\u00d7" + grouped(kind.count, locale)));
+      list.append(li);
+    });
+    body.append(list, make("p", "pv-more", kinds.length === 1 ? say("kindFound") : say("kindsFound", { count: kinds.length })));
+  }
+
   /* One widget, from whatever profile it is handed. */
   function buildWidget(doc, key, profile, options) {
     var opts = options || {};
@@ -667,6 +707,7 @@
     else if (key === "classes") drawClasses(make, say, shell.body, profile, nowMs, opts.locale);
     else if (key === "achievements") drawAchievements(make, say, shell.body, profile, opts.locale);
     else if (key === "selah" && profile.selah) drawSelah(make, say, shell.body, profile, opts.locale, opts);
+    else if (key === "collection" && profile.collection) drawCollection(make, say, shell.body, profile, opts.locale);
     return shell;
   }
 
@@ -687,6 +728,12 @@
       widgets[key] = shell;
       main.append(shell.section);
     });
+    // The Collection is not in the look's order (that list is the four
+    // reorderable widgets): when the student ticked it, it comes last.
+    if (has(profile, "collection") && !widgets.collection) {
+      widgets.collection = buildWidget(doc, "collection", profile, options);
+      main.append(widgets.collection.section);
+    }
     main.hidden = !main.childNodes.length;
     page.setAttribute("data-alone", main.hidden ? "true" : "false");
     page.append(sidebar.side, main);
@@ -701,6 +748,7 @@
     shapeProfile: shapeProfile,
     shapeLook: shapeLook,
     shapeSelah: shapeSelah,
+    shapeCollection: shapeCollection,
     has: has,
     weekLayout: weekLayout,
     classRows: classRows,

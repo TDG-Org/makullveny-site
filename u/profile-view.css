@@ -685,3 +685,17 @@
   height: 100%;
   object-fit: cover;
 }
+
+/* THE COLLECTION (2026-10-06): kinds and counts, calm chips. */
+.pv-collection-line { margin: 0 0 10px; font-size: 0.86rem; color: var(--panel-muted-strong); }
+.pv-collection { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pv-collection-kind {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--panel-text) 16%, transparent);
+  background: var(--panel-soft-bg);
+  color: var(--panel-text);
+  font-size: 0.84rem;
+}
+.pv-collection-kind .pv-icon, .pv-collection-kind svg { width: 16px; height: 16px; flex: none; }
+.pv-collection-count { font-weight: 800; }
