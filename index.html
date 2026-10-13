@@ -1208,6 +1208,15 @@
     .dl-otherway-lead { font:700 12px/1.5 var(--ui); letter-spacing:.07em; text-transform:uppercase;
       color:rgba(200,177,137,.66); margin:0 0 4px; }
     .dl-otherway .dl-aside { margin-top:8px; }
+    /* The old unsigned-build help, folded (2026-10-13). A real <details>, so
+       it opens with no script; the summary keeps the quiet lead's look. */
+    .dl-before > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px; margin:0; }
+    .dl-before > summary::-webkit-details-marker { display:none; }
+    .dl-before > summary::before { content:"\25B8"; font-size:13px; transition:transform .18s ease; }
+    .dl-before[open] > summary::before { transform:rotate(90deg); }
+    .dl-before-lead { font:400 13px/1.65 var(--ui); color:rgba(247,234,214,.66); margin-top:10px; }
+    .dl-before-trail { position:relative; margin-top:18px; padding-left:52px; }
+    .dl-before-trail .dl-stop:last-child { padding-bottom:4px; }
     .dl-aside { margin-top:14px; padding:13px 15px; border-radius:13px;
       border:1px dashed rgba(255,236,203,.18); background:rgba(255,245,225,.035); }
     .dl-aside-head { font:400 12.5px/1.6 var(--ui); color:rgba(247,234,214,.7); }
@@ -2134,7 +2143,7 @@
           <span class="dl-lamp" aria-hidden="true">1</span>
           <div class="dl-words">
             <h3>Get the disk image</h3>
-            <p>Makullveny for Mac comes as a disk image. Macs from 2020 onward are Apple Silicon, which is what this button gives you &mdash; and if a release also carries an Intel build, the line under the button offers it.</p>
+            <p>Makullveny for Mac comes as a disk image, made for Macs with <b>Apple silicon</b> (M1 or newer &mdash; most Macs from 2020 on). It is signed and checked by Apple.</p>
             <div class="dl-act">
             <a class="btn btn-primary dl-get" href="https://github.com/TDG-Org/makullveny-releases/releases/latest" target="_blank" rel="noreferrer"
                data-dl-get data-dl-slot="macosArm" style="min-height:54px;padding:0 28px;font-size:15.5px">
@@ -2142,13 +2151,16 @@
               Download for macOS
             </a>
             <p class="dl-meta"><b data-dl-file>Latest release</b><span data-dl-size></span><span data-dl-ver></span></p>
-            <p class="dl-heads"><span class="dl-heads-ico" aria-hidden="true">&#9888;</span><span><b>Your Mac will block it once. That&#8217;s okay.</b> Click <em>Done</em>, then <em>Open Anyway</em> in Privacy &amp; Security.</span></p>
-            <p class="dl-alt"><span data-dl-altwrap>Using an Intel Mac? <a href="https://github.com/TDG-Org/makullveny-releases/releases/latest" target="_blank" rel="noreferrer" data-dl-alt="macosIntel">Intel build</a></span><i data-dl-altsep aria-hidden="true"> &#183; </i><span>macOS 11 or newer</span></p>
+            <p class="dl-heads"><span class="dl-heads-ico" aria-hidden="true">&#10003;</span><span><b>Your Mac asks once. That&#8217;s normal.</b> It says the app was <em>downloaded from the Internet</em> &mdash; press <em>Open</em>.</span></p>
+            <p class="dl-alt"><span>Apple silicon (M1 or newer)</span><i aria-hidden="true"> &#183; </i><span>macOS 11 or newer</span><i aria-hidden="true"> &#183; </i><span>no Intel build</span></p>
           </div>
           </div>
         </div>
 
-        <div class="dl-stop">
+        <!-- data-dl-warn on BOTH Mac stops since the signed build (2026-10-13):
+             the guide gives step N the drawing of picture N, and its two steps
+             are now "drag it in" and "press Open". -->
+        <div class="dl-stop" data-dl-warn>
           <span class="dl-lamp" aria-hidden="true">2</span>
           <div class="dl-words">
             <h3>Drag Makullveny into Applications</h3>
@@ -2167,37 +2179,17 @@
         <div class="dl-stop" data-dl-warn>
           <span class="dl-lamp" aria-hidden="true">3</span>
           <div class="dl-words">
-            <h3>Open it once, and let it refuse</h3>
-            <p>The first time you open Makullveny, macOS puts up a box saying it could not verify the app. Being refused here is not a mistake &mdash; <b>macOS will not offer you a way past until you have tried once.</b></p>
-            <div class="dl-trap"><span aria-hidden="true">&#9888;</span><div><b>Blue normally means &#8220;yes, go ahead&#8221;. Here it does not.</b><p>This is the one screen in the whole process where the habit you have built up over years points at the wrong button.</p></div></div>
+            <h3>Open it, and press Open</h3>
+            <p>The first time, macOS asks once whether you want to open an app <b>downloaded from the Internet</b>. That is normal for anything you download &mdash; it also says Apple checked Makullveny and found nothing harmful.</p>
           </div>
           <div class="dl-figs">
           <figure class="dl-fig">
-            <div class="dl-fig-art"><svg viewBox="0 0 244 244" class="dl-shot" role="img" aria-label="Makullveny Not Opened: Move to Trash is struck through, and Done is ringed"><defs><marker id="dlh5" viewBox="0 0 12 12" refX="9.5" refY="6" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 11 6 1 11z" fill="#ff9a3c"/></marker></defs><rect x="2" y="2" width="240" height="240" rx="14" fill="#2c2c2e" stroke="#434345"/><circle cx="222" cy="22" r="9" fill="#3f3f41"/><text x="222" y="26" text-anchor="middle" fill="#c9c9cc" font-size="11" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">?</text><path d="M104 32h17l11 10v25h-39V42z" fill="#b6b9bd"/><circle cx="112" cy="57" r="7" fill="#8b9096"/><path d="M130 50l15 25h-30z" fill="#f5c43f"/><path d="M130 59v7" stroke="#3a2c00" stroke-width="2" stroke-linecap="round"/><circle cx="130" cy="70" r="1.4" fill="#3a2c00"/><text x="122" y="99" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; Not Opened</text><text x="122" y="121" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">Apple could not verify &#8220;Makullveny&#8221; is free</text><text x="122" y="136" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">of malware that may harm your Mac or</text><text x="122" y="151" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">compromise your privacy.</text><rect x="22" y="168" width="200" height="30" rx="7" fill="#0a84ff"/><text x="122" y="188" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Move to Trash</text><rect x="22" y="204" width="200" height="30" rx="7" fill="#48484a"/><text x="122" y="224" text-anchor="middle" fill="#f2f2f4" font-size="11.5" font-weight="600" font-family="Manrope, Segoe UI, sans-serif">Done</text><g class="dl-ring"><line x1="30" y1="174" x2="214" y2="192" stroke="#ff6b5c" stroke-width="2.8" stroke-linecap="round"/><line x1="214" y1="174" x2="30" y2="192" stroke="#ff6b5c" stroke-width="2.8" stroke-linecap="round"/></g><g class="dl-ring"><circle cx="30" cy="183" r="10" fill="#ff6b5c" stroke="#1a1109" stroke-width="2"/><text x="30" y="186.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">&#10005;</text></g><rect x="17" y="199" width="210" height="40" rx="10" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="30" cy="219" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="30" y="222.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g></svg></div>
+            <div class="dl-fig-art"><svg viewBox="0 0 244 244" class="dl-shot" role="img" aria-label="macOS asks: Makullveny is an app downloaded from the Internet. Are you sure you want to open it? Open is ringed"><rect x="2" y="2" width="240" height="240" rx="14" fill="#2c2c2e" stroke="#434345"/><image href="assets/cabin-icon.png" x="98" y="20" width="48" height="48"/><text x="122" y="88" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; is an app downloaded</text><text x="122" y="103" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">from the Internet. Are you sure</text><text x="122" y="118" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">you want to open it?</text><text x="122" y="138" text-anchor="middle" fill="#c2c2c6" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">Apple checked it for malicious software</text><text x="122" y="151" text-anchor="middle" fill="#c2c2c6" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">and none was detected.</text><rect x="22" y="168" width="200" height="30" rx="7" fill="#0a84ff"/><text x="122" y="188" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Open</text><rect x="22" y="204" width="200" height="30" rx="7" fill="#48484a"/><text x="122" y="224" text-anchor="middle" fill="#f2f2f4" font-size="11.5" font-weight="600" font-family="Manrope, Segoe UI, sans-serif">Cancel</text><rect x="17" y="163" width="210" height="40" rx="10" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="30" cy="183" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="30" y="186.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g></svg></div>
             <figcaption>
-              <span class="dl-cap is-no"><span class="dl-cap-n is-no" aria-hidden="true">&#10005;</span><span><b>Not the blue one.</b> &#8220;Move to Trash&#8221; deletes what you just downloaded.</span></span>
-              <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span>Press the grey <b>Done</b>. Then open System Settings &mdash; the next step.</span></span>
+              <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span>Press <b>Open</b>. That is the only question macOS asks.</span></span>
             </figcaption>
           </figure>
           </div>
-        </div>
-
-        <div class="dl-stop" data-dl-warn>
-          <span class="dl-lamp" aria-hidden="true">4</span>
-          <div class="dl-words">
-            <h3>Give it permission, once</h3>
-            <p>Open <b>System Settings</b>, choose <b>Privacy &amp; Security</b> in the sidebar, and scroll down to the Security section. A line about Makullveny is waiting there.</p>
-          </div>
-          <div class="dl-figs">
-          <figure class="dl-fig">
-            <div class="dl-fig-art"><svg viewBox="0 0 356 202" class="dl-shot" role="img" aria-label="System Settings, Privacy and Security selected, with the Open Anyway button ringed"><defs><marker id="dlh6" viewBox="0 0 12 12" refX="9.5" refY="6" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 11 6 1 11z" fill="#ff9a3c"/></marker></defs><rect x="2" y="2" width="352" height="198" rx="11" fill="#2c2c2e" stroke="#434345"/><path d="M2 13A11 11 0 0 1 13 2h115v198H13A11 11 0 0 1 2 189z" fill="#1d1d1f"/><circle cx="18" cy="16" r="4.4" fill="#ff5f57"/><circle cx="32" cy="16" r="4.4" fill="#febc2e"/><circle cx="46" cy="16" r="4.4" fill="#28c840"/><rect x="12" y="30" width="108" height="19" rx="6" fill="#39393c"/><circle cx="24" cy="39.5" r="3.6" fill="none" stroke="#8e8e93" stroke-width="1.4"/><path d="M27 42l3 3" stroke="#8e8e93" stroke-width="1.4" stroke-linecap="round"/><text x="35" y="43" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">Search</text><g font-family="Manrope, Segoe UI, sans-serif" font-size="9.5" fill="#c8c8cc"><text x="40" y="65">Notifications</text><text x="40" y="85">Sound</text><text x="40" y="105">Focus</text><text x="40" y="125">Screen Time</text><text x="40" y="165">Lock Screen</text><text x="40" y="185">Touch ID</text></g><g fill="#7a7a80"><rect x="22" y="57" width="12" height="10" rx="2.5"/><rect x="22" y="77" width="12" height="10" rx="2.5"/><rect x="22" y="97" width="12" height="10" rx="2.5"/><rect x="22" y="117" width="12" height="10" rx="2.5"/><rect x="22" y="157" width="12" height="10" rx="2.5"/><rect x="22" y="177" width="12" height="10" rx="2.5"/></g><rect x="12" y="133" width="108" height="21" rx="6" fill="#1668e3"/><rect x="22" y="138" width="12" height="11" rx="2.5" fill="#ffffff" opacity=".92"/><text x="40" y="147" fill="#ffffff" font-size="9.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Privacy &amp; Security</text><text x="140" y="34" fill="#8e8e93" font-size="9" font-weight="700" letter-spacing="0.09em" font-family="Manrope, Segoe UI, sans-serif">SECURITY</text><rect x="140" y="42" width="200" height="30" rx="8" fill="#39393c"/><text x="152" y="61" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">Allow applications from</text><text x="312" y="61" text-anchor="end" fill="#a8a8ad" font-size="8.5" font-family="Manrope, Segoe UI, sans-serif">App Store &amp; Known Developers</text><path d="M322 54l4-4 4 4M322 60l4 4 4-4" stroke="#a8a8ad" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="140" y="80" width="200" height="52" rx="8" fill="#39393c"/><text x="152" y="101" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; was blocked</text><text x="152" y="115" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">to protect your Mac.</text><rect x="262" y="93" width="66" height="24" rx="6" fill="#545457"/><text x="295" y="109" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Open Anyway</text><rect x="140" y="140" width="200" height="26" rx="8" fill="#39393c"/><text x="152" y="157" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">FileVault</text><text x="326" y="157" text-anchor="end" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">On</text><g class="dl-ring"><circle cx="128" cy="143" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="128" y="146.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g><rect x="257" y="88" width="76" height="34" rx="9" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="248" cy="93" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="248" y="96.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">2</text></g></svg></div>
-            <figcaption>
-              <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span><b>Privacy &amp; Security</b> in the sidebar, then scroll the right-hand side down to <b>Security</b>.</span></span>
-              <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">2</span><span>Press <b>Open Anyway</b>, confirm with Touch ID or your password, then press <b>Open Anyway</b> once more.</span></span>
-            </figcaption>
-          </figure>
-          </div>
-          <p class="dl-note">That line only appears after you have tried to open the app, and it clears itself after about an hour. If it is not there, open Makullveny once more and come back.</p>
         </div>
 
         <div class="dl-stop is-solo">
@@ -2205,19 +2197,58 @@
           <div class="dl-words">
             <h3>That was the only time</h3>
             <p>From here Makullveny opens from Launchpad, Spotlight or the Dock like anything else, and updates open without asking again.</p>
+            <p><b>Updating from an older Makullveny?</b> The first time the new version opens, it asks you to <b>sign in once</b> (a security upgrade) and, if you linked a school calendar, to paste that link again. Your books, pages and notes stay right where they were.</p>
             <p>One last thing worth thirty seconds: while Makullveny is open, <b>right-click its icon in the Dock</b> and choose <b>Options &#8594; Keep in Dock</b>. It stays there from now on, so opening it tomorrow is one click instead of a trip to Applications.</p>
             <div class="dl-done"><span aria-hidden="true">&#127969;</span><div><b>macOS remembers this app now</b><p>Nothing to do here &mdash; this is just where the path ends.</p></div></div>
           </div>
         </div>
 
-        <!-- OUTSIDE the numbered stops on purpose. This is a replacement for
-             the four steps above, not a fifth one, and while it lived inside
-             step four the two of them read as "do this AND type that" -- with
-             a terminal command as the scary half. Nobody who just finished
-             needs it; it is here for somebody who got stuck, which is why it
-             sits at the end and says so in its first line. -->
-        <div class="dl-otherway">
-          <p class="dl-otherway-lead">Already open? You&#8217;re done &mdash; ignore this.</p>
+        <!-- THE OLD WAY, FOLDED. Builds before October 2026 were not signed by
+             Apple, so macOS refused them until Open Anyway (or the xattr line).
+             Somebody holding one of those still needs this; nobody else should
+             have to read it. Off the numbered rail, and no data-dl-warn inside:
+             the download guide clones [data-dl-warn] figures, and these are not
+             the steps for today's download. -->
+        <details class="dl-otherway dl-before">
+          <summary class="dl-otherway-lead">Downloaded before October 2026?</summary>
+          <p class="dl-before-lead">Older copies were not signed by Apple, so macOS says it &#8220;could not verify&#8221; them. Easiest fix: download the new one above. Or let the old one through like this:</p>
+          <div class="dl-before-trail">
+          <div class="dl-stop">
+            <span class="dl-lamp" aria-hidden="true">A</span>
+            <div class="dl-words">
+              <h3>Open it once, and let it refuse</h3>
+              <p>The first time you open Makullveny, macOS puts up a box saying it could not verify the app. Being refused here is not a mistake &mdash; <b>macOS will not offer you a way past until you have tried once.</b></p>
+              <div class="dl-trap"><span aria-hidden="true">&#9888;</span><div><b>Blue normally means &#8220;yes, go ahead&#8221;. Here it does not.</b><p>This is the one screen in the whole process where the habit you have built up over years points at the wrong button.</p></div></div>
+            </div>
+            <div class="dl-figs">
+            <figure class="dl-fig">
+              <div class="dl-fig-art"><svg viewBox="0 0 244 244" class="dl-shot" role="img" aria-label="Makullveny Not Opened: Move to Trash is struck through, and Done is ringed"><defs><marker id="dlh5" viewBox="0 0 12 12" refX="9.5" refY="6" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 11 6 1 11z" fill="#ff9a3c"/></marker></defs><rect x="2" y="2" width="240" height="240" rx="14" fill="#2c2c2e" stroke="#434345"/><circle cx="222" cy="22" r="9" fill="#3f3f41"/><text x="222" y="26" text-anchor="middle" fill="#c9c9cc" font-size="11" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">?</text><path d="M104 32h17l11 10v25h-39V42z" fill="#b6b9bd"/><circle cx="112" cy="57" r="7" fill="#8b9096"/><path d="M130 50l15 25h-30z" fill="#f5c43f"/><path d="M130 59v7" stroke="#3a2c00" stroke-width="2" stroke-linecap="round"/><circle cx="130" cy="70" r="1.4" fill="#3a2c00"/><text x="122" y="99" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; Not Opened</text><text x="122" y="121" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">Apple could not verify &#8220;Makullveny&#8221; is free</text><text x="122" y="136" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">of malware that may harm your Mac or</text><text x="122" y="151" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">compromise your privacy.</text><rect x="22" y="168" width="200" height="30" rx="7" fill="#0a84ff"/><text x="122" y="188" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Move to Trash</text><rect x="22" y="204" width="200" height="30" rx="7" fill="#48484a"/><text x="122" y="224" text-anchor="middle" fill="#f2f2f4" font-size="11.5" font-weight="600" font-family="Manrope, Segoe UI, sans-serif">Done</text><g class="dl-ring"><line x1="30" y1="174" x2="214" y2="192" stroke="#ff6b5c" stroke-width="2.8" stroke-linecap="round"/><line x1="214" y1="174" x2="30" y2="192" stroke="#ff6b5c" stroke-width="2.8" stroke-linecap="round"/></g><g class="dl-ring"><circle cx="30" cy="183" r="10" fill="#ff6b5c" stroke="#1a1109" stroke-width="2"/><text x="30" y="186.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">&#10005;</text></g><rect x="17" y="199" width="210" height="40" rx="10" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="30" cy="219" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="30" y="222.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g></svg></div>
+              <figcaption>
+                <span class="dl-cap is-no"><span class="dl-cap-n is-no" aria-hidden="true">&#10005;</span><span><b>Not the blue one.</b> &#8220;Move to Trash&#8221; deletes what you just downloaded.</span></span>
+                <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span>Press the grey <b>Done</b>. Then open System Settings &mdash; the next step.</span></span>
+              </figcaption>
+            </figure>
+            </div>
+          </div>
+
+          <div class="dl-stop">
+            <span class="dl-lamp" aria-hidden="true">B</span>
+            <div class="dl-words">
+              <h3>Give it permission, once</h3>
+              <p>Open <b>System Settings</b>, choose <b>Privacy &amp; Security</b> in the sidebar, and scroll down to the Security section. A line about Makullveny is waiting there.</p>
+            </div>
+            <div class="dl-figs">
+            <figure class="dl-fig">
+              <div class="dl-fig-art"><svg viewBox="0 0 356 202" class="dl-shot" role="img" aria-label="System Settings, Privacy and Security selected, with the Open Anyway button ringed"><defs><marker id="dlh6" viewBox="0 0 12 12" refX="9.5" refY="6" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 11 6 1 11z" fill="#ff9a3c"/></marker></defs><rect x="2" y="2" width="352" height="198" rx="11" fill="#2c2c2e" stroke="#434345"/><path d="M2 13A11 11 0 0 1 13 2h115v198H13A11 11 0 0 1 2 189z" fill="#1d1d1f"/><circle cx="18" cy="16" r="4.4" fill="#ff5f57"/><circle cx="32" cy="16" r="4.4" fill="#febc2e"/><circle cx="46" cy="16" r="4.4" fill="#28c840"/><rect x="12" y="30" width="108" height="19" rx="6" fill="#39393c"/><circle cx="24" cy="39.5" r="3.6" fill="none" stroke="#8e8e93" stroke-width="1.4"/><path d="M27 42l3 3" stroke="#8e8e93" stroke-width="1.4" stroke-linecap="round"/><text x="35" y="43" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">Search</text><g font-family="Manrope, Segoe UI, sans-serif" font-size="9.5" fill="#c8c8cc"><text x="40" y="65">Notifications</text><text x="40" y="85">Sound</text><text x="40" y="105">Focus</text><text x="40" y="125">Screen Time</text><text x="40" y="165">Lock Screen</text><text x="40" y="185">Touch ID</text></g><g fill="#7a7a80"><rect x="22" y="57" width="12" height="10" rx="2.5"/><rect x="22" y="77" width="12" height="10" rx="2.5"/><rect x="22" y="97" width="12" height="10" rx="2.5"/><rect x="22" y="117" width="12" height="10" rx="2.5"/><rect x="22" y="157" width="12" height="10" rx="2.5"/><rect x="22" y="177" width="12" height="10" rx="2.5"/></g><rect x="12" y="133" width="108" height="21" rx="6" fill="#1668e3"/><rect x="22" y="138" width="12" height="11" rx="2.5" fill="#ffffff" opacity=".92"/><text x="40" y="147" fill="#ffffff" font-size="9.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Privacy &amp; Security</text><text x="140" y="34" fill="#8e8e93" font-size="9" font-weight="700" letter-spacing="0.09em" font-family="Manrope, Segoe UI, sans-serif">SECURITY</text><rect x="140" y="42" width="200" height="30" rx="8" fill="#39393c"/><text x="152" y="61" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">Allow applications from</text><text x="312" y="61" text-anchor="end" fill="#a8a8ad" font-size="8.5" font-family="Manrope, Segoe UI, sans-serif">App Store &amp; Known Developers</text><path d="M322 54l4-4 4 4M322 60l4 4 4-4" stroke="#a8a8ad" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="140" y="80" width="200" height="52" rx="8" fill="#39393c"/><text x="152" y="101" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; was blocked</text><text x="152" y="115" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">to protect your Mac.</text><rect x="262" y="93" width="66" height="24" rx="6" fill="#545457"/><text x="295" y="109" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Open Anyway</text><rect x="140" y="140" width="200" height="26" rx="8" fill="#39393c"/><text x="152" y="157" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">FileVault</text><text x="326" y="157" text-anchor="end" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">On</text><g class="dl-ring"><circle cx="128" cy="143" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="128" y="146.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g><rect x="257" y="88" width="76" height="34" rx="9" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="248" cy="93" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="248" y="96.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">2</text></g></svg></div>
+              <figcaption>
+                <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span><b>Privacy &amp; Security</b> in the sidebar, then scroll the right-hand side down to <b>Security</b>.</span></span>
+                <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">2</span><span>Press <b>Open Anyway</b>, confirm with Touch ID or your password, then press <b>Open Anyway</b> once more.</span></span>
+              </figcaption>
+            </figure>
+            </div>
+            <p class="dl-note">That line only appears after you have tried to open the app, and it clears itself after about an hour. If it is not there, open Makullveny once more and come back.</p>
+          </div>
+          </div>
             <div class="dl-aside">
             <p class="dl-aside-head"><b>Or, if you would rather type one line</b> &mdash; this does the same thing, once.</p>
             <ol class="dl-aside-steps">
@@ -2230,7 +2261,7 @@
             </div>
             <p class="dl-aside-note">Nothing is installed and nothing is granted: it removes the &#8220;downloaded from the internet&#8221; mark from this one app, which is what the Open Anyway button above does too. Then open Makullveny normally.</p>
           </div>
-        </div>
+        </details>
       </div>
       <div class="dl-trail" data-plat="lin">
         <div class="dl-stop is-solo">
@@ -2271,7 +2302,7 @@
       </div>
 
       <div class="dl-foot">
-        <span>Windows 10 or newer &#183; macOS 11 or newer &#183; a recent Linux desktop.</span>
+        <span>Windows 10 or newer &#183; macOS 11 or newer on Apple silicon &#183; a recent Linux desktop.</span>
         <span>Stuck? <a href="https://github.com/TDG-Org/makullveny-releases/releases" target="_blank" rel="noreferrer">Every build and its notes</a></span>
       </div>
       </div>
@@ -2295,10 +2326,10 @@
           </ol>
         </div>
         <div data-dl-guide-for="mac" hidden>
-          <h3 id="dl-guide-title-mac"><span class="dl-uline">Your Mac will block it once. <em>It&#8217;s okay.</em></span></h3>
+          <h3 id="dl-guide-title-mac"><span class="dl-uline">Your Mac asks once. <em>That&#8217;s normal.</em></span></h3>
           <ol class="dl-guide-steps">
-            <li><p><span>1</span><span>Click <b>Done</b><small>not Move to Trash</small></span></p></li>
-            <li><p><span>2</span><span>Click <b>Open Anyway</b><small>System Settings &#8250; Privacy &amp; Security</small></span></p></li>
+            <li><p><span>1</span><span>Drag it into <b>Applications</b><small>the window the .dmg opens</small></span></p></li>
+            <li><p><span>2</span><span>Click <b>Open</b><small>&#8220;downloaded from the Internet&#8221;</small></span></p></li>
           </ol>
         </div>
         <div class="dl-guide-figs" data-dl-guide-figs hidden></div>

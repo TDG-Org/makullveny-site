@@ -43,8 +43,8 @@
     filename.
 
     The two Mac builds are told apart here rather than lumped together: the
-    page offers Apple Silicon by default and Intel as the alternative, and it
-    can only keep that promise if the two are separate slots.
+    page offers Apple Silicon only (since 2026-10-13), and it can only keep
+    that promise if an Intel file lands in a slot of its own.
   */
   function classifyAsset(name) {
     var lower = String(name || "").toLowerCase();
@@ -126,9 +126,12 @@
   var FALLBACK = {
     windowsInstaller: ["windowsInstaller", "windowsPortable"],
     windowsPortable: ["windowsPortable", "windowsInstaller"],
-    macosArm: ["macosArm", "macos", "macosIntel"],
-    macosIntel: ["macosIntel", "macos"],
-    macos: ["macos", "macosArm", "macosIntel"],
+    // APPLE SILICON ONLY (2026-10-13): the signed Mac build is arm64 and
+    // there is no Intel one. An Intel .dmg in some old release must never be
+    // what the Mac button hands out, so nothing falls back to it.
+    macosArm: ["macosArm", "macos"],
+    macosIntel: ["macosIntel"],
+    macos: ["macos", "macosArm"],
     linux: ["linux"]
   };
 

@@ -106,10 +106,11 @@ visitor's system for the big card at the top. It degrades to a link to the
 releases page when JavaScript is off or nothing has been published yet.
 
 The site also carries the **first-launch instructions**, and they are not
-decoration: Makullveny is not code-signed on either platform, so both operating
-systems block the first run. Windows is *More info → Run anyway*; macOS is
-*System Settings → Privacy & Security → Open Anyway*, with the
-`xattr -dr com.apple.quarantine` one-liner underneath. A person who downloads
+decoration. Windows is not code-signed, so its first run is *More info → Run
+anyway*. The Mac build is Developer ID signed and notarized (Apple silicon only)
+since October 2026, so macOS asks once, *"downloaded from the Internet" → Open*;
+the old *Open Anyway* steps and the `xattr -dr com.apple.quarantine` one-liner
+stay folded under "Downloaded before October 2026?" for older copies. A person who downloads
 the app and cannot open it does not come back, so that block stays above the
 fold of the download section with an arrow pointing at it.
 
