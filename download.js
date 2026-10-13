@@ -318,8 +318,36 @@
     link.setAttribute("download", "");
   }
 
+  /*
+    THE MAC BUILD IS SIGNED FROM THE FIRST RELEASE AFTER v2.94.2 (2026-10-13).
+    The page went live before that release, so the page says what is true of
+    the file it hands out: until the latest tag is newer than v2.94.2 it shows
+    the old "blocked once -> Open Anyway" path (the fold opens), never the
+    one-click promise. An unreadable tag counts as signed: every later build is.
+  */
+  var LAST_UNSIGNED_MAC = [2, 94, 2];
+  function macBuildIsSigned(tag) {
+    var match = /^v?(\d+)\.(\d+)\.(\d+)/i.exec(String(tag || "").trim());
+    if (!match) return true;
+    for (var i = 0; i < 3; i += 1) {
+      var have = Number(match[i + 1]);
+      if (have !== LAST_UNSIGNED_MAC[i]) return have > LAST_UNSIGNED_MAC[i];
+    }
+    return false;
+  }
+  function markMacSigning(tag) {
+    if (typeof document === "undefined" || !document.documentElement) return;
+    var signed = macBuildIsSigned(tag);
+    document.documentElement.setAttribute("data-mac-signed", signed ? "true" : "false");
+    if (!signed) {
+      var folds = document.querySelectorAll("details.dl-before");
+      for (var i = 0; i < folds.length; i += 1) folds[i].open = true;
+    }
+  }
+
   function applyRelease(root, release, groups) {
     var tag = release && typeof release.tag_name === "string" ? release.tag_name.trim() : "";
+    markMacSigning(tag);
     var published = formatDate(release && release.published_at);
     var versionLabel = "";
 
@@ -524,6 +552,7 @@
       classifyAsset: classifyAsset,
       groupAssets: groupAssets,
       resolveSlot: resolveSlot,
+      macBuildIsSigned: macBuildIsSigned,
       detectPlatform: detectPlatform,
       labelHero: labelHero,
       formatSize: formatSize,

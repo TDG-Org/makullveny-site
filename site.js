@@ -957,13 +957,16 @@
       var here = hit.closest(".dl-stop");
       var within = hit.closest(".dl-trail");
       var plat = within && within.getAttribute("data-plat");
-      var stops = within ? [].slice.call(within.querySelectorAll("[data-dl-warn]")) : [];
+      // The Mac file on offer may still be the unsigned one (download.js
+      // stamps html[data-mac-signed]); then the guide shows the old two presses.
+      var oldMac = plat === "mac" && document.documentElement.getAttribute("data-mac-signed") === "false";
+      var stops = within ? [].slice.call(within.querySelectorAll(oldMac ? "[data-dl-warn-unsigned]" : "[data-dl-warn]")) : [];
       var mobile = document.querySelector("[data-dl-mobile]");
       var onPhone = mobile && !mobile.hidden;
       if (guide && figs && stops.length && !onPhone && (plat === "win" || plat === "mac")) {
         e.preventDefault();
         aimAt(hit);
-        openGuide(plat, stops);
+        openGuide(oldMac ? "mac-old" : plat, stops);
         return;
       }
       goTo(here && here.nextElementSibling);
