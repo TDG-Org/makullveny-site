@@ -34,6 +34,28 @@ test("tokenFromHash: the bare token, lower-cased; anything else is empty", funct
   assert.equal(G.tokenFromHash(""), "");
 });
 
+test("just these people (2026-10-13): only=<slots> before the token, up to three, else everyone", function () {
+  var token = "abcdefghijkmnpqrstuvwxyz2";
+  /* The token is still the LAST segment, so a page from before reads it. */
+  assert.equal(G.tokenFromHash("#only=0.3/" + token), token);
+  assert.deepEqual(G.onlyFromHash("#only=3.0/" + token), [0, 3]);
+  assert.deepEqual(G.onlyFromHash("#only=5/" + token), [5]);
+  assert.deepEqual(G.onlyFromHash("#only=1.1.9/" + token), [1, 9]);
+  assert.deepEqual(G.onlyFromHash("#" + token), []);
+  ["#only=1.2.3.4/", "#only=10/", "#only=a/", "#only=/", "#only=1,2/", "#ONLY=1/"].forEach(function (bad) {
+    assert.deepEqual(G.onlyFromHash(bad + token), [], bad);
+  });
+  var group = G.shapeGroup({ name: "Crew", members: [
+    { name: "Ana", colorIndex: 0, items: [] }, { name: "Ben", colorIndex: 3, items: [] }, { name: "Cy", colorIndex: 5, items: [] }
+  ] });
+  assert.deepEqual(G.onlyMembers(group.members, [0, 5]).map(function (m) { return m.name; }), ["Ana", "Cy"]);
+  assert.deepEqual(G.onlyMembers(group.members, []).map(function (m) { return m.name; }), ["Ana", "Ben", "Cy"]);
+  /* A picked person keeps the colour the whole calendar gives them. */
+  var full = G.paletteFor(group, "dark");
+  var some = G.paletteFor({ members: G.onlyMembers(group.members, [5]) }, "dark");
+  assert.equal(some[5], full[5]);
+});
+
 test("the page talks to exactly the reader's one pinned origin, with no key", function () {
   assert.deepEqual(G.ALLOWED_API_ORIGINS, R.ALLOWED_API_ORIGINS);
   assert.deepEqual(G.ALLOWED_API_ORIGINS, P.ALLOWED_API_ORIGINS);

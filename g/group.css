@@ -28,15 +28,6 @@
 
 .gp-card { padding: 22px 22px 18px; min-width: 0; }
 
-.gp-kicker {
-  margin: 0 0 4px;
-  color: var(--panel-muted-strong);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .gp-title {
   margin: 0;
   color: var(--panel-heading);
@@ -46,7 +37,12 @@
   overflow-wrap: anywhere;
 }
 
-.gp-sub { margin: 6px 0 0; color: var(--panel-muted-strong); font-size: 15px; }
+.gp-sub { margin: 4px 0 0; color: var(--panel-muted-strong); font-size: 15px; }
+
+/* The name and its one line, with "Join" beside them when the calendar is a
+   Study Team's (2026-10-13: simpler). */
+.gp-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; }
+.gp-head-words { min-width: 0; }
 
 /* ── who is which colour ── */
 .gp-key { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 14px; }
@@ -67,7 +63,6 @@
 
 .gp-key-swatch { flex: none; width: 18px; height: 18px; border-radius: 6px; background: var(--gp-person); }
 .gp-key-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.gp-key-note { color: var(--panel-muted-strong); font-size: 13px; margin-left: 4px; }
 
 /* ── the week ── */
 .gp-panel { min-width: 0; }
@@ -236,13 +231,11 @@
 .gp-list-meta { color: var(--panel-muted-strong); font-size: 13px; }
 
 .gp-empty { margin: 14px 0 4px; color: var(--panel-muted-strong); font-size: 15px; text-align: center; }
-.gp-private { margin: 14px 0 0; color: var(--panel-muted-strong); font-size: 13px; }
 
-/* ── for someone without the app ── */
-.gp-invite { padding: 20px 22px; }
-.gp-invite-title { margin: 0 0 6px; color: var(--panel-heading); font-family: "Lora", Georgia, serif; font-size: 22px; }
-.gp-invite-text { margin: 0 0 14px; color: var(--panel-text); font-size: 15px; max-width: 46rem; }
-.gp-invite-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+/* ── for someone without the app: one slim line ── */
+.gp-invite { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 12px 16px 12px 22px; }
+.gp-invite-text { margin: 0; color: var(--panel-text); font-size: 15px; }
+.gp-invite-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .gp-btn {
   display: inline-flex;
@@ -267,21 +260,9 @@
   .gp-desktop { display: none; }
   .gp-list { display: grid; }
   .gp-card { padding: 18px 16px 14px; }
-  .gp-key-note { flex-basis: 100%; margin-left: 0; }
 }
 
-/* THE STUDY TEAM INVITE (2026-10-02): under the calendar's name. */
-.gp-join {
-  display: grid;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 12px 14px;
-  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-.gp-join-words { margin: 0; font-weight: 700; }
-.gp-join-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+/* THE STUDY TEAM INVITE (2026-10-02): one button beside the calendar's name. */
 .gp-join-go {
   display: inline-flex;
   align-items: center;
@@ -293,4 +274,4 @@
   font-weight: 800;
   text-decoration: none;
 }
-.gp-join-get { color: inherit; font-size: 0.9rem; }
+.gp-join-go:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }

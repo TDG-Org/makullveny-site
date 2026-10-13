@@ -57,6 +57,36 @@
 
   var TOKEN_PATTERN = /^[a-z2-9]{16,64}$/;
 
+  /* JUST THESE PEOPLE (2026-10-13): the app can copy a link that shows only
+     the people its owner picked -- /g/#only=0.3/<token> -- named by their
+     colour slot, the one per-person thing this page is sent. The token stays
+     the LAST segment, so a page from before this simply showed everyone. A
+     filter, not a lock: the same token opens the whole calendar. Up to three
+     whole numbers 0-9; anything else is ignored and everyone is shown. */
+  var ONLY_MAX = 3;
+
+  function onlyFromHash(hashOverride) {
+    var raw = hashOverride != null ? hashOverride : (hasWindow ? window.location.hash : "");
+    var parts = String(raw || "").replace(/^#/, "").split("/");
+    for (var i = 0; i < parts.length; i += 1) {
+      var m = /^only=([0-9](?:\.[0-9]){0,2})$/.exec(parts[i]);
+      if (!m) continue;
+      var out = [];
+      m[1].split(".").forEach(function (digit) {
+        var slot = Number(digit);
+        if (out.indexOf(slot) < 0 && out.length < ONLY_MAX) out.push(slot);
+      });
+      return out.sort(function (a, b) { return a - b; });
+    }
+    return [];
+  }
+
+  /* The members a link asked for, or everyone. */
+  function onlyMembers(members, only) {
+    if (!only || !only.length) return members;
+    return members.filter(function (member) { return only.indexOf(member.slot) >= 0; });
+  }
+
   function tokenFromHash(hashOverride) {
     var raw = hashOverride != null ? hashOverride : (hasWindow ? window.location.hash : "");
     var parts = String(raw || "").replace(/^#/, "").split("/");
@@ -458,8 +488,6 @@
       chip.append(swatch, make("span", "gp-key-name", member.name));
       key.append(chip);
     });
-    var note = make("span", "gp-key-note", "Filled = a class · outlined = an event");
-    key.append(note);
     return key;
   }
 
@@ -616,20 +644,20 @@
   /* "Join this Study Team": opens the app's own team preview, which decides
      (a student already on a Study Team is told so and not offered Join). */
   function drawJoin(group) {
-    var box = make("div", "gp-join");
-    box.append(make("p", "gp-join-words", "This calendar is the " + group.teamName + " Study Team."));
-    var actions = make("div", "gp-join-actions");
-    var go = make("a", "gp-join-go", "Join " + group.teamName + " in Makullveny");
+    var go = make("a", "gp-join-go", "Join " + group.teamName);
     go.href = "makullveny://team/" + group.teamCode + "?via=calendar";
-    var get = make("a", "gp-join-get", "Don't have the app? Get Makullveny");
-    get.href = "../#download";
-    actions.append(go, get);
-    box.append(actions);
-    return box;
+    go.title = "Opens the " + group.teamName + " Study Team in Makullveny";
+    return go;
   }
 
-  function render(payload, nowMs) {
+  /* SIMPLER (owner, 2026-10-13: "make the shared calendar URL preview
+     simpler"): the name, one quiet line, who is which colour, the calendar.
+     No kicker, no legend sentence, no fine print under it (the footer says
+     who made the link), and "get the app" is one slim line at the end. */
+  function render(payload, nowMs, only) {
     var group = shapeGroup(payload);
+    var picked = only && only.length ? only : [];
+    if (picked.length) group.members = onlyMembers(group.members, picked);
     document.documentElement.setAttribute("data-theme", group.theme);
     document.documentElement.setAttribute("data-bg", "on");
     document.title = group.name + " — a group calendar on Makullveny";
@@ -638,14 +666,9 @@
     var host = document.getElementById("gcGroup");
     var card = make("section", "gp-card");
     var head = make("div", "gp-head");
-    head.append(make("p", "gp-kicker", "Group calendar"), make("h1", "gp-title", group.name));
-    var spanWords;
-    if (group.span === "month") {
-      spanWords = "The next 5 weeks";
-    } else {
-      spanWords = "The next 7 days";
-    }
-    head.append(make("p", "gp-sub", spanWords + " · " + group.members.length + (group.members.length === 1 ? " person" : " people")));
+    var words = make("div", "gp-head-words");
+    words.append(make("h1", "gp-title", group.name), make("p", "gp-sub", group.span === "month" ? "Next 5 weeks" : "Next 7 days"));
+    head.append(words);
     if (group.teamCode) head.append(drawJoin(group));
     card.append(head, drawKey(group, palette));
     var empty = group.span === "month" ? "Nothing on this calendar this month." : "Nothing on this calendar in the next 7 days.";
@@ -661,7 +684,6 @@
       if (!week.count) wPanel.append(make("p", "gp-empty", empty));
       card.append(wPanel, drawList(weekListDays(group, nowMs), palette, locale, empty));
     }
-    card.append(make("p", "gp-private", "Look only: nobody can change this calendar from here. Assignments are never on it."));
     host.replaceChildren(card, drawInvite());
     setState("");
     host.hidden = false;
@@ -672,12 +694,11 @@
      someone WITH it: open it (the group lives in Calendar there). */
   function drawInvite() {
     var box = make("aside", "gp-invite");
-    box.append(make("h2", "gp-invite-title", "Plan your week with your friends"));
-    box.append(make("p", "gp-invite-text", "Makullveny is a free study app. Put your classes in, make a group with up to nine friends, and see when you are all free."));
+    box.append(make("p", "gp-invite-text", "See when your friends are free. Makullveny is free."));
     var actions = make("div", "gp-invite-actions");
     var get = make("a", "gp-btn gp-btn-main", "Get Makullveny");
     get.href = "../#download";
-    var open = make("a", "gp-btn", "I have it — open Makullveny");
+    var open = make("a", "gp-btn", "Open the app");
     open.href = "makullveny://open";
     actions.append(get, open);
     box.append(actions);
@@ -689,7 +710,7 @@
        group.js runs (tools and screenshots do); a URL cannot, so there is
        nothing here for a crafted link to switch on. */
     if (window.MAKULLVENY_GROUP_FIXTURE && typeof window.MAKULLVENY_GROUP_FIXTURE === "object") {
-      render(window.MAKULLVENY_GROUP_FIXTURE, typeof window.MAKULLVENY_GROUP_NOW === "number" ? window.MAKULLVENY_GROUP_NOW : Date.now());
+      render(window.MAKULLVENY_GROUP_FIXTURE, typeof window.MAKULLVENY_GROUP_NOW === "number" ? window.MAKULLVENY_GROUP_NOW : Date.now(), onlyFromHash());
       return;
     }
     var token = tokenFromHash();
@@ -710,7 +731,7 @@
       var payload = null;
       try { payload = JSON.parse(request.responseText); } catch (error) { payload = null; }
       if (!payload || payload.ok !== true) { setState(stateForStatus(404)); return; }
-      render(payload, Date.now());
+      render(payload, Date.now(), onlyFromHash());
     };
     request.onerror = function () { setState("This page could not be reached. Check your connection and try again."); };
     request.timeout = 20000;
@@ -721,6 +742,8 @@
   if (typeof module !== "undefined" && module.exports) {
     module.exports = {
       tokenFromHash: tokenFromHash,
+      onlyFromHash: onlyFromHash,
+      onlyMembers: onlyMembers,
       apiOriginAllowed: apiOriginAllowed,
       shapeGroup: shapeGroup,
       weekLayout: weekLayout,
