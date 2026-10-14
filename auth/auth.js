@@ -29,6 +29,7 @@
   var errorCode = String(params.get("error_code") || "");
   var errorText = String(params.get("error_description") || params.get("error") || "").replace(/\+/g, " ");
   var hasSession = Boolean(params.get("access_token") && params.get("refresh_token"));
+  var accessToken = String(params.get("access_token") || "");
 
   /* STRIP IT FROM THE ADDRESS BAR. A session in a visible URL is a session
      somebody can photograph, paste into a chat, or leave on a shared screen.
@@ -68,6 +69,16 @@
             : "The account server would not accept that link.",
           fine: "Open Makullveny and try again. If it keeps happening, ask for a new link."
         };
+  } else if (type === "recovery" && hasSession) {
+    /* FINISHED HERE (2026-10-14): the new password is set on this page, so a
+       phone, or a browser that refuses makullveny://, is not a dead end. The
+       app hand-off stays below as the other way. */
+    copy = {
+      mark: "✦",
+      title: "Choose a new password",
+      lead: "Type it twice, then log in to Makullveny with it.",
+      fine: "Rather do it in the app? Press Set it in the app instead."
+    };
   } else if (type === "recovery") {
     copy = {
       mark: "✦",
@@ -136,15 +147,19 @@
      over a page that is already telling the student the good news. There is no
      way to detect that, so the compromise is to attempt it only when we
      actually have something for the app to use. */
-  if (raw && !expired) {
+  /* A RECOVERY LINK IS FINISHED ON THIS PAGE, so it is not handed off on
+     its own: the form is the main path and the button the other way. */
+  var finishesHere = type === "recovery" && hasSession && !(errorCode || errorText);
+  if (raw && !expired && !finishesHere) {
     try { location.href = target; } catch (_error) { /* the button is the answer */ }
   }
+  if (finishesHere) setUpNewPassword();
 
   /* Said only after the automatic attempt has had its chance, so nobody is
      told to press a button that is about to become unnecessary. */
   setTimeout(function () {
     var fine = document.getElementById("fine");
-    if (!fine) return;
+    if (!fine || finishesHere) return;
     fine.textContent = (errorCode || errorText)
       ? copy.fine
       : "Still here? Your browser may be blocking the hand-off — press the " +
@@ -152,4 +167,81 @@
         "on its own every time it comes to the front, so you will be let in " +
         "either way. You can close this tab.";
   }, 1600);
+
+  /* THE NEW PASSWORD (2026-10-14). The token and the password go to ONE pinned
+     origin -- the project's own mak-web-signup function, the door account/
+     uses -- which does GoTrue's update-user as the student and ends the
+     recovery session. No key on this page; nothing stored; the token never
+     goes anywhere else (connect-src names that origin alone). */
+  function setUpNewPassword() {
+    var ENDPOINT = "https://ddbksawvchsauiuiwvrl.supabase.co/functions/v1/mak-web-signup";
+    var MIN = 6;
+    var MAX = 72;
+    var form = document.getElementById("newpass");
+    var one = document.getElementById("pw1");
+    var two = document.getElementById("pw2");
+    var note = document.getElementById("pwnote");
+    var save = document.getElementById("pwsave");
+    if (!form || !one || !two || !note || !save) return;
+    form.hidden = false;
+    document.body.setAttribute("data-state", "recovery");
+    button.textContent = "Set it in the app instead";
+    var said = {
+      link_expired: "That link has expired. Open Makullveny and ask for a new one.",
+      same_password: "That is your current password. Choose a different one.",
+      weak_password: "That password is too easy to guess. Try a longer one.",
+      short_password: "Use at least " + MIN + " characters.",
+      long_password: "That is too long. " + MAX + " characters at most.",
+      rate_limited: "Too many tries from here. Wait a few minutes and try again.",
+      offline: "Could not reach TDG. Check your connection and try again.",
+      server_error: "Something went wrong on our side. Try again in a minute."
+    };
+    function tell(text, bad) {
+      note.textContent = text;
+      if (bad) note.setAttribute("data-tone", "bad"); else note.removeAttribute("data-tone");
+    }
+    try { one.focus(); } catch (_error) { /* a page without focus still works */ }
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      var password = String(one.value || "");
+      if (password.length < MIN) return tell(said.short_password, true);
+      if (password.length > MAX) return tell(said.long_password, true);
+      if (password !== String(two.value || "")) return tell("The two do not match. Type them again.", true);
+      save.disabled = true;
+      tell("Saving…", false);
+      fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "set_password", accessToken: accessToken, password: password }),
+        credentials: "omit",
+        referrerPolicy: "no-referrer"
+      })
+        .then(function (res) { return res.json().catch(function () { return {}; }); })
+        .then(function (answer) {
+          if (answer && answer.ok === true) {
+            one.value = "";
+            two.value = "";
+            form.hidden = true;
+            document.body.removeAttribute("data-state");
+            document.getElementById("mark").textContent = "✓";
+            document.getElementById("title").textContent = "Password changed";
+            document.getElementById("lead").textContent = "Open Makullveny and log in with your new password.";
+            document.getElementById("fine").textContent = "You can close this tab.";
+            document.title = "Makullveny — Password changed";
+            /* The recovery session is over (the function ended it), so the
+               app gets nothing but "open". */
+            button.href = APP_LINK;
+            button.textContent = "Open Makullveny";
+            return;
+          }
+          save.disabled = false;
+          var code = answer && answer.error;
+          tell(said[code] || said.server_error, true);
+        })
+        .catch(function () {
+          save.disabled = false;
+          tell(said.offline, true);
+        });
+    });
+  }
 })();

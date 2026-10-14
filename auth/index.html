@@ -18,9 +18,12 @@
       and THEN offers the hand-off.
 
       SECURITY, because the URL fragment on this page can carry a real session.
-      - The fragment never leaves this page: the CSP allows no connect-src, no
-        form-action and no frames, so there is nothing here that could send it
-        anywhere even if this script were wrong.
+      - The fragment leaves this page in ONE case only: a RECOVERY link's new
+        password (2026-10-14). Then the access token goes, with the password,
+        to ONE pinned origin -- the project's own mak-web-signup function, the
+        door account/ already uses -- and nowhere else: connect-src names that
+        origin alone, there is no form-action and no frame. No key is on this
+        page; the function holds it.
       - referrer is no-referrer, so it cannot leak through a click either.
       - Nothing is written to localStorage, sessionStorage or a cookie.
       - The fragment is stripped from the address bar as soon as it is read, so
@@ -35,7 +38,7 @@
     -->
     <meta name="robots" content="noindex, nofollow">
     <meta name="referrer" content="no-referrer">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'none'; connect-src https://ddbksawvchsauiuiwvrl.supabase.co; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; frame-ancestors 'none'">
     <title>Makullveny — back to the app</title>
     <link rel="icon" href="../assets/icons/icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./auth.css">
@@ -51,6 +54,19 @@
       <div class="mark" id="mark" aria-hidden="true">&#10022;</div>
       <h1 id="title">You&#8217;re all set</h1>
       <p class="lead" id="lead">Go back to Makullveny &mdash; you&#8217;re signed in.</p>
+
+      <!-- A RECOVERY LINK FINISHES HERE (2026-10-14): the new password is set
+           on this page, so a phone, or a browser that blocks makullveny://,
+           is not a dead end. Hidden until auth.js sees a recovery link; with
+           no script it stays hidden and the hand-off below still works. -->
+      <form class="newpass" id="newpass" hidden novalidate>
+        <label for="pw1">New password</label>
+        <input id="pw1" type="password" autocomplete="new-password" minlength="6" maxlength="72" required>
+        <label for="pw2">Type it again</label>
+        <input id="pw2" type="password" autocomplete="new-password" minlength="6" maxlength="72" required>
+        <p class="note" id="pwnote" role="status" aria-live="polite"></p>
+        <button class="button" id="pwsave" type="submit">Save new password</button>
+      </form>
 
       <a class="button" id="open" href="makullveny://auth-callback">Open Makullveny</a>
 

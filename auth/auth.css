@@ -115,3 +115,47 @@ body[data-state="error"] a.button {
 /* The way to the app for somebody who signed up on the website. */
 .get { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
 .get a { color: var(--accent); }
+
+/* THE NEW-PASSWORD FORM (2026-10-14): a recovery link finishes here. Same
+   card, same accent; the button is the page's one primary action until the
+   password is saved, then the hand-off to the app takes over. */
+.newpass { display: grid; gap: 6px; margin: 18px 0 4px; }
+.newpass[hidden] { display: none; }
+.newpass label { font-size: 0.9rem; font-weight: 600; color: var(--ink); }
+.newpass input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  margin-bottom: 8px;
+}
+.newpass input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.newpass .note { min-height: 1.2em; margin: 0 0 4px; font-size: 0.9rem; }
+.newpass .note[data-tone="bad"] { color: var(--accent); }
+button.button {
+  display: block;
+  width: 100%;
+  margin: 8px 0 4px;
+  padding: 13px 18px;
+  border: 0;
+  border-radius: 11px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  font-weight: 600;
+  min-height: 44px;
+  cursor: pointer;
+}
+button.button:disabled { opacity: 0.6; cursor: default; }
+button.button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* While the form is up, the hand-off is the quiet way out, not a second
+   primary button. */
+body[data-state="recovery"] a.button {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--line);
+}
