@@ -47,7 +47,7 @@ test("privacy and support name a real contact address", function () {
 
 test("privacy covers what Apple asks a policy to cover", function () {
   var html = read("privacy");
-  ["How long we keep it", "Deleting your data", "Who helps us", "Students under 18", "Delete my Makullveny data only", "Delete my account from ALL TDG apps", "RevenueCat", "Stripe"].forEach(function (words) {
+  ["How long we keep it", "Deleting your data", "Who helps us", "Students under 18", "Delete my Makullveny data only", "Delete my account from ALL TDG apps", "RevenueCat", "Stripe", "Show me as Anonymous", "Focus Points and Selah leaderboards", "IP address", "TDG's admins"].forEach(function (words) {
     assert.ok(html.includes(words), "privacy is missing: " + words);
   });
 });
