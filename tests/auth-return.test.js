@@ -82,7 +82,10 @@ test("the token never leaves the page", function () {
   // The fragment can be a real session. The CSP is what makes that safe, and
   // it is stated in the markup rather than trusted to a script that could be
   // wrong: nothing here may open a socket, submit a form, or frame anything.
-  assert.match(html, /connect-src 'none'/);
+  // ONE pinned origin, and only since 2026-10-14: a recovery link's new
+  // password goes to the project's own mak-web-signup function, nowhere else.
+  assert.match(html, /connect-src https:\/\/ddbksawvchsauiuiwvrl\.supabase\.co;/);
+  assert.doesNotMatch(html, /connect-src[^;]*\*/);
   assert.match(html, /form-action 'none'/);
   assert.match(html, /frame-src 'none'/);
   assert.match(html, /object-src 'none'/);
@@ -148,4 +151,36 @@ test("404 exists at the repository root, where Pages actually looks", function (
   assert.match(scripts[0], /\^\\\/g\\\/\(\[a-z2-9\]\{16,64\}\)\\\/\?\$/);
   assert.match(scripts[0], /window\.location\.replace\("\/g\/#" \+ m\[1\]\.toLowerCase\(\)\)/);
   assert.match(notFound, /That page isn/);
+});
+
+/* A RECOVERY LINK FINISHES ON THIS PAGE (2026-10-14). The new password is set
+   here, so a phone or a browser that blocks makullveny:// is not a dead end. */
+test("a recovery link shows a new-password form, hidden by default", function () {
+  assert.match(html, /<form class="newpass" id="newpass" hidden novalidate>/);
+  assert.match(html, /id="pw1" type="password" autocomplete="new-password"/);
+  assert.match(html, /id="pw2" type="password" autocomplete="new-password"/);
+  assert.match(js, /type === "recovery" && hasSession/);
+  assert.match(js, /Choose a new password/);
+});
+
+test("the new password goes to the one pinned function, as set_password, with no key", function () {
+  assert.match(js, /var ENDPOINT = "https:\/\/ddbksawvchsauiuiwvrl\.supabase\.co\/functions\/v1\/mak-web-signup";/);
+  assert.match(js, /action: "set_password", accessToken: accessToken, password: password/);
+  assert.match(js, /credentials: "omit"/);
+  assert.doesNotMatch(js + html, /apikey|sb_publishable|service_role|Authorization/);
+  assert.doesNotMatch(js, /localStorage|sessionStorage|document\.cookie/);
+});
+
+test("a recovery link is not handed off on its own; the app stays one press away", function () {
+  assert.match(js, /if \(raw && !expired && !finishesHere\)/);
+  assert.match(js, /Set it in the app instead/);
+  // After saving, the session is over, so the app is opened with nothing.
+  assert.match(js, /button\.href = APP_LINK;/);
+});
+
+test("both passwords are checked before anything is sent", function () {
+  var at = js.indexOf('form.addEventListener("submit"');
+  var send = js.indexOf("fetch(ENDPOINT", at);
+  assert.ok(js.indexOf("password.length < MIN", at) < send);
+  assert.ok(js.indexOf("The two do not match", at) < send);
 });
