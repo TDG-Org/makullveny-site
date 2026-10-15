@@ -368,6 +368,11 @@
     .cta-row { display:flex; justify-content:center; align-items:center; gap:13px; margin-top:36px; }
     .plats { display:flex; justify-content:center; align-items:center; gap:18px; margin-top:20px; font:600 12.5px/1 var(--ui); color:rgba(200,177,137,.68); }
     .plats i { width:3px; height:3px; border-radius:50%; background:rgba(200,177,137,.4); }
+    /* Students locked in right now (2026-10-15, live-count.js): hidden until
+       the function answers a number (none below 3); a still dot, no motion. */
+    .live-count { display:flex; justify-content:center; align-items:center; gap:9px; margin:16px 0 0; font:600 12.5px/1.4 var(--ui); color:rgba(247,234,214,.74); }
+    .live-count[hidden] { display:none; }
+    .live-dot { width:7px; height:7px; border-radius:50%; background:#d8a15c; box-shadow:0 0 0 3px rgba(216,161,92,.16); }
 
     .trustbar { position:relative; z-index:4; display:flex; align-items:center; justify-content:center; gap:20px;
       margin:36px auto 0; padding:14px 26px; width:fit-content; border-radius:999px;
@@ -1586,6 +1591,10 @@
         <i></i>
         <span>Sign in only if you want to</span>
       </div>
+      <!-- Students locked in right now (2026-10-15): live-count.js fills it
+           from the mak-locked-in-now function. Hidden until it answers a
+           number; below 3, or with no answer, nothing shows. -->
+      <p class="live-count" data-live-count hidden><span class="live-dot" aria-hidden="true"></span><span data-live-count-text></span></p>
     </div>
 
     <div class="trustbar rv" style="--d:.46s">
@@ -2525,5 +2534,6 @@
     <script src="./site.js" defer></script>
     <script src="./account/me.js" defer></script>
     <script src="./download.js" defer></script>
+    <script src="./live-count.js" defer></script>
   </body>
 </html>

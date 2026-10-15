@@ -191,6 +191,7 @@ function build(page) {
     // who is signed in on this website: the avatar in the top bar
     `    <script src="${page.up}account/me.js" defer></script>\n` +
     (page.out === "index.html" ? '    <script src="./download.js" defer></script>\n' : "") +
+    (page.out === "index.html" ? '    <script src="./live-count.js" defer></script>\n' : "") +
     (page.out === "updates/index.html" ? '    <script src="./updates.js" defer></script>\n' : "") +
     "  </body>\n</html>\n";
 
