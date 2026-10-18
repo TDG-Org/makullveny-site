@@ -301,3 +301,30 @@ test("the own-profile view's helpers are all defined on the new page", function 
     assert.ok(new RegExp("function " + name + "\\(").test(src), name);
   });
 });
+
+/* ── the friend count (2026-10-17, Makullveny migration 20261017431000) ──── */
+
+test("the friend count draws only when the server sends a whole number", function () {
+  assert.equal(P.friendCountOf({ friendCount: 8 }), 8);
+  assert.equal(P.friendCountOf({ friendCount: 0 }), 0);
+  assert.equal(P.friendCountOf({ friendCount: 3.9 }), 3);
+  assert.equal(P.friendCountOf({ friendCount: 1e12 }), 100000);
+  // The switch off: the server leaves the key out, and nothing is drawn.
+  assert.equal(P.friendCountOf({ displayName: "Maya" }), null);
+  [null, "8", -1, NaN, Infinity, { n: 8 }, [8]].forEach(function (bad) {
+    assert.equal(P.friendCountOf({ friendCount: bad }), null, String(bad));
+  });
+  assert.equal(P.friendCountOf(null), null);
+  assert.equal(P.friendCountWords(1), "friend");
+  assert.equal(P.friendCountWords(0), "friends");
+  assert.equal(P.friendCountWords(8), "friends");
+});
+
+test("the friend count is drawn by this host, never by the app's copied renderer", function () {
+  var view = fs.readFileSync(path.join(ROOT, "u", "profile-view.js"), "utf8");
+  assert.doesNotMatch(view, /friendCount/);
+  var source = fs.readFileSync(path.join(ROOT, "u", "profile.js"), "utf8");
+  assert.match(source, /insertBefore\(friendCountChip\(friends\), card\.querySelector\("\.pv-bio"\)\)/);
+  var css = fs.readFileSync(path.join(ROOT, "u", "profile.css"), "utf8");
+  assert.match(css, /\.pp-friends \{[^}]*var\(--panel-soft-bg\)/);
+});

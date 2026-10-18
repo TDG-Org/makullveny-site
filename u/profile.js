@@ -171,6 +171,21 @@
     return shaped;
   }
 
+  /* THE FRIEND COUNT (2026-10-17, Makullveny migration 20261017431000): a
+     whole number the server sends ONLY while the student leaves the "Friend
+     count" switch on in the app's profile-link card. Absent, or anything but
+     a whole number, draws nothing. Drawn by this host and not by
+     profile-view.js, which is a byte copy of the app's renderer. */
+  function friendCountOf(payload) {
+    var n = payload && typeof payload === "object" ? payload.friendCount : null;
+    if (typeof n !== "number" || !isFinite(n) || n < 0) return null;
+    return Math.min(100000, Math.floor(n));
+  }
+
+  function friendCountWords(n) {
+    return n === 1 ? "friend" : "friends";
+  }
+
   function classCount(list) {
     var seen = {};
     var n = 0;
@@ -264,6 +279,9 @@
         return bannerFile(key);
       }
     });
+    var friends = friendCountOf(payload);
+    var card = built.sidebar && built.sidebar.card;
+    if (friends !== null && card) card.insertBefore(friendCountChip(friends), card.querySelector(".pv-bio"));
     /* This page's own block under the sidebar card: Add friend, the
        sign-in prompt, or "This is you". */
     if (profile.username) built.sidebar.side.append(friendBlock(profile.username, currentMe()));
@@ -272,6 +290,37 @@
     setState("");
     mount.hidden = false;
     return built;
+  }
+
+  /* Two heads, drawn node by node like profile-view.js's icons. */
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var PEOPLE_ICON = [
+    ["circle", { cx: "9", cy: "8", r: "3.2" }],
+    ["path", { d: "M3 19.5c.6-3.3 3-5.3 6-5.3s5.4 2 6 5.3" }],
+    ["path", { d: "M15.5 4.9a3.2 3.2 0 0 1 0 6.2M17.4 14.5c1.9.6 3.2 2.4 3.6 5" }]
+  ];
+
+  /* One stat chip under the @username, dressed like Selah's stats. */
+  function friendCountChip(n) {
+    var chip = make("p", "pp-friends");
+    chip.setAttribute("data-friend-count", String(n));
+    var badge = make("span", "pp-friends-icon");
+    badge.setAttribute("aria-hidden", "true");
+    var svg = document.createElementNS(SVG_NS, "svg");
+    [["viewBox", "0 0 24 24"], ["width", "16"], ["height", "16"], ["fill", "none"], ["stroke", "currentColor"],
+      ["stroke-width", "1.9"], ["stroke-linecap", "round"], ["stroke-linejoin", "round"], ["focusable", "false"]].forEach(function (pair) {
+      svg.setAttribute(pair[0], pair[1]);
+    });
+    PEOPLE_ICON.forEach(function (part) {
+      var node = document.createElementNS(SVG_NS, part[0]);
+      Object.keys(part[1]).forEach(function (name) { node.setAttribute(name, part[1][name]); });
+      svg.appendChild(node);
+    });
+    badge.appendChild(svg);
+    var shown;
+    try { shown = n.toLocaleString(); } catch (error) { shown = String(n); }
+    chip.append(badge, make("b", "pp-friends-value", shown), document.createTextNode(" "), make("span", "pp-friends-label", friendCountWords(n)));
+    return chip;
   }
 
   /* ── add friend ─────────────────────────────────────────────────────── */
@@ -561,6 +610,8 @@
       shapeProfile: shapeProfile,
       weekLayout: VIEW.weekLayout,
       classCount: classCount,
+      friendCountOf: friendCountOf,
+      friendCountWords: friendCountWords,
       colourFor: VIEW.colourFor,
       stateForStatus: stateForStatus,
       ownNote: ownNote,
