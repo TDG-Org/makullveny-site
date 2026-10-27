@@ -7,6 +7,19 @@
 */
 window.MAKULLVENY_UPDATES = [
   {
+    version: "2.201.3",
+    date: "2026-10-27",
+    highlights: [
+      "Slide to Lock In: drag the new “Lock in →” slider to start, and pause one Lock In to start another, then pick the first back up later.",
+      "Lock in with friends: see who is studying with you right on your Ready Desk, get a heads-up when a friend joins, and send a cheer.",
+      "Friend profiles show their week and the free time you share, and your own profile can show your school and your major. Study Teams now count full Lock Ins, your longest session together and your top member.",
+      "Make the dashboard yours: choose what sits on top — Ready, Classes or Calendar — pick a style for Classes (list, cards or compact), and add weekly study blocks to your week.",
+      "Selah keeps growing: meadows that bloom into coins, quests, villagers who head out on expeditions, diamonds in your garden, gifts as you level up, and a weekly podium.",
+      "Desktop notifications for new updates, achievements and friends, and Makullveny goes easier on your battery when your laptop is low on power.",
+      "The Mac app is now signed and checked by Apple, so it opens like any other app — no more trip to Privacy & Security."
+    ]
+  },
+  {
     version: "2.106.5",
     date: "2026-09-27",
     highlights: [
