@@ -957,16 +957,16 @@
       var here = hit.closest(".dl-stop");
       var within = hit.closest(".dl-trail");
       var plat = within && within.getAttribute("data-plat");
-      // The Mac file on offer may still be the unsigned one (download.js
-      // stamps html[data-mac-signed]); then the guide shows the old two presses.
-      var oldMac = plat === "mac" && document.documentElement.getAttribute("data-mac-signed") === "false";
-      var stops = within ? [].slice.call(within.querySelectorAll(oldMac ? "[data-dl-warn-unsigned]" : "[data-dl-warn]")) : [];
+      // WINDOWS ONLY (owner, 2026-10-30: "remove all warnings for downloading
+      // relating to downloading for mac, keep for windows"). The Mac build is
+      // signed by Apple, so its button goes straight to the file.
+      var stops = within ? [].slice.call(within.querySelectorAll("[data-dl-warn]")) : [];
       var mobile = document.querySelector("[data-dl-mobile]");
       var onPhone = mobile && !mobile.hidden;
-      if (guide && figs && stops.length && !onPhone && (plat === "win" || plat === "mac")) {
+      if (guide && figs && stops.length && !onPhone && plat === "win") {
         e.preventDefault();
         aimAt(hit);
-        openGuide(oldMac ? "mac-old" : plat, stops);
+        openGuide(plat, stops);
         return;
       }
       goTo(here && here.nextElementSibling);
