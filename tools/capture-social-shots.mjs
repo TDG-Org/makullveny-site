@@ -56,10 +56,12 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { createRequire } from "node:module";
+import { livedIn } from "./demo-lived-in.mjs";
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), "..");
 const APP = process.env.MAK_APP || join(SITE, "..", "Makullveny");
-const OUT = join(SITE, "assets", "site");
+/* MAK_SHOTS_OUT sends a trial run somewhere else (as in capture-app-shots.mjs). */
+const OUT = process.env.MAK_SHOTS_OUT || join(SITE, "assets", "site");
 const SANDBOX = join(tmpdir(), "mak-preview-socialshots");
 /* Frames and the assembly's scratch files. Never the repo. */
 const WORK = join(tmpdir(), "mak-socialshots-work");
@@ -205,6 +207,11 @@ async function shoot(cdp, name, size, cssWidth, settle = 1300) {
   await setSize(cdp, size, cssWidth);
   await wake(cdp);
   await wait(settle);
+  /* What's New, a friend request, a view's "New here?" tour offer: each
+     arrives on its own clock, often after the step's own clearing. One
+     last pass right before the frame. */
+  await run(cdp, `await clearTheWay();`);
+  await wait(450);
   const shot = await cdp.send("Page.captureScreenshot", { format: "jpeg", quality: 90, captureBeyondViewport: false });
   const bytes = Buffer.from(shot.data, "base64");
   writeFileSync(join(OUT, name), bytes);
@@ -225,21 +232,31 @@ function report(name, px, length) {
    invitation. Each is dismissed with the control the app gives a student. */
 const HELPERS = `
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-  const seen = (el) => el && el.offsetParent !== null;
+  /* NOT offsetParent: it is null for every position:fixed element, and the
+     What's New card, the notice zones and the reminder card are all fixed --
+     so with it they always read as "not there" and stayed in the frame. */
+  const seen = (el) => Boolean(el && !el.closest("[hidden]") && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden");
   const $ = (sel) => document.querySelector(sel);
   const click = (sel) => { const el = typeof sel === "string" ? $(sel) : sel; if (el) { el.click(); return true; } return false; };
   const waitFor = async (test, ms = 8000) => { const end = Date.now() + ms; while (Date.now() < end) { const v = test(); if (v) return v; await sleep(120); } return null; };
   const clearTheWay = async () => {
     const gone = [];
-    for (let pass = 0; pass < 4; pass += 1) {
+    for (let pass = 0; pass < 8; pass += 1) {
       const skip = document.getElementById("onboardingSkipBtn");
       if (seen(skip)) { skip.click(); gone.push("tour"); await sleep(650); continue; }
       const gotIt = document.getElementById("whatsNewGotItBtn");
       if (seen(gotIt)) { gotIt.click(); gone.push("what's new"); await sleep(500); continue; }
       const notice = document.querySelector(".dev-notice button[aria-label], .dev-notice-close");
       if (seen(notice)) { notice.click(); gone.push("dev notice"); await sleep(400); continue; }
-      const nudge = document.querySelector(".mk-notice-close");
-      if (seen(nudge)) { nudge.click(); gone.push("nudge"); await sleep(400); continue; }
+      /* NOT offsetParent for these two: the notice zones and the reminder
+         card are position:fixed, and offsetParent is null for every fixed
+         element -- so they always read as "not there". */
+      const nudge = [...document.querySelectorAll(".mk-notice-close")].find((el) => el.getClientRects().length);
+      if (nudge) { nudge.click(); gone.push("nudge"); await sleep(400); continue; }
+      const reminder = document.querySelector("#reminderCard:not([hidden]) .reminder-card-close");
+      if (reminder && reminder.getClientRects().length) { reminder.click(); gone.push("reminder card"); await sleep(320); continue; }
+      const tourNo = [...document.querySelectorAll(".mk-tour-inline-decline")].find((el) => el.getClientRects().length);
+      if (tourNo) { tourNo.click(); gone.push("tour offer"); await sleep(420); continue; }
       break;
     }
     /* The floating class bell and the radio dock are fixed over every frame;
@@ -437,7 +454,11 @@ async function stepJump(cdp) {
     if (!window.MakullvenyFriendCalendar) await window.MakullvenyScriptLoader.loadGroup(["./friendCalendar.js"]);
     state.prefs.friendCalendar = { ...(state.prefs.friendCalendar || {}), version: 1, schedules: window.__socialShots.schedules };
     friendScheduleFriends = window.__socialShots.friends;
-    click("#quickAccessRailToggle");
+    /* The palette with "Friends in class" beside it is Quick Jump's ⌘K /
+       Ctrl+K window now; the rail button opens the small Jump menu instead. */
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
+    await sleep(500);
+    if (document.getElementById("quickAccessRailPanel")?.hidden) document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }));
     await waitFor(() => document.querySelector(".qa-friends-item"), 5000);
     await sleep(500);`);
   await shoot(cdp, "friends-in-class.jpg", [1500, 1000], 1240);
@@ -469,7 +490,11 @@ async function stepMonth(cdp) {
   await run(cdp, `click("[data-share-image-close]"); await sleep(500);`);
 }
 
+/* The demo week always has a class in progress, so the Ready Desk opens in
+   class mode -- a countdown, no Lock In button. "Show my work anyway" is the
+   desk's own door back to the list (and its Lock In). */
 const OPEN_LOCK_IN = `await home();
+  if (!document.getElementById("readyDeskLockInBtn")) { click(".ready-desk-show-work"); await sleep(700); }
   click("#readyDeskLockInBtn");
   await waitFor(() => document.getElementById("lockInStartBtn"), 6000);`;
 
@@ -667,6 +692,12 @@ async function main() {
   });
   if (seed.status !== 0) throw new Error("preview-demo-data failed: " + (seed.stderr || seed.stdout));
   console.log("  " + (seed.stdout || "").trim());
+  /* A few weeks in, Get settled finished (tools/demo-lived-in.mjs). */
+  const prefsStore = appRequire("./logic/preferences.js");
+  const prefs = prefsStore.readPrefs(SANDBOX);
+  const history = livedIn(prefs, new Date(), { flowers: appRequire("./src/flowerGarden.js") });
+  prefsStore.writePrefs(SANDBOX, prefs);
+  console.log(`  lived in: ${history.sessions} Lock Ins, ${history.minutes} minutes over six weeks`);
 
   /* The electron BINARY, never npx, so the pid held here is Electron's own
      and the tree kill at the end is exact (capture-app-shots.mjs explains). */

@@ -15,7 +15,7 @@ Expected URL once Pages has deployed:
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The front page: hero, the dashboard, Lock In, Friends, Selah, a short door to the apps and tools, the ten rooms in one strip, faith, download, and the three most recent releases |
+| `index.html` | The front page, in the order that matters: hero, Selah (the world your study time builds, and its flower Collection), Lock In, Canvas sync and the daily plan, Friends (who is out of class, free time, Study Teams, studying together, sharing classes), then the extras, the rooms, faith, download, and the three most recent releases |
 | `features/` | Every app and tool, with its pictures: Library Desk, Study Hall, Import Desk (and a photo into cards), Flashcards, File Workshop, Cloud Backpack, Typing Trials, Calculator and the radio |
 | `themes/` | The room-by-room browser (ten rooms; the six Candle rooms in the Theme Market's own captures) and the Illustrated bundle |
 | `account/` | Make a TDG account from the website -- the same account the app uses (see below) |
@@ -63,7 +63,11 @@ none on the main thread). On the two subpages the brand is a page load, so the
 press leaves a note and the flourish plays when the front page arrives.
 
 Screenshots live in `assets/site/`, and the scene art they sit on is in
-`assets/scenes/`.
+`assets/scenes/`. They are real captures of the app, re-shot by
+`tools/capture-app-shots.mjs` and `tools/capture-social-shots.mjs` (both drive
+the real app over CDP in a throwaway demo profile; `tools/demo-lived-in.mjs`
+gives that student a few weeks of Lock Ins and flowers). Point them at an app
+checkout with `MAK_APP=...`, and at a trial folder with `MAK_SHOTS_OUT=...`.
 
 `updates/updates-data.js` is the only file a new release needs: push one entry
 onto `window.MAKULLVENY_UPDATES` and both the archive and the three cards on the

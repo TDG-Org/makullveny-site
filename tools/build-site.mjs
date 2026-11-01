@@ -32,11 +32,11 @@ const PAGES = [
     src: "design/Main.dc.html",
     out: "index.html",
     up: "./",
-    title: "Study smarter. Stress less. | Makullveny",
-    headline: "Study smarter. Stress less.",
+    title: "Your day, planned. Your hours, built. | Makullveny",
+    headline: "Your day, planned. Your hours, built.",
     desc:
-      "Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.",
-    preload: ["assets/site/ov-bough-top-left.webp", "assets/site/hero-dash.jpg"]
+      "Connect Canvas once and Makullveny plans your day: which assignment to start, and when it fits. Every Lock In builds Selah, a little world that shows the work you actually did, and your friends are right there: who is out of class, when you are both free, and studying together. Free for Windows, macOS and Linux.",
+    preload: ["assets/site/ov-bough-top-left.webp", "assets/site/hero-selah-am.jpg"]
   },
   {
     src: "design/FeaturesPage.dc.html",
@@ -114,14 +114,14 @@ function head(page) {
 // list also decides how many dots get written out, so it has to stay the
 // same length as the .rot images in the artboard and as TITLES in site.js.
 const SLIDE_TITLES = [
-  "Makullveny — Today",
-  "Study Hall — Board",
   "Selah: Study Grounds · golden hour",
-  "Selah: Study Grounds · night",
+  "Makullveny — Today",
+  "Study Hall — Plan",
+  "Classes — Calendar",
   "Makullveny — Friends",
-  "Makullveny — Library Desk",
-  "Makullveny — Assignments",
-  "Study Hall — Calendar"
+  "Selah — Your collection",
+  "Selah: Study Grounds · night",
+  "Import Desk — Connect a calendar"
 ];
 
 function build(page) {

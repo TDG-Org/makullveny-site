@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.">
-    <meta property="og:title" content="Study smarter. Stress less.">
-    <meta property="og:description" content="Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.">
-    <meta name="twitter:title" content="Study smarter. Stress less.">
-    <meta name="twitter:description" content="Your cozy home base for student life. Makullveny plans your assignments around your day, helps you focus on what matters, and turns every study session into progress you can see—with notes, calendars, flashcards, file tools, music, and more together in one place.">
+    <meta name="description" content="Connect Canvas once and Makullveny plans your day: which assignment to start, and when it fits. Every Lock In builds Selah, a little world that shows the work you actually did, and your friends are right there: who is out of class, when you are both free, and studying together. Free for Windows, macOS and Linux.">
+    <meta property="og:title" content="Your day, planned. Your hours, built.">
+    <meta property="og:description" content="Connect Canvas once and Makullveny plans your day: which assignment to start, and when it fits. Every Lock In builds Selah, a little world that shows the work you actually did, and your friends are right there: who is out of class, when you are both free, and studying together. Free for Windows, macOS and Linux.">
+    <meta name="twitter:title" content="Your day, planned. Your hours, built.">
+    <meta name="twitter:description" content="Connect Canvas once and Makullveny plans your day: which assignment to start, and when it fits. Every Lock In builds Selah, a little world that shows the work you actually did, and your friends are right there: who is out of class, when you are both free, and studying together. Free for Windows, macOS and Linux.">
     <!-- The default headline is the page title; iOS still uses the app name
          below for its Home Screen tile. The full descriptor stays in the
          meta description, where a search result reads it. -->
-    <title>Study smarter. Stress less. | Makullveny</title>
+    <title>Your day, planned. Your hours, built. | Makullveny</title>
     <meta name="apple-mobile-web-app-title" content="Makullveny">
     <meta name="application-name" content="Makullveny">
     <!-- assets/icons/ is the square, opaque family drawn by tools/make-icons.mjs.
@@ -25,7 +25,7 @@
     <meta name="theme-color" content="#100d0a">
     <link rel="manifest" href="./site.webmanifest">
     <link rel="preload" as="image" href="./assets/site/ov-bough-top-left.webp" fetchpriority="high">
-    <link rel="preload" as="image" href="./assets/site/hero-dash.jpg" fetchpriority="high">
+    <link rel="preload" as="image" href="./assets/site/hero-selah-am.jpg" fetchpriority="high">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@400;500;600;700;800&family=Cormorant+Garamond:wght@500&display=swap">
@@ -370,6 +370,16 @@
     .plats i { width:3px; height:3px; border-radius:50%; background:rgba(200,177,137,.4); }
     /* Students locked in right now (2026-10-15, live-count.js): hidden until
        the function answers a number (none below 3); a still dot, no motion. */
+    /* THE THREE DOORS under the buttons: Selah, the plan, friends -- the
+       order the page tells them in. */
+    .pillars { display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin:26px auto 0; max-width:900px; }
+    .pillar { display:flex; align-items:center; gap:12px; padding:12px 18px 12px 14px; border:1px solid var(--line-soft); border-radius:16px;
+      background:rgba(255,245,225,.05); text-decoration:none; text-align:left;
+      transition:transform .28s cubic-bezier(.2,.8,.3,1), border-color .28s ease, background .28s ease; }
+    .pillar:hover { transform:translateY(-3px); border-color:rgba(213,140,75,.4); background:rgba(255,245,225,.085); }
+    .pillar .pi { font-size:22px; line-height:1; }
+    .pillar b { display:block; font:700 14px/1.25 var(--ui); color:var(--text); }
+    .pillar em { display:block; font:400 12.5px/1.4 var(--ui); font-style:normal; color:rgba(247,234,214,.62); }
     .live-count { display:flex; justify-content:center; align-items:center; gap:9px; margin:16px 0 0; font:600 12.5px/1.4 var(--ui); color:rgba(247,234,214,.74); }
     .live-count[hidden] { display:none; }
     .live-dot { width:7px; height:7px; border-radius:50%; background:#d8a15c; box-shadow:0 0 0 3px rgba(216,161,92,.16); }
@@ -463,7 +473,7 @@
       font:700 13.5px/1 var(--ui); color:#f3cd97; box-shadow:0 12px 34px rgba(0,0,0,.4); }
 
     /* ══ THE DASHBOARD ════════════════════════════════════════════════ */
-    .dash { position:relative; background:linear-gradient(180deg,var(--teal-mid) 0%,#1b332f 40%,#1a3430 100%); padding:76px 0 82px; overflow:hidden; }
+    .dash { position:relative; background:linear-gradient(180deg,#1a3430 0%,#1b332f 40%,#1a3430 100%); padding:76px 0 82px; overflow:hidden; }
     .dash::before { content:""; position:absolute; left:50%; top:14%; width:1500px; height:820px; transform:translateX(-50%); filter:blur(64px); opacity:.5;
       background:radial-gradient(ellipse at 50% 50%, rgba(213,140,75,.2), transparent 66%); }
     .dash-inner { position:relative; z-index:2; }
@@ -503,7 +513,9 @@
 
     /* ══ SELAH — the reward world ═════════════════════════════════════ */
     .selah { position:relative; overflow:hidden; padding:76px 0 84px;
-      background:linear-gradient(180deg,#1a3430 0%,#1d3a33 26%,#20402f 58%,#1c3a2e 100%); }
+      /* First after the hook now (2026-11-01), so it starts on the hook's
+         teal and hands Lock In the #1a3430 every middle section shares. */
+      background:linear-gradient(180deg,var(--teal-mid) 0%,#1d3a33 22%,#20402f 56%,#1a3430 100%); }
     .selah::before { content:""; position:absolute; left:50%; top:16%; width:1500px; height:840px; transform:translateX(-50%); filter:blur(70px); opacity:.5;
       background:radial-gradient(ellipse at 50% 50%, rgba(158,196,110,.2), transparent 66%); }
     .selah-inner { position:relative; z-index:2; }
@@ -580,7 +592,7 @@
     @media (hover:none), (prefers-reduced-motion:reduce) { .grow-step:hover .grow-plate img { transform:none; } }
 
     /* ══ APPS ═════════════════════════════════════════════════════════ */
-    .apps { position:relative; background:linear-gradient(180deg,#1c3a2e 0%,#1b3630 32%,#1c3630 66%,var(--pine-mid) 100%); padding:78px 0 88px; overflow:hidden; }
+    .apps { position:relative; background:linear-gradient(180deg,#1a3430 0%,#1b3630 32%,#1c3630 66%,var(--pine-mid) 100%); padding:78px 0 88px; overflow:hidden; }
     /* ── TDG's CARD LANGUAGE, ONCE ─────────────────────────────────────────
        Lifted from src/hooks/useTilt.ts and the .card / .card__spot /
        .card__edge rules in TDG's src/styles/base.css: 1100px of perspective,
@@ -783,6 +795,7 @@
     .friends-inner { position:relative; z-index:2; }
     .friends-head { text-align:center; margin:0 auto 34px; max-width:780px; }
     .friends-head h2 em { font-style:italic; color:#f0c88f; }
+    .friends-head p { margin-inline:auto; }
     .pill.new { background:rgba(240,168,96,.16); color:#f6c28f; border:1px solid rgba(240,168,96,.4); margin-left:8px; vertical-align:1px; }
     .friends-shots { position:relative; display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:28px; align-items:center; }
     .friends-main, .friends-profile { margin:0; }
@@ -800,6 +813,10 @@
     .share-say h3 { font:600 30px/1.16 var(--display); color:var(--text); margin:13px 0 13px; }
     .share-say h3 em { font-style:italic; color:#f0c88f; }
     .share-say p { font:400 15px/1.75 var(--ui); color:rgba(247,234,214,.7); margin-bottom:20px; }
+    .collect { margin-top:64px; }
+    .collect .share-say h3 em { color:#cfe6a8; }
+    .collect-shot { margin:0; }
+    .collect-shot .win { border-radius:18px; box-shadow:0 40px 90px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.4); }
     .share-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
     .share-tile { margin:0; }
     .share-tile .win { border-radius:14px; box-shadow:0 26px 60px rgba(0,0,0,.5), 0 0 0 1px rgba(0,0,0,.4); background:#0f0c09; }
@@ -1408,6 +1425,23 @@
        other half of the tablet problem -- the wordmark sitting an eighth of
        the window in from the edge -- was the bar's flat 130px gutter, fixed
        where .topbar is declared. */
+    /* Once the five columns become narrower than their 150px plates, the
+       artwork shrinks but the horizontal rail's fixed top offset does not.
+       Turn the stage ladder vertical before that mismatch can put the rail
+       through the labels. */
+    @media (max-width:900px) {
+      .grow-track { --plate:108px; grid-template-columns:minmax(0,1fr); gap:6px; }
+      .grow-track::before { left:calc(var(--plate) + 22px); right:auto; top:28px; bottom:28px; width:2px; height:auto;
+        background:linear-gradient(180deg, rgba(207,230,168,.14), rgba(240,200,143,.75)); }
+      .grow-step { display:grid; grid-template-columns:var(--plate) 30px minmax(0,1fr); grid-template-rows:auto auto auto;
+        align-items:center; column-gap:0; text-align:left; }
+      .grow-plate { grid-row:1 / span 3; grid-column:1; width:var(--plate); }
+      .grow-dot { grid-row:1 / span 3; grid-column:2; margin:0 auto; }
+      .grow-n { grid-column:3; align-self:end; padding-left:10px; }
+      .grow-step b { grid-column:3; margin:6px 0 6px; padding-left:10px; }
+      .grow-when { grid-column:3; justify-self:start; align-self:start; margin-left:10px; }
+    }
+
     @media (max-width:980px) {
       /* The nav becomes a drawer under the bar: the toggle button shows, and
          the links move from a horizontal row to a dropped-down list. */
@@ -1431,18 +1465,6 @@
 
     @media (max-width:820px) {
       h1 { font-size:44px; }
-      /* The five stages become a climb read top to bottom: picture left,
-         words right, the path running down the side. */
-      .grow-track { --plate:108px; grid-template-columns:minmax(0,1fr); gap:6px; }
-      .grow-track::before { left:calc(var(--plate) + 22px); right:auto; top:28px; bottom:28px; width:2px; height:auto;
-        background:linear-gradient(180deg, rgba(207,230,168,.14), rgba(240,200,143,.75)); }
-      .grow-step { display:grid; grid-template-columns:var(--plate) 30px minmax(0,1fr); grid-template-rows:auto auto auto;
-        align-items:center; column-gap:0; text-align:left; }
-      .grow-plate { grid-row:1 / span 3; grid-column:1; width:var(--plate); }
-      .grow-dot { grid-row:1 / span 3; grid-column:2; margin:0 auto; }
-      .grow-n { grid-column:3; align-self:end; padding-left:10px; }
-      .grow-step b { grid-column:3; margin:6px 0 6px; padding-left:10px; }
-      .grow-when { grid-column:3; justify-self:start; align-self:start; margin-left:10px; }
       .stage { margin:40px auto -120px; }
       .dash-facts, .selah-facts, .faith-cards, .workbench-grid,
       .facts, .quadgrid, .tool-grid {
@@ -1530,9 +1552,10 @@
       <span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span><span class="nav-toggle-bar"></span>
     </button>
     <nav id="siteNav">
-      <a href="./features/">Features</a>
-      <a href="#friends">Friends</a>
       <a href="#selah">Selah</a>
+      <a href="#plan">Plan</a>
+      <a href="#friends">Friends</a>
+      <a href="./features/">Features</a>
       <a href="./themes/">Themes</a>
       <a href="./updates/">News</a>
       <a class="btn btn-ghost btn-sm" href="./account/#signin">Sign in</a>
@@ -1569,9 +1592,9 @@
 
     <div class="hero-inner">
       <span class="badge rv" style="--d:.05s"><i></i> Free forever · Windows, macOS &amp; Linux · Account optional</span>
-      <h1 class="rv" style="--d:.14s" data-hero-headline>Study smarter. <em>Stress less.</em></h1>
+      <h1 class="rv" style="--d:.14s" data-hero-headline>Your day, planned. <em>Your hours, built.</em></h1>
       <p class="lead rv" style="--d:.24s">
-        Your cozy home base for student life &mdash; notes, your calendar, flashcards, friends, file tools and music in one place, and a quiet world that grows every time you sit down to study.
+        Connect Canvas once and Makullveny plans your day &mdash; which assignment to start, and when it fits. Every minute you lock in builds Selah, a little world that shows the work you actually did. And your friends are right there: who is out of class, when you are both free, and studying together.
       </p>
       <div class="cta-row rv" style="--d:.34s">
         <!-- Neutral until download.js knows the reader's system, so a Mac never
@@ -1590,6 +1613,14 @@
         <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:6px"><path d="M12 2.6c-2 0-2.7 1.6-2.6 3.1.1 1.4-.2 2.2-.9 3.3-.9 1.4-2 2.9-2 4.8 0 1.2.4 2 .2 2.9-.2.8-.9 1.3-.7 1.9.2.6 1.1.5 2 .9.9.4 1.5 1.2 2.5 1.2.9 0 1.4-.5 2.4-.5s1.6.6 2.6.5c1-.1 1.4-.9 2.3-1.4.9-.5 1.7-.5 1.8-1.1.1-.6-.6-1-.9-1.9-.3-.9.1-1.8 0-3-.2-1.9-1.3-3.4-2.2-4.7-.7-1-1-1.8-1-3.2 0-1.6-.8-2.8-2.5-2.8Z" fill="#c8b189"/></svg>Linux</span>
         <i></i>
         <span>Sign in only if you want to</span>
+      </div>
+      <!-- THE THREE THINGS, in the order the page tells them (owner,
+           2026-11-01: Selah first, then the Canvas sync and the daily plan,
+           then friends; the small tools are extras). -->
+      <div class="pillars rv" style="--d:.5s">
+        <a class="pillar" href="#selah"><span class="pi" aria-hidden="true">&#127793;</span><span><b>Selah</b><em>Study time, built into a world</em></span></a>
+        <a class="pillar" href="#plan"><span class="pi" aria-hidden="true">&#128197;</span><span><b>Canvas &rarr; a plan</b><em>Your day, put in order every morning</em></span></a>
+        <a class="pillar" href="#friends"><span class="pi" aria-hidden="true">&#128075;</span><span><b>Friends</b><em>Who is out of class, who is free</em></span></a>
       </div>
       <!-- Students locked in right now (2026-10-15): live-count.js fills it
            from the mak-locked-in-now function. Hidden until it answers a
@@ -1616,41 +1647,41 @@
         <div class="win-bar">
           <span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span>
           <span class="win-title">
-            Makullveny — Today
+            Selah: Study Grounds · golden hour
           </span>
         </div>
         <!-- five of the best screens, one every six seconds, or press a dot -->
         <div class="rotator">
-          <img class="rot" data-slide="1" src="./assets/site/hero-dash.jpg" alt="The Makullveny Today dashboard: a PSY 100 class pill ending in 35 minutes, the Ready desk with a timeline of the day and Problem set 4 to Lock In on, the next four assignments with how long each takes, a 25:00 focus candle, and Your study rhythm below" width="2120" height="1340" decoding="async" fetchpriority="high">
-          <img class="rot" data-slide="2" src="./assets/site/studyhall.jpg" alt="The Study Hall board for this week: To do, Doing, Almost done and Done columns holding real assignments like Midterm 1, Problem set 4 and Reading reflection 2, with All assignments 16 and 2 of 4 done today at the top" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="3" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour — the gold-trimmed library with a royal-blue roof lit from inside, villagers walking across the meadow and one sitting by the trees, two deer grazing, the Ready to Focus timer at 25:00, level 14, and the coin and diamond purse" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="4" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah meadow at night — stars over the peaks, the library's windows lit warm, and the villagers still out walking and sitting under the trees" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="5" src="./assets/site/friends.jpg" alt="The Makullveny dashboard with the Friends sheet open: your @username to share, a My profile line, Friends 6 of 150 and one waiting request, and six friend cards, each tinted in that friend's own app theme" width="1600" height="1120" loading="lazy" decoding="async">
-          <img class="rot" data-slide="6" src="./assets/site/hero-book.jpg" alt="The Library Desk with a page of lecture notes on lined paper, and the bookshelf holding a book, a scroll, a journal, a card box and a blueprint" width="1900" height="1214" loading="lazy" decoding="async">
-          <img class="rot" data-slide="7" src="./assets/site/assignments.jpg" alt="The All assignments table: filters for All 16, Still to do 13, Due today 2, Due soon 11 and Done 3, stage and class filters, and rows grouped into Today and This week, each with its class, due date and a stage you can change in place" width="2120" height="1340" loading="lazy" decoding="async">
-          <img class="rot" data-slide="8" src="./assets/site/sh-calendar.jpg" alt="Study Hall Calendar: a week with classes laid out by hour, deadlines along the top, an exam marked as a test, and a line across the current time" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="1" src="./assets/site/hero-selah-am.jpg" alt="Selah: Study Grounds at golden hour: the gold-trimmed library with a royal-blue roof in a clearing of pines, villagers out on the meadow, the world's title Built by the hours you focus, the Ready to Focus timer at 25:00, level 14, and the coin and diamond purse" width="2120" height="1340" decoding="async" fetchpriority="high">
+          <img class="rot" data-slide="2" src="./assets/site/hero-dash.jpg" alt="The Makullveny Today dashboard: the verse of the day, a PSY 100 class pill ending in 34 minutes, the Ready desk with the class you are in and the next one, Problem set 4 to Lock In on and the two assignments after it, Your day is ready with four blocks, a 25:00 focus candle with 50 minutes today, and six weeks of Your study rhythm below" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="3" src="./assets/site/daily-plan.jpg" alt="The Plan tab in Study Hall: Sunday with 2 h 40 min planned, the day's classes in place and Problem set 4 fitted into the 2:25 PM gap with a Lock In button, and beside it Needs you, each assignment planned into a free gap" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="4" src="./assets/site/sh-calendar.jpg" alt="The Classes calendar: a week with classes laid out by hour, deadlines along the top and a line across the current time, and beside it today's classes, what is due with a Lock In button on each, and My free time for the days ahead" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="5" src="./assets/site/friends.jpg" alt="The Makullveny dashboard with the Friends sheet open: six friend cards, each tinted in that friend's own app theme, and your own @username and status underneath" width="1600" height="1120" loading="lazy" decoding="async">
+          <img class="rot" data-slide="6" src="./assets/site/selah-collection.jpg" alt="Selah's Collection: every flower is a Lock In you finished, 43 flowers and 5 of 10 kinds found, the kinds from common to legendary, and Recently grown with each Lock In's date and minutes" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="7" src="./assets/site/hero-selah-pm.jpg" alt="The same Selah clearing at night: dark blue peaks, the library's windows lit warm, and villagers still out by the door" width="2120" height="1340" loading="lazy" decoding="async">
+          <img class="rot" data-slide="8" src="./assets/site/connect-calendar.jpg" alt="Import Desk, Connect a calendar: You're all set, new assignments show up on their own, the imported class calendar, and doors for Canvas, Blackboard, Google Classroom, Google Calendar, Outlook, Moodle, Brightspace and Schoology" width="2120" height="1340" loading="lazy" decoding="async">
         </div>
       </div>
       </div>
       <div class="rot-cap" aria-live="polite">
-        <p class="rc" data-slide="1"><b>Today</b>Everything due, in the order it matters &mdash; the one assignment worth starting, a candle timer for the sitting you are in, and your month beside it.</p>
-        <p class="rc" data-slide="2"><b>Study Hall &mdash; Board</b>Every assignment as a card you move when the work moves &mdash; each column carries its own progress.</p>
-        <p class="rc" data-slide="3"><b>Selah: Study Grounds</b>The hours you actually sat down, built into a place &mdash; and the people of the grounds out walking in it. Study, and the clearing grows a library.</p>
-        <p class="rc" data-slide="4"><b>Selah at night</b>The same grounds, lit by the hour you are studying in. Golden morning, midday, dusk, night &mdash; it turns with your day.</p>
-        <p class="rc" data-slide="5"><b>Friends</b>Your TDG friends beside your day &mdash; the same list in every TDG app, each card in that friend&rsquo;s own theme.</p>
-        <p class="rc" data-slide="6"><b>Library Desk</b>Your notes on real paper you choose, in books, scrolls, journals, card boxes and blueprints. It prints, it exports, and it never leaves this machine.</p>
-        <p class="rc" data-slide="7"><b>Assignments</b>Every assignment in one table &mdash; filter by due today, due soon or done, and move each one&rsquo;s stage right where it sits.</p>
-        <p class="rc" data-slide="8"><b>Study Hall &mdash; Calendar</b>Classes and deadlines on the same week, an exam marked as a test, and a line across the hour you are in.</p>
+        <p class="rc" data-slide="1"><b>Selah: Study Grounds</b>The hours you actually sat down, built into a place. Study, and the clearing grows a library.</p>
+        <p class="rc" data-slide="2"><b>Today</b>The one assignment worth starting, why it is that one, and the rest of the day already lined up.</p>
+        <p class="rc" data-slide="3"><b>Your day, planned</b>Classes stay put; your work is fitted into the gaps between them, each with its Lock In.</p>
+        <p class="rc" data-slide="4"><b>Classes &mdash; Calendar</b>Classes and deadlines on one week, and your free time for the days ahead.</p>
+        <p class="rc" data-slide="5"><b>Friends</b>Your friends beside your day, each card in that friend&rsquo;s own theme.</p>
+        <p class="rc" data-slide="6"><b>Your collection</b>Every flower is a Lock In you finished. Look back and see the work.</p>
+        <p class="rc" data-slide="7"><b>Selah at night</b>The same grounds, lit by the hour you are studying in. It turns with your day, and with the seasons.</p>
+        <p class="rc" data-slide="8"><b>Connect a calendar</b>One link from Canvas or your school&rsquo;s system, and new assignments show up on their own.</p>
       </div>
       <div class="rot-dots">
-        <button class="rot-dot" type="button" data-on="true" aria-label="Show Makullveny — Today"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Board"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · golden hour"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · night"></button>
+        <button class="rot-dot" type="button" data-on="true" aria-label="Show Selah: Study Grounds · golden hour"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Today"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Plan"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Classes — Calendar"></button>
           <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Friends"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Library Desk"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Makullveny — Assignments"></button>
-          <button class="rot-dot" type="button" data-on="false" aria-label="Show Study Hall — Calendar"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah — Your collection"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Selah: Study Grounds · night"></button>
+          <button class="rot-dot" type="button" data-on="false" aria-label="Show Import Desk — Connect a calendar"></button>
       </div>
     </div>
   </section>
@@ -1669,15 +1700,15 @@
     <div class="wrap hook-inner">
       <p class="eyebrow teal rv">Why it exists</p>
       <h2 class="rv" style="--d:.1s">You already know what's due.<br><em>The hard part is starting.</em></h2>
-      <p class="rv" style="--d:.18s">Twenty minutes go missing between deciding to study and actually studying —
-         finding the file, finding the notes, finding the playlist. Makullveny is the one place they
-         already live, so that twenty minutes goes back into the work.</p>
+      <p class="rv" style="--d:.18s">Canvas in one tab, a planner in another, a focus timer, and a group chat asking who is free.
+         Twenty minutes go missing before the studying starts. Makullveny is all of it in one place: it knows
+         what is due, picks what to start, keeps the time you put in, and shows you who can join you.</p>
       <div class="converge">
-        <span class="tab-chip rv rv-l" style="--d:.24s"><s>a notes app</s></span>
-        <span class="tab-chip rv rv-l" style="--d:.3s"><s>a PDF converter</s></span>
-        <span class="tab-chip rv rv-l" style="--d:.36s"><s>a flashcard site</s></span>
-        <span class="tab-chip rv rv-r" style="--d:.36s"><s>a lofi tab</s></span>
-        <span class="tab-chip rv rv-r" style="--d:.3s"><s>a calculator</s></span>
+        <span class="tab-chip rv rv-l" style="--d:.24s"><s>a Canvas tab</s></span>
+        <span class="tab-chip rv rv-l" style="--d:.3s"><s>a planner</s></span>
+        <span class="tab-chip rv rv-l" style="--d:.36s"><s>a focus timer</s></span>
+        <span class="tab-chip rv rv-r" style="--d:.36s"><s>a streak app</s></span>
+        <span class="tab-chip rv rv-r" style="--d:.3s"><s>&ldquo;who&rsquo;s free?&rdquo;</s></span>
         <span class="converge-arrow rv" style="--d:.44s">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
@@ -1695,157 +1726,45 @@
     <span class="lantern" style="left:12%"></span>
   </div>
 
-  <!-- ══════════ THE DASHBOARD ═════════════════════════════════════ -->
-  <section class="dash" id="dashboard">
-    <div class="wrap dash-inner">
-      <div class="dash-head">
-        <p class="eyebrow teal rv">The dashboard</p>
-        <h2 class="rv" style="--d:.08s">Put your classes in once. <em>Makullveny tells you what&rsquo;s next, when to do it, and locks you in.</em></h2>
-        <p class="rv" style="--d:.16s">
-          One screen: what to work on and why now, a candle timer for the session you are in,
-          your month, your courses, what is due, the small tools, and the quiet world your focus grows.
-          Every card can be resized, moved or taken off.
-        </p>
-      </div>
-      <div class="dash-shot rv rv-p" style="--d:.24s">
-        <div class="win">
-          <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Today</span></div>
-          <img src="./assets/site/widgetdash.jpg" alt="The whole Today dashboard: the Ready desk naming Problem set 4 and why now, a 25:00 focus candle, Your study rhythm, and under Schedule, assignments and more a September calendar, today’s classes and what is due soonest" width="1900" height="2080" loading="lazy" decoding="async">
-        </div>
-      </div>
-      <div class="dash-facts">
-        <div class="dfact rv rv-p" style="--d:.3s">
-          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13z" stroke="#e8b273" stroke-width="1.8" stroke-linejoin="round"/></svg>Ready desk</b>
-          <span>Names the one thing worth starting, and the reason it is that one.</span>
-        </div>
-        <div class="dfact rv rv-p" style="--d:.36s">
-          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#e8b273" stroke-width="1.8"/><path d="M12 7v5.2l3.2 1.9" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg>Focus</b>
-          <span>A candle timer that only earns while you are actually sitting there &mdash; and your study time, day by day, all week.</span>
-        </div>
-        <div class="dfact rv rv-p" style="--d:.42s">
-          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="#e8b273" stroke-width="1.8"/><path d="M3.5 9h17M8 3v3m8-3v3" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg>Calendar &amp; due</b>
-          <span>The month, the next thing on it, and what is worth most soonest.</span>
-        </div>
-        <div class="dfact rv rv-p" style="--d:.48s">
-          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4" width="7" height="7" rx="2" stroke="#e8b273" stroke-width="1.8"/><rect x="13.5" y="4" width="7" height="7" rx="2" stroke="#e8b273" stroke-width="1.8"/><rect x="3.5" y="13" width="7" height="7" rx="2" stroke="#e8b273" stroke-width="1.8"/><path d="M17 13.8v6M14 16.8h6" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg>Edit layout</b>
-          <span>Add, remove and resize widgets, and pick what sits on top &mdash; Ready, Classes or Calendar. It is your desk, not a fixed screen.</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════ LOCK IN ═══════════════════════════════════════════ -->
-  <!-- Was a block inside the dashboard section. It is the one button the
-       whole app leads to, so it gets its own room: the sheet it opens, and
-       beside it the narrow window a session actually runs in. -->
-  <section class="lockin-sec" id="lockin">
-    <div class="wrap lockin">
-      <div class="lockin-say rv rv-l">
-        <p class="eyebrow teal">Lock In</p>
-        <h2>Four questions, <em>then it gets out of the way.</em></h2>
-        <p>
-          What are you doing, how long, where are you working, and what do you want on while
-          you do it. Answer once and the session is built &mdash; the Library Desk or real paper,
-          rain or fire, the radio, a tool beside you, a line to start with. Then the app folds
-          down into a small study window that sits next to your work and keeps the candle lit.
-        </p>
-        <div class="lockin-chips">
-          <span>20 &middot; 25 &middot; 45 &middot; 60 &middot; 90 min</span>
-          <span>Library Desk, paper, or both</span>
-          <span>Rain, fire, wind, thunder</span>
-          <span>Radio, calculator, reference</span>
-          <span>A verse, a devotion, or nothing</span>
-        </div>
-        <p class="lockin-foot">Slide <b>Lock in &rarr;</b> to start. Something came up? Pause one Lock In, start another, and pick the first back up later. Every session lands on your week: seven small bars on the Focus card show how long you really studied each day.</p>
-      </div>
-      <div class="lockin-stage rv rv-r" style="--d:.14s">
-        <figure class="lockin-sheet">
-          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><video class="lockin-loop" autoplay muted loop playsinline preload="metadata" poster="./assets/site/lockin-flow.jpg" width="1200" height="1000" data-motion-video aria-label="Lock In in motion: the sheet rises, 45 minutes and real paper are picked, Lock In is pressed, the padlock snaps shut and the small study window appears at the edge and starts counting down"><source src="./assets/site/lockin-flow.webm" type="video/webm"><source src="./assets/site/lockin-flow.mp4" type="video/mp4"><img src="./assets/site/lockin.jpg" alt="The Lock In sheet: the goal, 20 to 90 minute lengths with 25 recommended, when the next class starts and how long to get there, and Your setup for place, sound, tools and words" width="1500" height="1240"></video></div>
-          <figcaption>Press Lock In, answer the sheet, and the padlock snaps shut. The real app, nine seconds, on a loop.</figcaption>
-        </figure>
-        <figure class="lockin-window">
-          <div class="win"><img src="./assets/site/lockin-window.jpg" alt="The study window: Locked In, a candle ring counting 44:56 of 45:00, the task Problem set 4 for CHEM 210 on paper, Notes and Radio, Jump to My page, Study Hall, Calculator and Reference, the next class ending in 34 minutes, and Pause, +5 min and Finish" width="800" height="1360" loading="lazy" decoding="async"></div>
-          <figcaption>Then this: the study window.</figcaption>
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════ FRIENDS ═══════════════════════════════════════════ -->
-  <section class="friends" id="friends">
-    <div class="motes" aria-hidden="true">
-      <span class="mote" style="left:9%;top:22%;width:3px;height:3px;opacity:.4;animation-delay:-5s"></span>
-      <span class="mote cool" style="left:88%;top:36%;width:2px;height:2px;opacity:.4;animation-delay:-12s"></span>
-      <span class="mote" style="left:72%;top:80%;width:2px;height:2px;opacity:.3;animation-delay:-8s"></span>
-    </div>
-    <div class="wrap friends-inner">
-      <div class="sec-head friends-head">
-        <p class="eyebrow teal rv">Friends <span class="pill new">New</span></p>
-        <h2 class="rv" style="--d:.08s">See who is in class, <em>and who is free.</em></h2>
-        <p class="rv" style="--d:.16s">Add friends by their @username. See who is in class right now and who gets out soon, lay their week over yours, and wave hello. Lock in together: friends studying with you show up on your Ready Desk, you hear when one joins, and you can send a cheer. Sharing is off until you turn it on, and you pick who sees what.</p>
-      </div>
-
-      <div class="friends-shots">
-        <figure class="friends-main rv rv-l" style="--d:.1s">
-          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/friends.jpg" alt="The Makullveny dashboard with the Friends sheet open: your @username to share, a My profile line, Friends 6 of 150 and one waiting request, and six friend cards, each tinted in that friend's own app theme" width="1600" height="1120" loading="lazy" decoding="async"></div>
-        </figure>
-        <figure class="friends-profile rv rv-r" style="--d:.24s">
-          <div class="win"><img src="./assets/site/friend-profile.jpg" alt="A friend's profile: Priya Nair, @priya_reads, In BIO 110 till 2:30 PM, 4 classes, a Wave at Priya button, her bio, a private note only you see, and Remove or Block; beside it, Priya's week with her shared Monday to Friday classes" width="1600" height="1120" loading="lazy" decoding="async"></div>
-          <figcaption>A friend&rsquo;s profile: where they are now, their shared week, a wave (once every 15 minutes), and a note only you can see.</figcaption>
-        </figure>
-      </div>
-
-      <div class="friends-facts">
-        <div class="ffact rv rv-p" style="--d:.3s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8.5" r="3.2" stroke="#8db9ad" stroke-width="1.8"/><path d="M3.8 19c.6-3 2.7-4.6 5.2-4.6s4.6 1.6 5.2 4.6" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/><path d="M16 5.6a3 3 0 0 1 0 5.8M18 14.6c1.3.6 2.1 2 2.4 4.4" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>Add by @username</b><span>Or type half a name. Up to 150 friends, and the same list in Disciples Bible and TDG Cebu.</span></div>
-        <div class="ffact rv rv-p" style="--d:.4s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.6" stroke="#8db9ad" stroke-width="1.8"/><path d="M12 7.4V12l3 1.8" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>In class, or free</b><span>In BIO 110 till 2:30, out in 10 minutes &mdash; Quick Jump shows who is in class right now.</span></div>
-        <div class="ffact rv rv-p" style="--d:.5s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="#8db9ad" stroke-width="1.8"/><path d="M3.5 9h17M8 3v3m8-3v3" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>Their week, on yours</b><span>Lay a friend&rsquo;s shared classes over your Calendar and find the hour you are both free.</span></div>
-        <div class="ffact rv rv-p" style="--d:.6s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#8db9ad" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>You choose</b><span>Classes and events each have their own switch: only me, friends, or everyone. Notes and books are never shared.</span></div>
-      </div>
-
-      <div class="share">
-        <div class="share-say rv rv-l">
-          <p class="eyebrow">Share your week</p>
-          <h3>Your classes and calendar, <em>as a picture you can send.</em></h3>
-          <p>Turn your classes into a picture &mdash; a list, a timetable or cards &mdash; or share the whole month of your calendar, in your theme&rsquo;s colours. It is made on your computer and nothing is uploaded: copy it, or save it as a PNG and send it anywhere.</p>
-          <a class="btn btn-ghost btn-sm" href="./account/">Make a free account</a>
-        </div>
-        <div class="share-grid rv rv-r" style="--d:.14s">
-          <figure class="share-tile"><div class="win"><img src="./assets/site/share-timetable.jpg" alt="A shared picture of the week: My week, Fall 2026, a Monday to Friday timetable with one coloured block per class, 6 classes and 16 hours a week" width="2160" height="2716" loading="lazy" decoding="async"></div><figcaption>Timetable</figcaption></figure>
-          <figure class="share-tile"><div class="win"><img src="./assets/site/share-cards.jpg" alt="A shared picture of My classes as six cards, each with its course code, name, room, day chips and times, signed Made with Makullveny" width="2160" height="2700" loading="lazy" decoding="async"></div><figcaption>Cards</figcaption></figure>
-          <figure class="share-tile"><div class="win"><img src="./assets/site/share-list.jpg" alt="A shared picture of My classes, Fall 2026, 6 classes, as a list of class cards with day pills, times and rooms over the theme's art" width="1520" height="1252" loading="lazy" decoding="async"></div><figcaption>List</figcaption></figure>
-          <figure class="share-tile"><div class="win"><img src="./assets/site/calendar-share.jpg" alt="A shared picture of the calendar month: September 2026 with every class and assignment on its day" width="2360" height="1852" loading="lazy" decoding="async"></div><figcaption>Calendar month</figcaption></figure>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- ══════════ SELAH ═════════════════════════════════════════════ -->
   <section class="selah" id="selah">
     <div class="wrap selah-inner">
       <div class="selah-head">
         <p class="eyebrow teal rv">Selah: Study Grounds</p>
-        <h2 class="rv" style="--d:.08s">Your study time, <em>as a place you can walk into.</em></h2>
+        <h2 class="rv" style="--d:.08s">Every minute you focus <em>builds something you can see.</em></h2>
         <p class="rv" style="--d:.16s">
-          Selah is a visual record of the hours you actually put in. Not a streak you can break,
-          not a chart, not a number that shames you — a home base that gets a little more built
-          every time you sit down. The focus timer lives inside it, so studying and building are
-          the same button.
+          Selah turns your study time into a place. Lock in, and the clearing grows: coins for every
+          focused minute, a flower for every session, and a library that climbs from a book shack to a hall.
+          It is a visual record of the work you actually did &mdash; not a streak to protect, not a chart,
+          and a missed week never takes anything away.
         </p>
       </div>
       <div class="selah-shot rv rv-p" style="--d:.24s">
-        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour — the gold-trimmed library with a royal-blue roof lit from inside, villagers walking across the meadow and one sitting by the trees, two deer grazing, the Ready to Focus timer at 25:00, level 14, and the coin and diamond purse" width="2120" height="1340" loading="lazy" decoding="async"></div>
+        <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah.jpg" alt="Selah: Study Grounds at golden hour: the gold-trimmed library with a royal-blue roof in a clearing of pines under the mountains, villagers out on the meadow, the Ready to Focus timer at 25:00 with its lengths, level 14, and the coin and diamond purse" width="2120" height="1340" loading="lazy" decoding="async"></div>
         <span class="selah-glow" aria-hidden="true"></span>
         <figure class="selah-night rv rv-r" style="--d:.42s">
-          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same Selah meadow at night — stars over the peaks, the library's windows lit warm, and the villagers still out walking and sitting under the trees" width="2120" height="1340" loading="lazy" decoding="async"></div>
-          <figcaption>It turns with the day. Golden hour, midday, dusk, night &mdash; the grounds are lit by the hour you are actually studying in.</figcaption>
+          <div class="win"><img src="./assets/site/selah-night.jpg" alt="The same Selah clearing at night: dark blue peaks, the library's windows lit warm, and villagers still out by the door" width="2120" height="1340" loading="lazy" decoding="async"></div>
+          <figcaption>It turns with the day. Golden hour, midday, dusk, night &mdash; the grounds are lit by the hour you are actually studying in. And with the year: harvest in autumn, snow at Christmas, flowers in spring.</figcaption>
         </figure>
       </div>
       <div class="selah-facts">
-        <div class="sfact rv rv-p" style="--d:.3s"><b><span class="sf-ico">⏳</span>An hour studied is an hour built</b><span>Twenty-five minutes and up earns the focus bonus. Stop early and nothing is taken away.</span></div>
-        <div class="sfact rv rv-p" style="--d:.36s"><b><span class="sf-ico">🪙</span>Coins, sapphires, diamonds</b><span>Spend them in the shop on the next stage of the grounds, or save for something bigger.</span></div>
+        <div class="sfact rv rv-p" style="--d:.3s"><b><span class="sf-ico">⏳</span>Focus time is building time</b><span>Every Lock In pays coins into Selah. Twenty-five minutes and up earns the focus bonus; stop early and nothing is taken away.</span></div>
+        <div class="sfact rv rv-p" style="--d:.36s"><b><span class="sf-ico">🌸</span>A flower for every Lock In</b><span>Rarer the longer you sat: ten kinds, from a five-minute Lantern Bud to the two-hour Andromeda Starbloom. Plant them on your base.</span></div>
         <div class="sfact rv rv-p" style="--d:.42s"><b><span class="sf-ico">🏚️</span>Five stages to build</b><span>It starts as a book shack in a clearing. What it becomes is the shape of your term.</span></div>
-        <div class="sfact rv rv-p" style="--d:.48s"><b><span class="sf-ico">✉️</span>Quests, trips and a shop</b><span>Meadows that bloom, quests, villagers who head out on expeditions, gifts as you level up. Small, quiet things to come back to — never a nag.</span></div>
+        <div class="sfact rv rv-p" style="--d:.48s"><b><span class="sf-ico">✉️</span>Villagers, quests, seasons</b><span>Villagers who move in and head out on trips, quests, a shop, and a world that follows the real season. Small things to come back to &mdash; never a nag.</span></div>
       </div>
+      <!-- THE COLLECTION: the record, as a list you can look back through. -->
+      <div class="share collect">
+        <div class="share-say rv rv-l">
+          <p class="eyebrow teal">Your collection</p>
+          <h3>Look back, <em>and see every session.</em></h3>
+          <p>Open the Collection and every flower is a Lock In you finished &mdash; when, and for how long. Lock in with a friend and you both grow a Together flower as well. A month in, it is the clearest picture you will ever have of the work you put in.</p>
+        </div>
+        <figure class="collect-shot rv rv-r" style="--d:.14s">
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/selah-collection.jpg" alt="Selah's Collection: every flower is a Lock In you finished, 43 flowers, 2 on your base and 41 in storage, 5 of 10 kinds found from common to legendary, and Recently grown with each Lock In's date and minutes" width="2120" height="1340" loading="lazy" decoding="async"></div>
+        </figure>
+      </div>
+
       <div class="grow">
         <div class="grow-head">
           <p class="eyebrow teal rv">Watch it grow</p>
@@ -1896,6 +1815,139 @@
     </div>
   </section>
 
+  <!-- ══════════ LOCK IN ═══════════════════════════════════════════ -->
+  <!-- Was a block inside the dashboard section. It is the one button the
+       whole app leads to, so it gets its own room: the sheet it opens, and
+       beside it the narrow window a session actually runs in. -->
+  <section class="lockin-sec" id="lockin">
+    <div class="wrap lockin">
+      <div class="lockin-say rv rv-l">
+        <p class="eyebrow teal">Lock In &middot; how Selah grows</p>
+        <h2>Four questions, <em>then it gets out of the way.</em></h2>
+        <p>
+          What are you doing, how long, where are you working, and what do you want on while
+          you do it. Answer once and the Lock Pad remembers &mdash; the Library Desk, real paper or
+          Selah, rain or fire, the radio, a tool beside you, a line to start with, and what your
+          friends see you doing. Then the app folds down into a small study window that sits next
+          to your work and keeps the candle lit.
+        </p>
+        <div class="lockin-chips">
+          <span>20 &middot; 25 &middot; 45 &middot; 60 &middot; 90 min</span>
+          <span>Library Desk, paper, both, or Selah</span>
+          <span>Rain, fire, wind, thunder</span>
+          <span>Radio, calculator, reference</span>
+          <span>A verse, a devotion, or nothing</span>
+          <span>Studying, homework, exam prep&hellip;</span>
+        </div>
+        <p class="lockin-foot">Press <b>Lock In!</b> to start (on a phone, slide it). Something came up? Pause one Lock In, start another, and pick the first back up later. Every session lands on your week: seven small bars on the Focus card show how long you really studied each day.</p>
+      </div>
+      <div class="lockin-stage rv rv-r" style="--d:.14s">
+        <figure class="lockin-sheet">
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><video class="lockin-loop" autoplay muted loop playsinline preload="metadata" poster="./assets/site/lockin-flow.jpg" width="1200" height="1000" data-motion-video aria-label="Lock In in motion: the Lock Pad rises, 45 minutes and real paper are picked, Lock In is pressed, the padlock snaps shut and the small study window appears at the edge and starts counting down"><source src="./assets/site/lockin-flow.webm" type="video/webm"><source src="./assets/site/lockin-flow.mp4" type="video/mp4"><img src="./assets/site/lockin.jpg" alt="The Lock Pad: the goal, what friends see you doing (Studying, Homework, Reading, Writing, Exam prep, Project), 20 to 90 minute lengths with 25 recommended, the class you are in, and Your setup open on where you are working and who sees you are locked in" width="1500" height="1240"></video></div>
+          <figcaption>Press Lock In, answer the Lock Pad, and the padlock snaps shut. The real app, nine seconds, on a loop.</figcaption>
+        </figure>
+        <figure class="lockin-window">
+          <div class="win"><img src="./assets/site/lockin-window.jpg" alt="The study window: Locked In, a candle ring counting 44:56 of 45:00, the task Problem set 4 for CHEM 210 on paper, a +5 min button, Notes and Radio, Jump to My page, Study Hall, Calculator and Reference, the class ending in 34 minutes, and Pause, Later, Discard and Finish" width="800" height="1360" loading="lazy" decoding="async"></div>
+          <figcaption>Then this: the study window.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ CANVAS, IN SYNC · YOUR DAY, PLANNED ════════════════ -->
+  <!-- Was "The dashboard" (a picture of the widget wall). The owner's
+       second priority (2026-11-01): one calendar link brings the classes and
+       the work, and the app puts every day in order. -->
+  <section class="dash" id="plan">
+    <div class="wrap dash-inner">
+      <div class="dash-head">
+        <p class="eyebrow teal rv">Canvas, in sync &middot; your day, planned</p>
+        <h2 class="rv" style="--d:.08s">Connect Canvas once. <em>Wake up to a plan.</em></h2>
+        <p class="rv" style="--d:.16s">
+          Paste your class calendar link &mdash; from Canvas, Blackboard, Google Classroom, Moodle, Schoology,
+          Brightspace, Google Calendar or Outlook &mdash; and your classes and assignments arrive, then keep
+          arriving on their own. Every morning Makullveny puts the day in order, finds a free gap between
+          your classes for each piece of work, and names the one to start.
+        </p>
+      </div>
+      <div class="friends-shots plan-shots">
+        <figure class="friends-main rv rv-l" style="--d:.1s">
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/daily-plan.jpg" alt="The Plan tab in Study Hall: Sunday with 2 h 40 min planned of 12 h free, the day's classes in place, Problem set 4 fitted into the 2:25 PM gap with a Lock In button and the next gap waiting, and beside it Needs you, each assignment planned into a free gap with Move and Done" width="2120" height="1340" loading="lazy" decoding="async"></div>
+        </figure>
+        <figure class="friends-profile rv rv-r" style="--d:.24s">
+          <div class="win"><img src="./assets/site/connect-calendar.jpg" alt="Import Desk, Connect a calendar: You're all set, new assignments show up on their own, the imported class calendar with See my board, Pause and Disconnect, and doors for Canvas, Blackboard, Google Classroom, Google Calendar, Outlook, Moodle, Brightspace and Schoology" width="2120" height="1340" loading="lazy" decoding="async"></div>
+          <figcaption>One link, and you&rsquo;re all set: new assignments show up on their own. A second school or an online class? Add its link too.</figcaption>
+        </figure>
+      </div>
+      <div class="dash-facts">
+        <div class="dfact rv rv-p" style="--d:.3s">
+          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg>One link, every class</b>
+          <span>The calendar link your school&rsquo;s system already gives you. Classes, rooms, times and every assignment, kept up to date.</span>
+        </div>
+        <div class="dfact rv rv-p" style="--d:.36s">
+          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="#e8b273" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg>Your day is ready</b>
+          <span>Each morning: what to do first, and a block for each in your free time. One press puts it on your day; it never changes anything by itself.</span>
+        </div>
+        <div class="dfact rv rv-p" style="--d:.42s">
+          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M13 2 4.5 13.5H11l-1 8.5L19.5 10H13z" stroke="#e8b273" stroke-width="1.8" stroke-linejoin="round"/></svg>The one to start</b>
+          <span>The Ready Desk names the assignment worth starting now, and why. In class, it counts down to the bell and shows what is next.</span>
+        </div>
+        <div class="dfact rv rv-p" style="--d:.48s">
+          <b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#e8b273" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" stroke="#e8b273" stroke-width="1.8" stroke-linecap="round"/></svg>Then Lock In</b>
+          <span>Every assignment carries its own Lock In. Press it, and the time you put in goes straight into Selah.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FRIENDS ═══════════════════════════════════════════ -->
+  <section class="friends" id="friends">
+    <div class="motes" aria-hidden="true">
+      <span class="mote" style="left:9%;top:22%;width:3px;height:3px;opacity:.4;animation-delay:-5s"></span>
+      <span class="mote cool" style="left:88%;top:36%;width:2px;height:2px;opacity:.4;animation-delay:-12s"></span>
+      <span class="mote" style="left:72%;top:80%;width:2px;height:2px;opacity:.3;animation-delay:-8s"></span>
+    </div>
+    <div class="wrap friends-inner">
+      <div class="sec-head friends-head">
+        <p class="eyebrow teal rv">Friends</p>
+        <h2 class="rv" style="--d:.08s">Know who is out of class. <em>Find when you are both free.</em></h2>
+        <p class="rv" style="--d:.16s">Add friends by @username and your week fills in around them: who is in class, who gets out in six minutes, and the hours you share. Open a friend&rsquo;s week to see their free gaps, make a Study Team calendar, share your classes, and lock in together &mdash; friends studying with you show up on your Ready Desk, and you can send a cheer. Sharing is off until you turn it on, and you pick who sees what.</p>
+      </div>
+
+      <div class="friends-shots">
+        <figure class="friends-main rv rv-l" style="--d:.1s">
+          <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span><img src="./assets/site/friend-profile.jpg" alt="A friend's profile beside her week: Priya Nair, @priya_reads, in BIO 110, 4 classes, a wave button, Calendar, Classes and Selah base tiles, her bio and a private note; on the left, Priya's shared week with her classes and the free gaps marked FREE" width="1600" height="1120" loading="lazy" decoding="async"></div>
+        </figure>
+        <figure class="friends-profile rv rv-r" style="--d:.24s">
+          <div class="win"><img src="./assets/site/friends-in-class.jpg" alt="Quick Jump with Friends in class beside it: @jonah.w out in 6 minutes, and four friends each in class until a given time" width="1500" height="1000" loading="lazy" decoding="async"></div>
+          <figcaption>Press &#8984;K: who is in class right now, and who is out in six minutes.</figcaption>
+        </figure>
+      </div>
+
+      <div class="friends-facts">
+        <div class="ffact rv rv-p" style="--d:.3s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8.5" r="3.2" stroke="#8db9ad" stroke-width="1.8"/><path d="M3.8 19c.6-3 2.7-4.6 5.2-4.6s4.6 1.6 5.2 4.6" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/><path d="M16 5.6a3 3 0 0 1 0 5.8M18 14.6c1.3.6 2.1 2 2.4 4.4" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>Lock in together</b><span>See who is studying right now, study side by side, send a cheer, and grow a Together flower for the minutes you share.</span></div>
+        <div class="ffact rv rv-p" style="--d:.4s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.6" stroke="#8db9ad" stroke-width="1.8"/><path d="M12 7.4V12l3 1.8" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>In class, or free</b><span>In BIO 110 till 2:30, out in 6 minutes: your friends list and Quick Jump say who is where, right now.</span></div>
+        <div class="ffact rv rv-p" style="--d:.5s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="#8db9ad" stroke-width="1.8"/><path d="M3.5 9h17M8 3v3m8-3v3" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>Free time, together</b><span>A friend&rsquo;s week marks their free gaps; a Study Team calendar puts up to 10 people on one week, and the green gaps are when you are all free.</span></div>
+        <div class="ffact rv rv-p" style="--d:.6s"><b><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="10.5" width="14" height="9.5" rx="2" stroke="#8db9ad" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" stroke="#8db9ad" stroke-width="1.8" stroke-linecap="round"/></svg>You choose</b><span>Classes and events each have their own switch: only me, friends, or everyone. Assignments, notes and books stay private. Up to 150 friends.</span></div>
+      </div>
+
+      <div class="share">
+        <div class="share-say rv rv-l">
+          <p class="eyebrow">Share your classes</p>
+          <h3>Your classes and your month, <em>as a picture you can send.</em></h3>
+          <p>Turn your classes into a picture &mdash; a list, a timetable or cards &mdash; or share the whole month of your calendar, in your theme&rsquo;s colours. It is made on your computer and nothing is uploaded: copy it, or save it as a PNG and send it anywhere.</p>
+          <a class="btn btn-ghost btn-sm" href="./account/">Make a free account</a>
+        </div>
+        <div class="share-grid rv rv-r" style="--d:.14s">
+          <figure class="share-tile"><div class="win"><img src="./assets/site/share-timetable.jpg" alt="A shared picture of the week: My week, Fall 2026, a Monday to Sunday timetable with one coloured block per class, 6 classes and 17 hours a week" width="2160" height="2740" loading="lazy" decoding="async"></div><figcaption>Timetable</figcaption></figure>
+          <figure class="share-tile"><div class="win"><img src="./assets/site/share-cards.jpg" alt="A shared picture of My classes as six cards, each with its course code, name, room, day chips and times, signed Studied with Makullveny.com" width="2160" height="2700" loading="lazy" decoding="async"></div><figcaption>Cards</figcaption></figure>
+          <figure class="share-tile"><div class="win"><img src="./assets/site/share-list.jpg" alt="A shared picture of My classes, Fall 2026, 6 classes, as a list of class cards with day pills, times and rooms over the theme's art" width="1520" height="1344" loading="lazy" decoding="async"></div><figcaption>List</figcaption></figure>
+          <figure class="share-tile"><div class="win"><img src="./assets/site/calendar-share.jpg" alt="A shared picture of the calendar month: November 2026 with every class and assignment on its day" width="2360" height="2104" loading="lazy" decoding="async"></div><figcaption>Calendar month</figcaption></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ══════════ APPS & TOOLS, IN SHORT ═════════════════════════════ -->
   <!-- The two long sections that lived here -- every app and every tool,
        each with its own pictures -- are their own page now (features/).
@@ -1909,28 +1961,28 @@
     </div>
     <div class="wrap apps-lite">
       <div class="apps-lite-say">
-        <p class="eyebrow teal rv">Apps &amp; tools</p>
-        <h2 class="rv" style="--d:.08s">Everything you open, <em>on one page.</em></h2>
-        <p class="rv" style="--d:.16s">Notes, your classes, your assignments and the small tools a study session keeps reaching for &mdash; all a press away from the dashboard.</p>
+        <p class="eyebrow teal rv">Extras</p>
+        <h2 class="rv" style="--d:.08s">And the rest of a study desk, <em>when you want it.</em></h2>
+        <p class="rv" style="--d:.16s">Notes on real paper, a board and flashcards for the homework, your books backed up, and handy desktop tools &mdash; File Workshop, a calculator, Typing Trials &mdash; switched on for free whenever you need them.</p>
         <ul class="apps-list rv" style="--d:.22s">
           <li><a href="./features/#library"><b>Library Desk</b><span>notes on real paper</span></a></li>
           <li><a href="./features/#studyhall"><b>Study Hall</b><span>board, assignments, flashcards</span></a></li>
           <li><a href="./features/#studyhall"><b>Classes</b><span>every course, and the calendar</span></a></li>
           <li><a href="./features/#photo"><b>Photo &rarr; flashcards</b><span>snap your cards, study them</span></a></li>
-          <li><a href="./features/#import"><b>Import Desk</b><span>a syllabus, into your term</span></a></li>
+          <li><a href="./features/#backpack"><b>Cloud Backpack</b><span>your books, on every computer</span></a></li>
           <li><a href="./features/#workshop"><b>File Workshop</b><span>convert, merge, split</span></a></li>
-          <li><a href="./features/#tools"><b>Typing &amp; Calculator</b><span>two small tools</span></a></li>
+          <li><a href="./features/#tools"><b>Typing &amp; Calculator</b><span>free extra tools</span></a></li>
           <li><a href="./features/#sound"><b>Radio &amp; ambience</b><span>lofi and rain, built in</span></a></li>
         </ul>
         <a class="btn btn-primary rv" style="--d:.3s" href="./features/">
-          See every app and tool
+          See every extra
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="#241505" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </a>
       </div>
       <div class="apps-shot rv rv-r" style="--d:.2s">
         <div class="win" data-tilt><span class="tilt-spot" aria-hidden="true"></span><span class="tilt-edge" aria-hidden="true"></span>
           <div class="win-bar"><span class="tl" style="background:#7a4a3a"></span><span class="tl" style="background:#8a7040"></span><span class="tl" style="background:#4f6b52"></span><span class="win-title">Makullveny — Apps &amp; Tools</span></div>
-          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools page: Documents (the Library Desk), Study Hall marked Beta and Classes marked New, the Market, and the tools on an arc — Import Desk, Cloud Backpack (New), File Workshop, Calculator, Typing Trials, Pocket Checklist and Friends (New)" width="2120" height="1354" loading="lazy" decoding="async">
+          <img src="./assets/site/apps-tools.jpg" alt="The Apps and Tools page: Documents (the Library Desk), Study Hall marked Beta and Classes marked New, the Market, and the tools on an arc: Import Desk, Cloud Backpack (New), Quick Reference and Friends (New)" width="2120" height="1354" loading="lazy" decoding="async">
         </div>
       </div>
     </div>
@@ -1966,7 +2018,7 @@
         <figure class="room-tile"><div class="win"><img src="./assets/site/m-dashboard-moonlit-observatory.jpg" alt="The Makullveny dashboard in the Moonlit Observatory theme" width="560" height="358" loading="lazy" decoding="async"></div><figcaption>Moonlit Observatory<em class="paid">Candle · paid</em></figcaption></figure>
       </div>
       <div class="themes-lite-foot rv" style="--d:.28s">
-        <p><b>Free with the app:</b> Cozy Cabin, Snow Cabin, Rainy Cafe and Woodland Library. <b>Paid:</b> the other six are the Candle bundle, bought once in the in-app Theme Market. A bundle of seven hand-illustrated rooms is on the way.</p>
+        <p><b>Free with the app:</b> Cozy Cabin, Snow Cabin, Rainy Cafe and Woodland Library. <b>Paid:</b> the other six are the Candle bundle, bought once in the in-app Theme Market. Seven hand-illustrated rooms are there too: $2.99 each, or $12.99 for the Illustration Bundle.</p>
         <a class="btn btn-primary" href="./themes/">
           Look around every room
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m0 0-6-6m6 6-6 6" stroke="#241505" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2062,6 +2114,7 @@
         <div>
           <b>Why Windows is about to warn you</b>
           <p>Windows sells a certificate that vouches for who wrote an app, for a few hundred dollars a year. Makullveny is free to download and does not have one yet. That is the whole reason for the warning: not that something is wrong with the app, only that nobody has paid to vouch for it. Windows will let you say &#8220;I know &mdash; open it&#8221;, and it hides that button. Below is exactly where.</p>
+          <p data-mac-when="signed" style="margin-top:8px">On a Mac there is no warning to get past: the Mac app is signed and checked by Apple, so your Mac only asks the usual question about something you downloaded.</p>
         </div>
       </div>
 
@@ -2169,12 +2222,17 @@
               Download for macOS
             </a>
             <p class="dl-meta"><b data-dl-file>Latest release</b><span data-dl-size></span><span data-dl-ver></span></p>
+            <p class="dl-heads" data-mac-when="unsigned"><span class="dl-heads-ico" aria-hidden="true">&#9888;</span><span><b>Your Mac will block this version once. That&#8217;s okay.</b> Click <em>Done</em>, then <em>Open Anyway</em> in Privacy &amp; Security.</span></p>
+            <p class="dl-heads" data-mac-when="signed"><span class="dl-heads-ico" aria-hidden="true">&#10003;</span><span><b>Your Mac asks once. That&#8217;s normal.</b> It says the app was <em>downloaded from the Internet</em> &mdash; press <em>Open</em>.</span></p>
             <p class="dl-alt"><span>Apple silicon (M1 or newer)</span><i aria-hidden="true"> &#183; </i><span>macOS 11 or newer</span><i aria-hidden="true"> &#183; </i><span>no Intel build</span></p>
           </div>
           </div>
         </div>
 
-        <div class="dl-stop">
+        <!-- data-dl-warn on BOTH Mac stops since the signed build (2026-10-13):
+             the guide gives step N the drawing of picture N, and its two steps
+             are now "drag it in" and "press Open". -->
+        <div class="dl-stop" data-dl-warn>
           <span class="dl-lamp" aria-hidden="true">2</span>
           <div class="dl-words">
             <h3>Drag Makullveny into Applications</h3>
@@ -2190,10 +2248,26 @@
           </div>
         </div>
 
+        <div class="dl-stop" data-dl-warn data-mac-when="signed">
+          <span class="dl-lamp" aria-hidden="true">3</span>
+          <div class="dl-words">
+            <h3>Open it, and press Open</h3>
+            <p>The first time, macOS asks once whether you want to open an app <b>downloaded from the Internet</b>. That is normal for anything you download &mdash; it also says Apple checked Makullveny and found nothing harmful.</p>
+          </div>
+          <div class="dl-figs">
+          <figure class="dl-fig">
+            <div class="dl-fig-art"><svg viewBox="0 0 244 244" class="dl-shot" role="img" aria-label="macOS asks: Makullveny is an app downloaded from the Internet. Are you sure you want to open it? Open is ringed"><rect x="2" y="2" width="240" height="240" rx="14" fill="#2c2c2e" stroke="#434345"/><image href="assets/cabin-icon.png" x="98" y="20" width="48" height="48"/><text x="122" y="88" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; is an app downloaded</text><text x="122" y="103" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">from the Internet. Are you sure</text><text x="122" y="118" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">you want to open it?</text><text x="122" y="138" text-anchor="middle" fill="#c2c2c6" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">Apple checked it for malicious software</text><text x="122" y="151" text-anchor="middle" fill="#c2c2c6" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">and none was detected.</text><rect x="22" y="168" width="200" height="30" rx="7" fill="#0a84ff"/><text x="122" y="188" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Open</text><rect x="22" y="204" width="200" height="30" rx="7" fill="#48484a"/><text x="122" y="224" text-anchor="middle" fill="#f2f2f4" font-size="11.5" font-weight="600" font-family="Manrope, Segoe UI, sans-serif">Cancel</text><rect x="17" y="163" width="210" height="40" rx="10" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="30" cy="183" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="30" y="186.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g></svg></div>
+            <figcaption>
+              <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span>Press <b>Open</b>. That is the only question macOS asks.</span></span>
+            </figcaption>
+          </figure>
+          </div>
+        </div>
+
         <div class="dl-stop is-solo dl-stop-end">
           <span class="dl-lamp" aria-hidden="true">&#10003;</span>
           <div class="dl-words">
-            <h3>That&#8217;s it</h3>
+            <h3>That was the only time</h3>
             <p>From here Makullveny opens from Launchpad, Spotlight or the Dock like anything else, and updates open without asking again.</p>
             <p data-mac-when="signed"><b>Updating from an older Makullveny?</b> The first time the new version opens, it asks you to <b>sign in once</b> (a security upgrade) and, if you linked a school calendar, to paste that link again. Your books, pages and notes stay right where they were.</p>
             <p>One last thing worth thirty seconds: while Makullveny is open, <b>right-click its icon in the Dock</b> and choose <b>Options &#8594; Keep in Dock</b>. It stays there from now on, so opening it tomorrow is one click instead of a trip to Applications.</p>
@@ -2201,6 +2275,66 @@
           </div>
         </div>
 
+        <!-- THE OLD WAY, FOLDED. Builds before October 2026 were not signed by
+             Apple, so macOS refused them until Open Anyway (or the xattr line).
+             Somebody holding one of those still needs this; nobody else should
+             have to read it. Off the numbered rail, and no data-dl-warn inside:
+             the download guide clones [data-dl-warn] figures, and these are not
+             the steps for today's download. -->
+        <details class="dl-otherway dl-before">
+          <summary class="dl-otherway-lead"><span data-mac-when="signed">Downloaded before October 2026?</span><span data-mac-when="unsigned">Your Mac will block this version once &mdash; here is the way past</span></summary>
+          <p class="dl-before-lead" data-mac-when="unsigned">This version is not signed by Apple yet (the signed one is on its way), so macOS refuses it the first time. Do these two steps once:</p>
+          <p class="dl-before-lead" data-mac-when="signed">Older copies were not signed by Apple, so macOS says it &#8220;could not verify&#8221; them. Easiest fix: download the new one above. Or let the old one through like this:</p>
+          <div class="dl-before-trail">
+          <div class="dl-stop" data-dl-warn-unsigned>
+            <span class="dl-lamp" aria-hidden="true">A</span>
+            <div class="dl-words">
+              <h3>Open it once, and let it refuse</h3>
+              <p>The first time you open Makullveny, macOS puts up a box saying it could not verify the app. Being refused here is not a mistake &mdash; <b>macOS will not offer you a way past until you have tried once.</b></p>
+              <div class="dl-trap"><span aria-hidden="true">&#9888;</span><div><b>Blue normally means &#8220;yes, go ahead&#8221;. Here it does not.</b><p>This is the one screen in the whole process where the habit you have built up over years points at the wrong button.</p></div></div>
+            </div>
+            <div class="dl-figs">
+            <figure class="dl-fig">
+              <div class="dl-fig-art"><svg viewBox="0 0 244 244" class="dl-shot" role="img" aria-label="Makullveny Not Opened: Move to Trash is struck through, and Done is ringed"><defs><marker id="dlh5" viewBox="0 0 12 12" refX="9.5" refY="6" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 11 6 1 11z" fill="#ff9a3c"/></marker></defs><rect x="2" y="2" width="240" height="240" rx="14" fill="#2c2c2e" stroke="#434345"/><circle cx="222" cy="22" r="9" fill="#3f3f41"/><text x="222" y="26" text-anchor="middle" fill="#c9c9cc" font-size="11" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">?</text><path d="M104 32h17l11 10v25h-39V42z" fill="#b6b9bd"/><circle cx="112" cy="57" r="7" fill="#8b9096"/><path d="M130 50l15 25h-30z" fill="#f5c43f"/><path d="M130 59v7" stroke="#3a2c00" stroke-width="2" stroke-linecap="round"/><circle cx="130" cy="70" r="1.4" fill="#3a2c00"/><text x="122" y="99" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; Not Opened</text><text x="122" y="121" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">Apple could not verify &#8220;Makullveny&#8221; is free</text><text x="122" y="136" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">of malware that may harm your Mac or</text><text x="122" y="151" text-anchor="middle" fill="#c2c2c6" font-size="10.5" font-family="Manrope, Segoe UI, sans-serif">compromise your privacy.</text><rect x="22" y="168" width="200" height="30" rx="7" fill="#0a84ff"/><text x="122" y="188" text-anchor="middle" fill="#ffffff" font-size="11.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Move to Trash</text><rect x="22" y="204" width="200" height="30" rx="7" fill="#48484a"/><text x="122" y="224" text-anchor="middle" fill="#f2f2f4" font-size="11.5" font-weight="600" font-family="Manrope, Segoe UI, sans-serif">Done</text><g class="dl-ring"><line x1="30" y1="174" x2="214" y2="192" stroke="#ff6b5c" stroke-width="2.8" stroke-linecap="round"/><line x1="214" y1="174" x2="30" y2="192" stroke="#ff6b5c" stroke-width="2.8" stroke-linecap="round"/></g><g class="dl-ring"><circle cx="30" cy="183" r="10" fill="#ff6b5c" stroke="#1a1109" stroke-width="2"/><text x="30" y="186.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">&#10005;</text></g><rect x="17" y="199" width="210" height="40" rx="10" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="30" cy="219" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="30" y="222.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g></svg></div>
+              <figcaption>
+                <span class="dl-cap is-no"><span class="dl-cap-n is-no" aria-hidden="true">&#10005;</span><span><b>Not the blue one.</b> &#8220;Move to Trash&#8221; deletes what you just downloaded.</span></span>
+                <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span>Press the grey <b>Done</b>. Then open System Settings &mdash; the next step.</span></span>
+              </figcaption>
+            </figure>
+            </div>
+          </div>
+
+          <div class="dl-stop" data-dl-warn-unsigned>
+            <span class="dl-lamp" aria-hidden="true">B</span>
+            <div class="dl-words">
+              <h3>Give it permission, once</h3>
+              <p>Open <b>System Settings</b>, choose <b>Privacy &amp; Security</b> in the sidebar, and scroll down to the Security section. A line about Makullveny is waiting there.</p>
+            </div>
+            <div class="dl-figs">
+            <figure class="dl-fig">
+              <div class="dl-fig-art"><svg viewBox="0 0 356 202" class="dl-shot" role="img" aria-label="System Settings, Privacy and Security selected, with the Open Anyway button ringed"><defs><marker id="dlh6" viewBox="0 0 12 12" refX="9.5" refY="6" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M1 1 11 6 1 11z" fill="#ff9a3c"/></marker></defs><rect x="2" y="2" width="352" height="198" rx="11" fill="#2c2c2e" stroke="#434345"/><path d="M2 13A11 11 0 0 1 13 2h115v198H13A11 11 0 0 1 2 189z" fill="#1d1d1f"/><circle cx="18" cy="16" r="4.4" fill="#ff5f57"/><circle cx="32" cy="16" r="4.4" fill="#febc2e"/><circle cx="46" cy="16" r="4.4" fill="#28c840"/><rect x="12" y="30" width="108" height="19" rx="6" fill="#39393c"/><circle cx="24" cy="39.5" r="3.6" fill="none" stroke="#8e8e93" stroke-width="1.4"/><path d="M27 42l3 3" stroke="#8e8e93" stroke-width="1.4" stroke-linecap="round"/><text x="35" y="43" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">Search</text><g font-family="Manrope, Segoe UI, sans-serif" font-size="9.5" fill="#c8c8cc"><text x="40" y="65">Notifications</text><text x="40" y="85">Sound</text><text x="40" y="105">Focus</text><text x="40" y="125">Screen Time</text><text x="40" y="165">Lock Screen</text><text x="40" y="185">Touch ID</text></g><g fill="#7a7a80"><rect x="22" y="57" width="12" height="10" rx="2.5"/><rect x="22" y="77" width="12" height="10" rx="2.5"/><rect x="22" y="97" width="12" height="10" rx="2.5"/><rect x="22" y="117" width="12" height="10" rx="2.5"/><rect x="22" y="157" width="12" height="10" rx="2.5"/><rect x="22" y="177" width="12" height="10" rx="2.5"/></g><rect x="12" y="133" width="108" height="21" rx="6" fill="#1668e3"/><rect x="22" y="138" width="12" height="11" rx="2.5" fill="#ffffff" opacity=".92"/><text x="40" y="147" fill="#ffffff" font-size="9.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Privacy &amp; Security</text><text x="140" y="34" fill="#8e8e93" font-size="9" font-weight="700" letter-spacing="0.09em" font-family="Manrope, Segoe UI, sans-serif">SECURITY</text><rect x="140" y="42" width="200" height="30" rx="8" fill="#39393c"/><text x="152" y="61" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">Allow applications from</text><text x="312" y="61" text-anchor="end" fill="#a8a8ad" font-size="8.5" font-family="Manrope, Segoe UI, sans-serif">App Store &amp; Known Developers</text><path d="M322 54l4-4 4 4M322 60l4 4 4-4" stroke="#a8a8ad" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><rect x="140" y="80" width="200" height="52" rx="8" fill="#39393c"/><text x="152" y="101" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">&#8220;Makullveny&#8221; was blocked</text><text x="152" y="115" fill="#e8e8ea" font-size="10" font-family="Manrope, Segoe UI, sans-serif">to protect your Mac.</text><rect x="262" y="93" width="66" height="24" rx="6" fill="#545457"/><text x="295" y="109" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="700" font-family="Manrope, Segoe UI, sans-serif">Open Anyway</text><rect x="140" y="140" width="200" height="26" rx="8" fill="#39393c"/><text x="152" y="157" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">FileVault</text><text x="326" y="157" text-anchor="end" fill="#8e8e93" font-size="9.5" font-family="Manrope, Segoe UI, sans-serif">On</text><g class="dl-ring"><circle cx="128" cy="143" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="128" y="146.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">1</text></g><rect x="257" y="88" width="76" height="34" rx="9" fill="none" stroke="#ff9a3c" stroke-width="2.4" class="dl-ring"/><g class="dl-ring"><circle cx="248" cy="93" r="10" fill="#ff9a3c" stroke="#1a1109" stroke-width="2"/><text x="248" y="96.8" text-anchor="middle" fill="#2a1403" font-size="11.5" font-weight="800" font-family="Manrope, Segoe UI, sans-serif">2</text></g></svg></div>
+              <figcaption>
+                <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">1</span><span><b>Privacy &amp; Security</b> in the sidebar, then scroll the right-hand side down to <b>Security</b>.</span></span>
+                <span class="dl-cap"><span class="dl-cap-n" aria-hidden="true">2</span><span>Press <b>Open Anyway</b>, confirm with Touch ID or your password, then press <b>Open Anyway</b> once more.</span></span>
+              </figcaption>
+            </figure>
+            </div>
+            <p class="dl-note">That line only appears after you have tried to open the app, and it clears itself after about an hour. If it is not there, open Makullveny once more and come back.</p>
+          </div>
+          </div>
+            <div class="dl-aside">
+            <p class="dl-aside-head"><b>Or, if you would rather type one line</b> &mdash; this does the same thing, once.</p>
+            <ol class="dl-aside-steps">
+              <li>Press <kbd>&#8984;</kbd> <kbd>Space</kbd>, type <b>Terminal</b>, press <kbd>Return</kbd>.</li>
+              <li>Copy the line below, paste it in with <kbd>&#8984;</kbd> <kbd>V</kbd>, and press <kbd>Return</kbd>.</li>
+            </ol>
+            <div class="dl-copy">
+              <code id="dl-xattr">xattr -dr com.apple.quarantine /Applications/Makullveny.app</code>
+              <button type="button" class="dl-copy-btn" data-dl-copy="dl-xattr">Copy</button>
+            </div>
+            <p class="dl-aside-note">Nothing is installed and nothing is granted: it removes the &#8220;downloaded from the internet&#8221; mark from this one app, which is what the Open Anyway button above does too. Then open Makullveny normally.</p>
+          </div>
+        </details>
       </div>
       <div class="dl-trail" data-plat="lin">
         <div class="dl-stop is-solo">
@@ -2262,6 +2396,20 @@
           <ol class="dl-guide-steps">
             <li><p><span>1</span><span>Click <b>More info</b></span></p></li>
             <li><p><span>2</span><span>Click <b>Run anyway</b></span></p></li>
+          </ol>
+        </div>
+        <div data-dl-guide-for="mac-old" hidden>
+          <h3 id="dl-guide-title-mac-old"><span class="dl-uline">Your Mac will block it once. <em>It&#8217;s okay.</em></span></h3>
+          <ol class="dl-guide-steps">
+            <li><p><span>1</span><span>Click <b>Done</b><small>not Move to Trash</small></span></p></li>
+            <li><p><span>2</span><span>Click <b>Open Anyway</b><small>System Settings &#8250; Privacy &amp; Security</small></span></p></li>
+          </ol>
+        </div>
+        <div data-dl-guide-for="mac" hidden>
+          <h3 id="dl-guide-title-mac"><span class="dl-uline">Your Mac asks once. <em>That&#8217;s normal.</em></span></h3>
+          <ol class="dl-guide-steps">
+            <li><p><span>1</span><span>Drag it into <b>Applications</b><small>the window the .dmg opens</small></span></p></li>
+            <li><p><span>2</span><span>Click <b>Open</b><small>&#8220;downloaded from the Internet&#8221;</small></span></p></li>
           </ol>
         </div>
         <div class="dl-guide-figs" data-dl-guide-figs hidden></div>

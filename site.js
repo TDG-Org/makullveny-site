@@ -32,12 +32,11 @@
     var headline = document.querySelector("[data-hero-headline]");
     if (!headline) return;
     var lines = [
+      "Your day, planned. <em>Your hours, built.</em>",
+      "Every hour you study <em>builds something you can see.</em>",
+      "Know what’s next. <em>Know who’s free.</em>",
+      "Study. <em>Watch it grow.</em>",
       "Study smarter. <em>Stress less.</em>",
-      "Plan clearly. <em>Study calmly.</em>",
-      "Turn academic chaos <em>into clarity.</em>",
-      "Organize your academia, <em>simplify your life.</em>",
-      "Your cozy space for <em>getting things done.</em>",
-      "Plan. Focus. <em>Thrive.</em>",
       // The owner's line (2026-09-27). Longer than the rest, so it is marked
       // and the CSS sets it a size smaller instead of wrapping to five lines.
       "Put your classes in once. <em>Makullveny tells you what’s next, when to do it, and locks you in.</em>"
@@ -60,14 +59,14 @@
     var dots = [].slice.call(document.querySelectorAll(".rot-dot"));
     var title = document.querySelector(".win-title");
     var TITLES = [
-      "Makullveny — Today",
-      "Study Hall — Board",
       "Selah: Study Grounds · golden hour",
-      "Selah: Study Grounds · night",
+      "Makullveny — Today",
+      "Study Hall — Plan",
+      "Classes — Calendar",
       "Makullveny — Friends",
-      "Makullveny — Library Desk",
-      "Makullveny — Assignments",
-      "Study Hall — Calendar"
+      "Selah — Your collection",
+      "Selah: Study Grounds · night",
+      "Import Desk — Connect a calendar"
     ];
     var i = 0;
     var timer;

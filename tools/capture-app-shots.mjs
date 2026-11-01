@@ -41,6 +41,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { createRequire } from "node:module";
+import { livedIn } from "./demo-lived-in.mjs";
 
 const SITE = join(dirname(fileURLToPath(import.meta.url)), "..");
 /* The app checkout. A sibling directory is the common case, but this machine
@@ -106,7 +107,7 @@ const SHOTS = [
     size: [2120, 1340],
     css: 1500,
     what: "the dashboard, Today",
-    go: `await go("dashboard"); tab('[data-dashboard-tab="today"]');`
+    go: `await go("dashboard"); tab('[data-dashboard-tab="today"]'); await sleep(600); await readyDesk(); await clearTheWay(); await toVerse();`
   },
   /* THE WHOLE DESK, not the top of it. This is the tall picture in the
      dashboard section, and the point of it is the widget WALL -- every card
@@ -119,7 +120,7 @@ const SHOTS = [
     size: [1900, 2080],
     css: 1500,
     what: "the dashboard, every widget",
-    go: `await go("dashboard"); tab('[data-dashboard-tab="today"]');`
+    go: `await go("dashboard"); tab('[data-dashboard-tab="today"]'); await sleep(600); await readyDesk(); await clearTheWay(); await toVerse();`
   },
   /* Apps & Tools is the redesigned page: the apps panel on the left, the
      tools on a dotted arc of medallions to the right. At 1500 css the whole
@@ -253,6 +254,9 @@ const SHOTS = [
     id: "selah-am",
     to: ["selah.jpg", "hero-selah-am.jpg"],
     size: [2120, 1340],
+    /* 1500 css, not 1060: the whole clearing, and the world's own title --
+       "Selah: Study Grounds, built by the hours you focus" -- in the frame. */
+    css: 1500,
     hour: 18,
     villagers: true,
     what: "Selah: Study Grounds, golden hour",
@@ -262,6 +266,7 @@ const SHOTS = [
     id: "selah-pm",
     to: ["selah-night.jpg", "hero-selah-pm.jpg"],
     size: [2120, 1340],
+    css: 1500,
     hour: 22,
     villagers: true,
     what: "Selah: Study Grounds, night",
@@ -565,16 +570,28 @@ const CLEAR_THE_WAY = `
       const bell = document.getElementById("classBellFloat") || document.getElementById("classBellBar");
       const close = bell && bell.querySelector(".class-bell-close");
       if (seen(bell) && seen(close)) { close.click(); gone.push("class bell"); await sleep(320); continue; }
+      /* The reminder card ("Problem set 4 is due soon", bottom right): the
+         due-soon nudge the demo week always earns at launch. It hides itself
+         after 45 s; its own x is quicker. */
+      const reminder = document.querySelector("#reminderCard:not([hidden]) .reminder-card-close");
+      if (seen(reminder)) { reminder.click(); gone.push("reminder card"); await sleep(320); continue; }
       /* "Thank you for testing" -- the tester notice in the top-left corner. */
       const dev = [...document.querySelectorAll(".dev-notice-close")].find(seen);
       if (dev) { dev.click(); gone.push("tester notice"); await sleep(320); continue; }
       /* Selah's own welcome, button tour and first steps: all three wear
          .selah-welcome-skip (src/game/selah-guide.js). The tour comes up a
          beat AFTER the welcome is skipped, so it is caught here, not once. */
+      /* "How Selah grows", the first visit's two-line card, answered OK. */
+      const selahOk = [...document.querySelectorAll(".selah-first-visit-ok")].find(seen);
+      if (selahOk) { selahOk.click(); gone.push("how selah grows"); await sleep(500); continue; }
       const selahSkip = [...document.querySelectorAll(".selah-welcome-skip")].find(seen);
       if (selahSkip) { selahSkip.click(); gone.push("selah guide"); await sleep(600); continue; }
       /* The in-app notice stack ("Want a nudge before class?"), bottom centre. */
-      const notice = [...document.querySelectorAll("#inAppNoticeStack .mk-notice-close")].find(seen);
+      /* "New to Classes?" -- a view's inline tour offer (src/onboarding.js),
+         answered No thanks, as a returning student has. */
+      const tourNo = [...document.querySelectorAll(".mk-tour-inline-decline")].find(seen);
+      if (tourNo) { tourNo.click(); gone.push("tour offer"); await sleep(420); continue; }
+      const notice = [...document.querySelectorAll("#inAppNoticeStack .mk-notice-close, .mk-notice-zone .mk-notice-close")].find(seen);
       if (notice) { notice.click(); gone.push("notice"); await sleep(420); continue; }
       break;
     }
@@ -670,6 +687,35 @@ const HELPERS = CLEAR_THE_WAY + `
     return document.body.dataset.view;
   };
 
+  /* THE VERSE, NOT WHICHEVER LINE IS UP. The line over the dashboard turns
+     every 22 s -- verse of the day, a gentle thought, a hello
+     (src/dashboardMessages.js) -- and a shot taken on the turn catches two
+     lines crossfading. This waits for the verse, then for its fade to end. */
+  const toVerse = async () => {
+    for (let i = 0; i < 60; i += 1) {
+      const root = document.querySelector('[data-message-kind]');
+      if (!root) return "no message line";
+      if (root.dataset.messageKind === "verse" && parseFloat(getComputedStyle(root).opacity || "1") > 0.98) {
+        await sleep(700);
+        return "verse";
+      }
+      await sleep(500);
+    }
+    return "verse never came round";
+  };
+
+  /* THE READY DESK AS A STUDENT USES IT BETWEEN CLASSES. The demo week puts
+     a class in progress (the class bell needs one to speak), so the desk
+     opens in class mode -- a countdown to the end of PSY 100. "Show my work
+     anyway" is the desk's own door to the list; the one-time "Want your day
+     ready each morning?" ask is answered Yes, the way a student a few weeks
+     in already has. Both through the desk's own buttons. */
+  const readyDesk = async () => {
+    click(".ready-desk-show-work"); await sleep(700);
+    click(".ready-desk-morning-yes"); await sleep(700);
+    return "desk";
+  };
+
   /* Typing, the way the page receives it: execCommand fires the same input
      events a keyboard does, so the app saves it like anything typed. */
   const typeInto = (el, text) => {
@@ -706,6 +752,15 @@ const HELPERS = CLEAR_THE_WAY + `
   /* The six terms on the photo, in the order Windows' OCR reads them. */
   const CARD_TERMS = ["Classical conditioning", "Cognitive dissonance", "Nature vs. nurture",
     "Hippocampus", "Placebo", "Neuron"];
+  /* What each card says, as written on the photo (CARD_PHOTO_HTML). */
+  const CARD_BACKS = {
+    "Neuron": "A cell that sends signals through the nervous system.",
+    "Hippocampus": "The part of the brain that helps form new memories.",
+    "Placebo": "A fake treatment that can still make people feel better.",
+    "Classical conditioning": "Learning by pairing two stimuli together.",
+    "Cognitive dissonance": "Discomfort from holding two beliefs that conflict.",
+    "Nature vs. nurture": "Genes versus environment in shaping who we are."
+  };
 
   /* A fresh Library Desk page for the photo. New page opens Page setup, which
      is where a page is named -- and the name is what the cards file under. */
@@ -757,14 +812,38 @@ const HELPERS = CLEAR_THE_WAY + `
     let text = box.value.replace("A that sends signa(s", "A cell that sends signals")
       .replace("Hi ocam us", "Hippocampus").replace("sti((", "still");
     for (const term of CARD_TERMS) text = text.replace("\\n" + term + "\\n", "\\n\\n" + term + "\\n");
+    /* macOS reads the same photo differently: Vision takes the grid a row
+       of headings at a time, so the six terms come out together and the
+       definitions after them, each split across its two ruled lines. When
+       most of the terms were read (Vision splits a two-word heading now and
+       then), the student's fix is to put each card back
+       together -- term, then its definition -- which is this. */
+    if (CARD_TERMS.filter((t) => box.value.includes(t)).length >= 3 && !CARD_TERMS.every((t) => text.includes(t + "\\n" + CARD_BACKS[t].slice(0, 10)))) {
+      text = CARD_TERMS.map((t) => t + "\\n" + CARD_BACKS[t]).join("\\n\\n");
+    }
     typeInto(box, text);
     box.setSelectionRange(0, 0); box.scrollTop = 0;
+    /* The photo in view under the sheet, not the page below it. */
+    img.scrollIntoView({ block: "center" });
     await sleep(400);
     return "read " + text.split("\\n\\n").length + " cards";
   };
 
   /* Insert below image, then one card per paragraph with the Card button. */
   const cardsFromPhoto = async () => {
+    /* A page that fills now continues onto a new page by itself, so six
+       cards under a 640px photo spill over and the Card button below only
+       ever sees the last one. The photo is narrowed first (its own Width
+       slider) so the photo and all six cards stay on the one page. */
+    const img = document.querySelector("#editor img.note-image");
+    const width = document.getElementById("imageWidthRange");
+    if (img && width) {
+      img.click(); await sleep(500);
+      width.value = "380";
+      width.dispatchEvent(new Event("input", { bubbles: true }));
+      width.dispatchEvent(new Event("change", { bubbles: true }));
+      await sleep(400);
+    }
     const insert = document.querySelector(".image-ocr-card [data-ocr-insert]");
     if (insert && insert.getClientRects().length) { insert.click(); await sleep(900); }
     const editor = document.getElementById("editor");
@@ -958,6 +1037,9 @@ async function run() {
   for (const card of prefs.studyHallBoard?.cards || []) {
     if (!card.classTitle && courseName.has(card.courseId)) card.classTitle = courseName.get(card.courseId);
   }
+  /* A few weeks of Lock Ins and Get settled finished: see tools/demo-lived-in.mjs. */
+  const history = livedIn(prefs, new Date(), { flowers: createRequire(join(APP, "package.json"))("./src/flowerGarden.js") });
+  console.log(`  lived in: ${history.sessions} Lock Ins, ${history.minutes} minutes over six weeks`);
   prefsStore.writePrefs(SANDBOX, prefs);
 
   /* The electron BINARY, not `npx electron`. Through npx the pid this script
@@ -1108,6 +1190,11 @@ async function run() {
       });
       /* Long enough for the reveal animations and any image in the view. */
       await wait(1400);
+      /* A view's tour offer ("New here? Take the 30-second tour of Study
+         Hall") arrives a beat after the view does -- often inside that wait.
+         One more pass, then the frame. */
+      await evaluate(target, `(async () => { ${CLEAR_THE_WAY} return await clearTheWay(); })()`);
+      await wait(500);
 
       const capture = async () => Buffer.from((await target.send("Page.captureScreenshot", {
         format: "jpeg", quality: 90, captureBeyondViewport: false
